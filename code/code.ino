@@ -6,26 +6,35 @@ const int switchPin = 2; // Pin für den Schalter
 int counter = 0; // Zähler für Schalterbetätigungen
 int lastSwitchState = LOW; // Letzter Zustand des Schalters
 
-void setup()
-{
+void setup() {
     Serial.begin(9600);
-
-    pinMode(ENA, OUTPUT);
-    pinMode(IN1, OUTPUT);
-    pinMode(IN2, OUTPUT);
 
     pinMode(switchPin, INPUT_PULLUP);
 
-    pinMode(LATCH, OUTPUT);
-    pinMode(CLOCK, OUTPUT);
-    pinMode(DATA, OUTPUT);
+    pinMode(MTR_MDL_1_ENA, OUTPUT);
+    pinMode(MTR_MDL_1_IN1, OUTPUT);
+    pinMode(MTR_MDL_1_IN2, OUTPUT);
 
-    digitalWrite(IN1, LOW);
-    digitalWrite(IN2, LOW);
+    pinMode(MTR_MDL_2_ENB, OUTPUT);
+    pinMode(MTR_MDL_2_IN3, OUTPUT);
+    pinMode(MTR_MDL_2_IN4, OUTPUT);
+
+    pinMode(RELAY_LATCH, OUTPUT);
+    pinMode(RELAY_CLOCK, OUTPUT);
+    pinMode(RELAY_DATA, OUTPUT);
+
+    pinMode(MTR_MDL_1_CTRL, INPUT);
+    pinMode(MTR_MDL_2_CTRL, INPUT);
+
+    digitalWrite(MTR_MDL_1_IN1, LOW);
+    digitalWrite(MTR_MDL_1_IN2, LOW);
+
+    for (int i = 0; i < RELAY_COUNT; i++) {
+        setRelay(i, false);
+    }
 }
 
-void loop()
-{
+void loop() {
     // int switchState = digitalRead(switchPin); // Zustand des Schalters lesen
 
     // // Wenn der Schalter geschlossen wird (von HIGH nach LOW wechselt)
@@ -36,22 +45,19 @@ void loop()
     // }
     // lastSwitchState = switchState; // Aktuellen Zustand speichern
 
+    static unsigned long lastToggleTime = 0;
+    unsigned long currentTime = millis();
 
-    // setRelay(2, true); // Relais 2 AN
-    // delay(1000);
+    if (currentTime - lastToggleTime >= 5000) {
+        toggleRelay(5);
+        toggleRelay(1);
+        toggleRelay(24);
+        setRelay(17, true);
+        lastToggleTime = currentTime;
+    }
 
-    // setRelay(1, true); // Relais 1 AN (Relais 2 bleibt AN!)
-    // delay(1000);
+    setRelay(18, true);
 
-    // setRelay(3, false); // Relais 3 AUS (Relais 1, 2, 4 bleiben wie sie sind)
-    // delay(1000);
-
-    // toggleRelay(5); // Relais 5 umschalten
-    // delay(1000);
-
-    // toggleRelay(24); // Relais 5 umschalten
-    // delay(1000);
-
-    motorControl(analogRead(MAIN_CTRL), ENA, IN1, IN2);
+    motorControl(analogRead(MTR_MDL_1_CTRL), MTR_MDL_1_ENA, MTR_MDL_1_IN1, MTR_MDL_1_IN2);
     delay(50);
 }
