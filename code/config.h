@@ -3,22 +3,22 @@
 
 #include <Arduino.h>
 
-// MAIN SPEED PINS
-const int MAIN_CTRL = A0;
-const int ENA = 2;
-const int IN1 = 22;
-const int IN2 = 23;
+// MOTOR MDL 1.1
+const int MTR_MDL_1_CTRL = A0;
+const int MTR_MDL_1_ENA  =  2;
+const int MTR_MDL_1_IN1  = 22;
+const int MTR_MDL_1_IN2  = 23;
 
-// SECOND SPEED PINS
-const int MAIN_CTRL = A1;
-const int ENA = 3;
-const int IN1 = 24;
-const int IN2 = 25;
+// MOTOR MDL 1.2
+const int MTR_MDL_2_CTRL = A1;
+const int MTR_MDL_2_ENB  =  3;
+const int MTR_MDL_2_IN3  = 24;
+const int MTR_MDL_2_IN4  = 25;
 
 // RELAIS 74HC595 PINS
-const int LATCH = 8; // Latch-Pin (ST_CP) VIOLET
-const int CLOCK = 9; // Clock-Pin (SH_CP) BLUE
-const int DATA = 10; // Data-Pin (DS) GREEN
+const int RELAY_LATCH =  8; // (ST_CP) YELLOW
+const int RELAY_DATA =   9; // (DS) GREEN
+const int RELAY_CLOCK = 10; // (SH_CP) BLUE
 
 // RELAY COUNT
 const int RELAY_COUNT = 24; // Anzahl der Relais
