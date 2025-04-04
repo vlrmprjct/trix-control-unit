@@ -3,6 +3,14 @@
 
 #include <Arduino.h>
 
+// Mega Interrupt Pins
+// Pin 2
+// Pin 3
+// Pin 18
+// Pin 19
+// Pin 20
+// Pin 21
+
 // MOTOR MDL 1.1
 const int MTR_MDL_1_CTRL = A0;
 const int MTR_MDL_1_ENA  =  2;
@@ -15,10 +23,17 @@ const int MTR_MDL_2_ENB  =  3;
 const int MTR_MDL_2_IN3  = 24;
 const int MTR_MDL_2_IN4  = 25;
 
+// ENCODER MOTOR MDL 1.1
+const int ENC_MAIN_1_CLK = 18; // INTERRUPT !
+const int ENC_MAIN_1_DT  = 28;
+inline int ENC_MAIN_1_CLK_STATE;
+inline int ENC_MAIN_1_DT_STATE;
+inline volatile int ENC_MAIN_1_VALUE = 0;
+
 // RELAIS 74HC595 PINS
-const int RELAY_LATCH =  8; // (ST_CP) YELLOW
-const int RELAY_DATA =   9; // (DS) GREEN
-const int RELAY_CLOCK = 10; // (SH_CP) BLUE
+const int RELAY_LATCH = 39; // (ST_CP) YELLOW // 39
+const int RELAY_DATA  = 37; // (DS) GREEN // 37
+const int RELAY_CLOCK = 35; // (SH_CP) BLUE // 35
 
 // RELAY COUNT
 const int RELAY_COUNT = 24; // Anzahl der Relais

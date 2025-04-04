@@ -3,8 +3,54 @@
 
 int lastSpeed = 0;
 
-void motorControl(int rawSpeed, int enPin, int in1Pin, int in2Pin)
+// Schienen - Spannung(15V)
+//     |
+//     R1(z.B.10kΩ)
+//     |
+//     +------------------> A0 (Arduino Mega)
+//     |
+//     R2(z.B.5kΩ)
+//     |
+//    GND(Arduino)
+
+/**
+ * Controls the motor based on the encoder value.
+ *
+ * @param encoderVal The value from the encoder, which determines the speed and direction.
+ * @param enPin The pin connected to the motor driver enable pin.
+ * @param in1Pin The pin connected to the motor driver input 1 pin.
+ * @param in2Pin The pin connected to the motor driver input 2 pin.
+ * @usage motorEncoderControl(encoderValue, MTR_MDL_1_ENA, MTR_MDL_1_IN1, MTR_MDL_1_IN2);
+ */
+void motorEncoderControl(int encoderVal, int enPin, int in1Pin, int in2Pin)
 {
+    int speed = abs(encoderVal);
+
+    if (encoderVal > 5) {
+        digitalWrite(in1Pin, HIGH);
+        digitalWrite(in2Pin, LOW);
+    } else if (encoderVal < 5) {
+        digitalWrite(in1Pin, LOW);
+        digitalWrite(in2Pin, HIGH);
+
+    } else {
+        digitalWrite(in1Pin, LOW);
+        digitalWrite(in2Pin, LOW);
+    }
+
+    analogWrite(enPin, speed);
+}
+
+/**
+ * Controls the motor based on the raw speed input.
+ *
+ * @param rawSpeed The raw speed value (0-1023) from the input device.
+ * @param enPin The pin connected to the motor driver enable pin.
+ * @param in1Pin The pin connected to the motor driver input 1 pin.
+ * @param in2Pin The pin connected to the motor driver input 2 pin.
+ * @usage motorControl(analogRead(MTR_MDL_1_CTRL), MTR_MDL_1_ENA, MTR_MDL_1_IN1, MTR_MDL_1_IN2);
+ */
+void motorControl(int rawSpeed, int enPin, int in1Pin, int in2Pin) {
     int speed;
     int percentSpeed;
 
@@ -35,15 +81,16 @@ void motorControl(int rawSpeed, int enPin, int in1Pin, int in2Pin)
 
     // Nur ausgeben, wenn sich die Geschwindigkeit geändert hat
     if (speed != lastSpeed) {
-        // Für Debugging (optional)
-        Serial.print("Raw: ");
-        Serial.print(rawSpeed);
-        Serial.print(" | Speed: ");
-        Serial.print(speed);
-        Serial.print(" | Percent: ");
-        Serial.print(percentSpeed); // Prozentuale Geschwindigkeit
-        Serial.println("%");
+        // // Für Debugging (optional)
+        // Serial.print("Raw: ");
+        // Serial.print(rawSpeed);
+        // Serial.print(" | Speed: ");
+        // Serial.print(speed);
+        // Serial.print(" | Percent: ");
+        // Serial.print(percentSpeed); // Prozentuale Geschwindigkeit
+        // Serial.println("%");
 
         lastSpeed = speed; // Aktuellen Speed speichern
     }
 }
+
