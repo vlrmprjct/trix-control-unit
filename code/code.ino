@@ -35,6 +35,9 @@ void setup() {
 
     attachInterrupt(digitalPinToInterrupt(ENC_MAIN_1_CLK), processEncoder, CHANGE);
 
+    pinMode(MOTOR_IN1, OUTPUT);
+    pinMode(MOTOR_IN2, OUTPUT);
+
     pinMode(MTR_MDL_1_ENA, OUTPUT);
     pinMode(MTR_MDL_1_IN1, OUTPUT);
     pinMode(MTR_MDL_1_IN2, OUTPUT);
@@ -123,7 +126,8 @@ void loop() {
     // }
     // setRelay(18, true);
 
-    motorEncoderControl(ENC_MAIN_1_VALUE, MTR_MDL_1_ENA, MTR_MDL_1_IN1, MTR_MDL_1_IN2);
+    motorEncoderControl(ENC_MAIN_1_VALUE, MTR_MDL_1_ENA, MOTOR_IN1, MOTOR_IN2);
+    // motorEncoderControl(ENC_MAIN_1_VALUE, MTR_MDL_1_ENA, MTR_MDL_1_IN1, MTR_MDL_1_IN2);
 
     if (ENC_MAIN_1_VALUE > 200) {
         setRelay(5, true);

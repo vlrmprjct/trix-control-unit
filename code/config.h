@@ -12,6 +12,9 @@
 // Pin 21
 
 // MOTOR MDL 1.1
+const int MOTOR_IN1 = 6;
+const int MOTOR_IN2 = 7;
+
 const int MTR_MDL_1_CTRL = A0;
 const int MTR_MDL_1_ENA  =  2;
 const int MTR_MDL_1_IN1  = 22;
