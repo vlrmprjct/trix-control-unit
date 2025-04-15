@@ -2,16 +2,20 @@
 #include "lcdPrint.h"
 #include "motorControl.h"
 #include "relayControl.h"
+#include "servoControl.h"
+#include <Adafruit_PWMServoDriver.h>
 #include <LiquidCrystal_I2C.h>
 #include <Wire.h>
+
+Adafruit_PWMServoDriver servo = Adafruit_PWMServoDriver();
 
 int REED_PIN1 = 51;
 int REED_PIN2 = 53;
 int lastSwitchState = HIGH;
 int counter = 0;
 
-const float trackDistance = 1.0; // Abstand der Reedkontakte in Metern
-const float scaleFactor = 160.0; // Maßstab 1:160 für Spur N
+const float trackDistance = 1.0;
+const float scaleFactor = 160.0;
 unsigned long startTime = 0;
 unsigned long endTime = 0;
 bool measurementStarted = false;
@@ -23,16 +27,17 @@ LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27, 20, 4);
 void setup() {
     Serial.begin(9600);
 
+    // INIT LCD DOT MATRIX ########################################################################
     lcd.init();
     lcd.backlight();
 
     pinMode(REED_PIN1, INPUT_PULLUP);
     pinMode(REED_PIN2, INPUT_PULLUP);
 
+    // INIT ENCODER (MAIN) ########################################################################
     pinMode(ENC_MAIN_1_CLK, INPUT_PULLUP);
     pinMode(ENC_MAIN_1_DT, INPUT_PULLUP);
     ENC_MAIN_1_CLK_STATE = digitalRead(ENC_MAIN_1_CLK);
-
     attachInterrupt(digitalPinToInterrupt(ENC_MAIN_1_CLK), processEncoder, CHANGE);
 
     pinMode(MOTOR_IN1, OUTPUT);
@@ -57,17 +62,37 @@ void setup() {
     digitalWrite(MTR_MDL_1_IN2, LOW);
 
     // TCCR3B = (TCCR3B & 0b11111000) | 0x02; // 3.92kHz
-    TCCR3B = (TCCR3B & 0b11111000) | 0x03; // 490Hz
+    // TCCR3B = (TCCR3B & 0b11111000) | 0x03; // 490Hz
     // TCCR3B = (TCCR3B & 0b11111000) | 0x04; // 122Hz
     // TCCR3B = (TCCR3B & 0b11111000) | 0x05; // 30.5Hz
     // analogWrite(MTR_MDL_1_ENA, 255);
 
+    // INIT SERVO MODULE ##########################################################################
+    servo.begin();
+    servo.setPWMFreq(60);
+    // INITIALIZE ALL TURNOUTS TO "STRAIGHT" (80°)
+    for (int i = 0; i < 8; i++) {
+        ServoControl::switchTurnout(servo, i, true);
+    }
+
+    // INIT RELAYS ################################################################################
+    // INITIALIZE ALL RELAYS "OFF"
     for (int i = 0; i < RELAY_COUNT; i++) {
         setRelay(i, false);
     }
 }
 
 void loop() {
+
+    ServoControl::switchTurnout(servo, 0, true);
+    ServoControl::switchTurnout(servo, 1, false);
+    delay(1000);
+    ServoControl::switchTurnout(servo, 1, true);
+    ServoControl::switchTurnout(servo, 0, false);
+    delay(1000);
+    ServoControl::setAngle(servo, 1, 0);
+    ServoControl::setAngle(servo, 0, 180);
+    delay(1000);
 
     int percent = map(abs(ENC_MAIN_1_VALUE), 0, 255, 0, 100);
 
