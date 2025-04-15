@@ -5,9 +5,9 @@
 
 namespace ServoControl {
     constexpr int SERVOMIN = 140;
-    constexpr int SERVOMAX = 715;
-    constexpr int ANGLE_STRAIGHT  = 80;
-    constexpr int ANGLE_DIVERGING = 100;
+    constexpr int SERVOMAX = 700;
+    constexpr int ANGLE_STRAIGHT  = 65;
+    constexpr int ANGLE_DIVERGING = 115;
 
     void switchTurnout(Adafruit_PWMServoDriver& driver, int channel, bool diverging);
     void setAngle(Adafruit_PWMServoDriver& driver, int channel, int angle);
