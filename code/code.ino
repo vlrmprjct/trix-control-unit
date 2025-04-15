@@ -40,7 +40,7 @@ void setup() {
     ENC_MAIN_1_CLK_STATE = digitalRead(ENC_MAIN_1_CLK);
     attachInterrupt(digitalPinToInterrupt(ENC_MAIN_1_CLK), processEncoder, CHANGE);
 
-    // INIT MOTOR MODULE(MAIN) ####################################################################
+    // INIT MOTOR MODULE (MAIN) ####################################################################
     pinMode(MOTOR_IN1, OUTPUT);
     pinMode(MOTOR_IN2, OUTPUT);
 
@@ -61,16 +61,6 @@ void setup() {
 
 void loop() {
 
-    ServoControl::switchTurnout(servo, 0, true);
-    ServoControl::switchTurnout(servo, 1, false);
-    delay(500);
-    ServoControl::switchTurnout(servo, 1, true);
-    ServoControl::switchTurnout(servo, 0, false);
-    delay(500);
-    ServoControl::setAngle(servo, 1, 0);
-    ServoControl::setAngle(servo, 0, 180);
-    delay(500);
-
     int percent = map(abs(ENC_MAIN_1_VALUE), 0, 255, 0, 100);
 
     // LCD PRINT TEST #############################################################################
@@ -81,8 +71,6 @@ void loop() {
     // lcdPrint(17, 19, 1, String((int)random(1, 999)), "RTL");
     // lcdPrint(5, 15, 2, "Hello", "RTL");
 
-
-    // lcdPrint(lcd, 0, 5, 3, "COUNT:");
     // REED SWITCH TEST ###########################################################################
     int switchState = digitalRead(REED_PIN1);
     if (switchState == LOW && lastSwitchState == HIGH) {
@@ -132,9 +120,11 @@ void loop() {
 
     if (ENC_MAIN_1_VALUE > 200) {
         setRelay(5, true);
+        ServoControl::switchTurnout(servo, 0, true);
     }
     if (ENC_MAIN_1_VALUE < 200) {
         setRelay(5, false);
+        ServoControl::switchTurnout(servo, 0, false);
     }
 }
 

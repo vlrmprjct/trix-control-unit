@@ -10,7 +10,7 @@ int lastSpeed = 0;
  * @param encoderVal The value from the encoder, which determines the speed and direction.
  * @param in1Pin The pin connected to the motor driver input 1 pin.
  * @param in2Pin The pin connected to the motor driver input 2 pin.
- * @usage motorEncoderControl(encoderValue, MTR_MDL_1_ENA, MTR_MDL_1_IN1, MTR_MDL_1_IN2);
+ * @usage motorEncoderControl(encoderValue, MTR_MDL_1_IN1, MTR_MDL_1_IN2);
  */
 void motorEncoderControl(int encoderVal, int in1Pin, int in2Pin)
 {
