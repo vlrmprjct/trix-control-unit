@@ -43,30 +43,6 @@ void setup() {
     pinMode(MOTOR_IN1, OUTPUT);
     pinMode(MOTOR_IN2, OUTPUT);
 
-    pinMode(MTR_MDL_1_ENA, OUTPUT);
-    pinMode(MTR_MDL_1_IN1, OUTPUT);
-    pinMode(MTR_MDL_1_IN2, OUTPUT);
-
-    pinMode(MTR_MDL_2_ENB, OUTPUT);
-    pinMode(MTR_MDL_2_IN3, OUTPUT);
-    pinMode(MTR_MDL_2_IN4, OUTPUT);
-
-    pinMode(RELAY_LATCH, OUTPUT);
-    pinMode(RELAY_CLOCK, OUTPUT);
-    pinMode(RELAY_DATA, OUTPUT);
-
-    pinMode(MTR_MDL_1_CTRL, INPUT);
-    pinMode(MTR_MDL_2_CTRL, INPUT);
-
-    digitalWrite(MTR_MDL_1_IN1, LOW);
-    digitalWrite(MTR_MDL_1_IN2, LOW);
-
-    // TCCR3B = (TCCR3B & 0b11111000) | 0x02; // 3.92kHz
-    // TCCR3B = (TCCR3B & 0b11111000) | 0x03; // 490Hz
-    // TCCR3B = (TCCR3B & 0b11111000) | 0x04; // 122Hz
-    // TCCR3B = (TCCR3B & 0b11111000) | 0x05; // 30.5Hz
-    // analogWrite(MTR_MDL_1_ENA, 255);
-
     // INIT SERVO MODULE ##########################################################################
     servo.begin();
     servo.setPWMFreq(60);
@@ -86,13 +62,13 @@ void loop() {
 
     ServoControl::switchTurnout(servo, 0, true);
     ServoControl::switchTurnout(servo, 1, false);
-    delay(1000);
+    delay(500);
     ServoControl::switchTurnout(servo, 1, true);
     ServoControl::switchTurnout(servo, 0, false);
-    delay(1000);
+    delay(500);
     ServoControl::setAngle(servo, 1, 0);
     ServoControl::setAngle(servo, 0, 180);
-    delay(1000);
+    delay(500);
 
     int percent = map(abs(ENC_MAIN_1_VALUE), 0, 255, 0, 100);
 
@@ -151,8 +127,7 @@ void loop() {
     // }
     // setRelay(18, true);
 
-    motorEncoderControl(ENC_MAIN_1_VALUE, MTR_MDL_1_ENA, MOTOR_IN1, MOTOR_IN2);
-    // motorEncoderControl(ENC_MAIN_1_VALUE, MTR_MDL_1_ENA, MTR_MDL_1_IN1, MTR_MDL_1_IN2);
+    motorEncoderControl(ENC_MAIN_1_VALUE, MOTOR_IN1, MOTOR_IN2);
 
     if (ENC_MAIN_1_VALUE > 200) {
         setRelay(5, true);
