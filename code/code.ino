@@ -40,6 +40,7 @@ void setup() {
     ENC_MAIN_1_CLK_STATE = digitalRead(ENC_MAIN_1_CLK);
     attachInterrupt(digitalPinToInterrupt(ENC_MAIN_1_CLK), processEncoder, CHANGE);
 
+    // INIT MOTOR MODULE(MAIN) ####################################################################
     pinMode(MOTOR_IN1, OUTPUT);
     pinMode(MOTOR_IN2, OUTPUT);
 
