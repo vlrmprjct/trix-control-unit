@@ -53,6 +53,9 @@ void setup() {
     }
 
     // INIT RELAYS ################################################################################
+    pinMode(RELAY_LATCH, OUTPUT);
+    pinMode(RELAY_CLOCK, OUTPUT);
+    pinMode(RELAY_DATA, OUTPUT);
     // INITIALIZE ALL RELAYS "OFF"
     for (int i = 0; i < RELAY_COUNT; i++) {
         setRelay(i, false);
