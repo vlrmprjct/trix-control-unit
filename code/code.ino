@@ -8,6 +8,7 @@
 #include <Wire.h>
 
 Adafruit_PWMServoDriver servo = Adafruit_PWMServoDriver();
+LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27, 20, 4);
 
 int REED_PIN1 = 51;
 int REED_PIN2 = 53;
@@ -22,10 +23,7 @@ bool measurementStarted = false;
 bool reed1Triggered = false;
 bool reed2Triggered = false;
 
-LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27, 20, 4);
-
 void setup() {
-    Serial.begin(9600);
 
     // INIT LCD DOT MATRIX ########################################################################
     lcd.init();
@@ -60,6 +58,12 @@ void setup() {
     for (int i = 0; i < RELAY_COUNT; i++) {
         setRelay(i, false);
     }
+
+    // SET PWM FREQUENCY ##########################################################################
+    // 0x02    / 0x03  / 0x04  / 0x05
+    // 3.92kHz / 490Hz / 122Hz / 30.5Hz
+    TCCR4B = (TCCR4B & 0b11111000) | 0x03;
+    analogWrite(MOTOR_IN1, 128); // 50% Duty Cycle
 }
 
 void loop() {
@@ -106,19 +110,7 @@ void loop() {
         reed2Triggered = false;
     }
 
-    // RELAY TEST #################################################################################
-    // static unsigned long lastToggleTime = 0;
-    // unsigned long currentTime = millis();
-
-    // if (currentTime - lastToggleTime >= 5000) {
-    //     toggleRelay(5);
-    //     toggleRelay(1);
-    //     toggleRelay(24);
-    //     setRelay(17, true);
-    //     lastToggleTime = currentTime;
-    // }
-    // setRelay(18, true);
-
+    // MAIN SPEED CONTROL #########################################################################
     motorEncoderControl(ENC_MAIN_1_VALUE, MOTOR_IN1, MOTOR_IN2);
 
     if (ENC_MAIN_1_VALUE > 200) {
@@ -136,7 +128,7 @@ void processEncoder() {
     int currentDTState = digitalRead(ENC_MAIN_1_DT);
 
     if (currentCLKState != ENC_MAIN_1_CLK_STATE) {
-        ENC_MAIN_1_VALUE += (currentDTState == currentCLKState) ? 5 : -5;
+        ENC_MAIN_1_VALUE += (currentDTState == currentCLKState) ? 2 : -2;
     }
 
     ENC_MAIN_1_VALUE = constrain(ENC_MAIN_1_VALUE, -255, 255);
