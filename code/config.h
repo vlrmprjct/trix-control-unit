@@ -3,19 +3,11 @@
 
 #include <Arduino.h>
 
-// Mega Interrupt Pins
-// Pin 2
-// Pin 3
-// Pin 18
-// Pin 19
-// Pin 20
-// Pin 21
-
 // MOTOR MDL 1
 const int MOTOR_IN1 = 6;
 const int MOTOR_IN2 = 7;
 
-// ENCODER MOTOR MDL 1.1
+// ENCODER MOTOR MDL 1
 const int ENC_MAIN_1_CLK = 18; // INTERRUPT !
 const int ENC_MAIN_1_DT  = 28;
 inline int ENC_MAIN_1_CLK_STATE;
