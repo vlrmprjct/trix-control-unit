@@ -113,13 +113,17 @@ void loop() {
     // MAIN SPEED CONTROL #########################################################################
     motorEncoderControl(ENC_MAIN_1_VALUE, MOTOR_IN1, MOTOR_IN2);
 
-    if (ENC_MAIN_1_VALUE > 200) {
+    if (ENC_MAIN_1_VALUE > 120) {
         setRelay(5, true);
         ServoControl::switchTurnout(servo, 0, true);
+        ServoControl::switchTurnout(servo, 1, false);
+        ServoControl::switchTurnout(servo, 2, false);
     }
-    if (ENC_MAIN_1_VALUE < 200) {
+    if (ENC_MAIN_1_VALUE < 120) {
         setRelay(5, false);
         ServoControl::switchTurnout(servo, 0, false);
+        ServoControl::switchTurnout(servo, 1, true);
+        ServoControl::switchTurnout(servo, 2, true);
     }
 }
 
