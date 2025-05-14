@@ -7,9 +7,22 @@
 // const int LCD_SCL = 21; // YELLOW | PIN 21 | SCL
 // const int LCD_SDA = 20; // GREEN  | PIN 20 | SDA
 
-// MOTOR MDL 1
-const int MOTOR_IN1 = 6; // YELLOW | PIN 6
-const int MOTOR_IN2 = 7; // GREEN  | PIN 7
+// MOTOR MDL 1 (MAIN)
+const int MOTOR_IN1 = 6; // BLUE  | PIN 6
+const int MOTOR_IN2 = 7; // WHITE | PIN 7
+
+// MOTOR MDL 1 (HBF2)
+const int MOTOR_HBF2_1 = 4; // BLUE  | PIN 4
+const int MOTOR_HBF2_2 = 5; // WHITE | PIN 5
+
+// MOTOR MDL 1 (HBF1)
+const int MOTOR_HBF1_1 = 2; // BLUE  | PIN 2
+const int MOTOR_HBF1_2 = 3; // WHITE | PIN 3
+
+// BUTTON CTRL
+const int BTN_DATA   = 50;
+const int BTN_CLOCK  = 52;
+const int BTN_LATCH  = 53;
 
 // ENCODER MOTOR MDL 1
 const int ENC_MAIN_1_CLK = 18; // GREEN  | PIN 18 | INTERRUPT

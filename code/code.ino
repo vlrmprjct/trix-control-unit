@@ -25,6 +25,8 @@ bool reed2Triggered = false;
 
 void setup() {
 
+    Serial.begin(9600);
+
     // INIT LCD DOT MATRIX ########################################################################
     lcd.init();
     lcd.backlight();
@@ -41,6 +43,10 @@ void setup() {
     // INIT MOTOR MODULE (MAIN) ####################################################################
     pinMode(MOTOR_IN1, OUTPUT);
     pinMode(MOTOR_IN2, OUTPUT);
+    pinMode(MOTOR_HBF1_1, OUTPUT);
+    pinMode(MOTOR_HBF1_2, OUTPUT);
+    pinMode(MOTOR_HBF2_1, OUTPUT);
+    pinMode(MOTOR_HBF2_2, OUTPUT);
 
     // INIT SERVO MODULE ##########################################################################
     servo.begin();
@@ -63,7 +69,9 @@ void setup() {
     // 0x02    / 0x03  / 0x04  / 0x05
     // 3.92kHz / 490Hz / 122Hz / 30.5Hz
     TCCR4B = (TCCR4B & 0b11111000) | 0x03;
-    analogWrite(MOTOR_IN1, 128); // 50% Duty Cycle
+    analogWrite(MOTOR_IN1, 128);    // 50% Duty Cycle
+    analogWrite(MOTOR_HBF1_1, 128); // 50% Duty Cycle
+    analogWrite(MOTOR_HBF2_1, 128); // 50% Duty Cycle
 }
 
 void loop() {
@@ -112,6 +120,8 @@ void loop() {
 
     // MAIN SPEED CONTROL #########################################################################
     motorEncoderControl(ENC_MAIN_1_VALUE, MOTOR_IN1, MOTOR_IN2);
+    motorEncoderControl(ENC_MAIN_1_VALUE, MOTOR_HBF1_1, MOTOR_HBF1_2);
+    motorEncoderControl(ENC_MAIN_1_VALUE, MOTOR_HBF2_1, MOTOR_HBF2_2);
 
     if (ENC_MAIN_1_VALUE > 120) {
         setRelay(5, true);
