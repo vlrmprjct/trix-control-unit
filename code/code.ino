@@ -1,4 +1,5 @@
 #include "config.h"
+#include "buttonControl.h"
 #include "lcdPrint.h"
 #include "motorControl.h"
 #include "relayControl.h"
@@ -65,6 +66,11 @@ void setup() {
         setRelay(i, false);
     }
 
+    // INIT BUTTON CTRL ##########################################################################
+    pinMode(BTN_DATA, INPUT);
+    pinMode(BTN_CLOCK, OUTPUT);
+    pinMode(BTN_LATCH, OUTPUT);
+
     // SET PWM FREQUENCY ##########################################################################
     // 0x02    / 0x03  / 0x04  / 0x05
     // 3.92kHz / 490Hz / 122Hz / 30.5Hz
@@ -76,15 +82,43 @@ void setup() {
 
 void loop() {
 
-    int percent = map(abs(ENC_MAIN_1_VALUE), 0, 255, 0, 100);
+    // BUTTON TEST ################################################################################
+    updateButtonStates();
+
+    pushButton(1, []() {
+        HBF1 = true;
+        HBF2 = false;
+        HBF3 = false;
+        ServoControl::switchTurnout(servo, 0, false);
+        ServoControl::switchTurnout(servo, 1, true);
+        ServoControl::switchTurnout(servo, 2, true);
+    });
+
+    pushButton(8, []() {
+        HBF1 = false;
+        HBF2 = true;
+        HBF3 = false;
+        ServoControl::switchTurnout(servo, 0, true);
+        ServoControl::switchTurnout(servo, 1, false);
+        ServoControl::switchTurnout(servo, 2, false);
+    });
 
     // LCD PRINT TEST #############################################################################
-    lcdPrint(lcd, 0, 3, 0, "SPD:");
-    lcdPrint(lcd, 4, 6, 0, ENC_MAIN_1_VALUE > 0 ? ">" : "<");
+    int percent = map(abs(ENC_MAIN_1_VALUE), 0, 255, 0, 100);
+
+    lcdPrint(lcd, 0, 5, 0, "SPEED:");
+    lcdPrint(lcd, 6, 8, 0, ENC_MAIN_1_VALUE > 0 ? ">" : "<");
+    lcdPrint(lcd, 11, 14, 0, String((int)ENC_MAIN_1_VALUE));
     lcdPrint(lcd, 16, 18, 0, String((int)percent), "RTL");
     lcdPrint(lcd, 19, 19, 0, "%");
-    // lcdPrint(17, 19, 1, String((int)random(1, 999)), "RTL");
-    // lcdPrint(5, 15, 2, "Hello", "RTL");
+
+    if (HBF1) {
+        lcdPrint(lcd, 0, 5, 1, "HBF1");
+    } else if (HBF2) {
+        lcdPrint(lcd, 0, 5, 1, "HBF2");
+    } else {
+        lcdPrint(lcd, 0, 5, 1, "     ");
+    }
 
     // REED SWITCH TEST ###########################################################################
     int switchState = digitalRead(REED_PIN1);
@@ -110,8 +144,8 @@ void loop() {
         float speed = trackDistance / timeTaken; // Geschwindigkeit in m/s
         float realSpeed = speed * scaleFactor * 3.6; // Geschwindigkeit im Original in km/h
 
-        lcdPrint(lcd, 0, 3, 3, String((int)realSpeed));
-        lcdPrint(lcd, 7, 10, 3, "km/h");
+        // lcdPrint(lcd, 0, 3, 3, String((int)realSpeed));
+        // lcdPrint(lcd, 7, 10, 3, "km/h");
 
         measurementStarted = false; // Messung zurücksetzen
         reed1Triggered = false;
@@ -123,18 +157,9 @@ void loop() {
     motorEncoderControl(ENC_MAIN_1_VALUE, MOTOR_HBF1_1, MOTOR_HBF1_2);
     motorEncoderControl(ENC_MAIN_1_VALUE, MOTOR_HBF2_1, MOTOR_HBF2_2);
 
-    if (ENC_MAIN_1_VALUE > 120) {
-        setRelay(5, true);
-        ServoControl::switchTurnout(servo, 0, true);
-        ServoControl::switchTurnout(servo, 1, false);
-        ServoControl::switchTurnout(servo, 2, false);
-    }
-    if (ENC_MAIN_1_VALUE < 120) {
-        setRelay(5, false);
-        ServoControl::switchTurnout(servo, 0, false);
-        ServoControl::switchTurnout(servo, 1, true);
-        ServoControl::switchTurnout(servo, 2, true);
-    }
+    setButtonStates();
+
+    delay(25);
 }
 
 void processEncoder() {

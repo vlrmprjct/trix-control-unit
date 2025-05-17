@@ -3,6 +3,11 @@
 
 #include <Arduino.h>
 
+// TRACK INITIALIZATION
+inline volatile bool HBF1 = true;
+inline volatile bool HBF2 = false;
+inline volatile bool HBF3 = false;
+
 // LCD DOT MATRIX PINS | LEAVING HERE FOR DOCUMENTATION
 // const int LCD_SCL = 21; // YELLOW | PIN 21 | SCL
 // const int LCD_SDA = 20; // GREEN  | PIN 20 | SDA
