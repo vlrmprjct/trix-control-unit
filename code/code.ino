@@ -1,15 +1,15 @@
 #include "config.h"
 #include "buttonControl.h"
-#include "lcdPrint.h"
+#include "lcdControl.h"
 #include "motorControl.h"
 #include "relayControl.h"
 #include "servoControl.h"
 #include <Adafruit_PWMServoDriver.h>
-#include <LiquidCrystal_I2C.h>
+#include <LiquidCrystal.h>
 #include <Wire.h>
 
 Adafruit_PWMServoDriver servo = Adafruit_PWMServoDriver();
-LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27, 20, 4);
+LiquidCrystal lcd(LCD_RS, LCD_EN, LCD1_D4, LCD1_D5,LCD1_D6, LCD1_D7);
 
 int REED_PIN1 = 51;
 int REED_PIN2 = 53;
@@ -29,8 +29,10 @@ void setup() {
     Serial.begin(9600);
 
     // INIT LCD DOT MATRIX ########################################################################
-    lcd.init();
-    lcd.backlight();
+    lcd.begin(20, 4);
+    lcd.print("      Hello! :)     ");
+    delay(2000);
+    lcd.clear();
 
     pinMode(REED_PIN1, INPUT_PULLUP);
     pinMode(REED_PIN2, INPUT_PULLUP);
@@ -88,8 +90,7 @@ void setup() {
     ServoControl::switchTurnout(servo, 2, false);
 }
 
-void loop()
-{
+void loop() {
 
     // BUTTON TEST ################################################################################
     updateButtonStates();
@@ -115,25 +116,25 @@ void loop()
     // LCD PRINT TEST #############################################################################
     int percent = map(abs(ENC_MAIN_1_VALUE), 0, 255, 0, 100);
 
-    lcdPrint(lcd, 0, 5, 0, "SPEED:");
-    lcdPrint(lcd, 6, 8, 0, ENC_MAIN_1_VALUE > 0 ? ">" : "<");
-    lcdPrint(lcd, 11, 14, 0, String((int)ENC_MAIN_1_VALUE));
-    lcdPrint(lcd, 16, 18, 0, String((int)percent), "RTL");
-    lcdPrint(lcd, 19, 19, 0, "%");
+    LCDControl::print(lcd, 0, 5, 0, "SPEED:");
+    LCDControl::print(lcd, 6, 8, 0, ENC_MAIN_1_VALUE > 0 ? ">" : "<");
+    LCDControl::print(lcd, 11, 14, 0, String((int)ENC_MAIN_1_VALUE));
+    LCDControl::print(lcd, 16, 18, 0, String((int)percent), "RTL");
+    LCDControl::print(lcd, 19, 19, 0, "%");
 
     if (HBF1) {
-        lcdPrint(lcd, 0, 5, 1, "HBF1");
+        LCDControl::print(lcd, 0, 5, 1, "HBF1");
     } else if (HBF2) {
-        lcdPrint(lcd, 0, 5, 1, "HBF2");
+        LCDControl::print(lcd, 0, 5, 1, "HBF2");
     } else {
-        lcdPrint(lcd, 0, 5, 1, "     ");
+        LCDControl::print(lcd, 0, 5, 1, "     ");
     }
 
     // REED SWITCH TEST ###########################################################################
     int switchState = digitalRead(REED_PIN1);
     if (switchState == LOW && lastSwitchState == HIGH) {
         counter++;
-        // lcdPrint(lcd, 6, 19, 3, String((int)counter));
+        // LCDControl::print(lcd, 6, 19, 3, String((int)counter));
     }
     lastSwitchState = switchState;
 

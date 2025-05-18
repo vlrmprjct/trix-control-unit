@@ -8,9 +8,14 @@ inline volatile bool HBF1 = true;
 inline volatile bool HBF2 = false;
 inline volatile bool HBF3 = false;
 
-// LCD DOT MATRIX PINS | LEAVING HERE FOR DOCUMENTATION
-// const int LCD_SCL = 21; // YELLOW | PIN 21 | SCL
-// const int LCD_SDA = 20; // GREEN  | PIN 20 | SDA
+// LCD DOT MATRIX PINS
+const int LCD_RS = 34; // COMMON PIN FOR LCD1, LCD2, LCD3
+const int LCD_EN = 36; // COMMON PIN FOR LCD1, LCD2, LCD3
+const int LCD1_D4 = 38;
+const int LCD1_D5 = 40;
+const int LCD1_D6 = 42;
+const int LCD1_D7 = 44;
+
 
 // MOTOR MDL 1 (MAIN)
 const int MOTOR_IN1 = 6; // BLUE  | PIN 6
