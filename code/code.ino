@@ -53,9 +53,9 @@ void setup() {
     servo.begin();
     servo.setPWMFreq(60);
     // INITIALIZE ALL TURNOUTS TO "STRAIGHT" (80°)
-    for (int i = 0; i < 8; i++) {
-        ServoControl::switchTurnout(servo, i, true);
-    }
+    // for (int i = 0; i < 8; i++) {
+    //     ServoControl::switchTurnout(servo, i, true);
+    // }
 
     // INIT RELAYS ################################################################################
     pinMode(RELAY_LATCH, OUTPUT);
@@ -78,9 +78,18 @@ void setup() {
     analogWrite(MOTOR_IN1, 128);    // 50% Duty Cycle
     analogWrite(MOTOR_HBF1_1, 128); // 50% Duty Cycle
     analogWrite(MOTOR_HBF2_1, 128); // 50% Duty Cycle
+
+    // INIT TRACK STATION #########################################################################
+    HBF1 = false;
+    HBF2 = true;
+    HBF3 = false;
+    ServoControl::switchTurnout(servo, 0, true);
+    ServoControl::switchTurnout(servo, 1, false);
+    ServoControl::switchTurnout(servo, 2, false);
 }
 
-void loop() {
+void loop()
+{
 
     // BUTTON TEST ################################################################################
     updateButtonStates();
