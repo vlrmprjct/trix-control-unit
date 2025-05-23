@@ -16,7 +16,6 @@ const int LCD1_D5 = 40;
 const int LCD1_D6 = 42;
 const int LCD1_D7 = 44;
 
-
 // MOTOR MDL 1 (MAIN)
 const int MOTOR_IN1 = 6; // BLUE  | PIN 6
 const int MOTOR_IN2 = 7; // WHITE | PIN 7
@@ -40,6 +39,12 @@ const int ENC_MAIN_1_DT  = 28; // YELLOW | PIN 28
 inline int ENC_MAIN_1_CLK_STATE;
 inline int ENC_MAIN_1_DT_STATE;
 inline volatile int ENC_MAIN_1_VALUE = 0;
+
+// SERVO MODULE [ NOT USED SOMEWHERE, JUST FOR PINOUT ]
+const int SERVO_SDA = 22;    // GREEN | PIN 22 SDA
+const int SERVO_SCL = 21;    // BLUE  | PIN 21 SCL
+const int SERVO_VOLTAGE_INTERNAL = 5; // YELLOW | 5V VOLTAGE PIN
+const int SERVO_VOLTAGE_EXTERNAL = 5; // RED | 5V EXTERNAL VOLTAGE
 
 // RELAIS 74HC595 PINS
 const int RELAY_LATCH = 39; // YELLOW | PIN 39 | ST_CP

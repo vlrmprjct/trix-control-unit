@@ -164,8 +164,8 @@ void loop() {
 
     // MAIN SPEED CONTROL #########################################################################
     motorEncoderControl(ENC_MAIN_1_VALUE, MOTOR_IN1, MOTOR_IN2);
-    motorEncoderControl(ENC_MAIN_1_VALUE, MOTOR_HBF1_1, MOTOR_HBF1_2);
-    motorEncoderControl(ENC_MAIN_1_VALUE, MOTOR_HBF2_1, MOTOR_HBF2_2);
+    motorEncoderControl(HBF1 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF1_1, MOTOR_HBF1_2);
+    motorEncoderControl(HBF2 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF2_1, MOTOR_HBF2_2);
 
     setButtonStates();
 
@@ -177,7 +177,7 @@ void processEncoder() {
     int currentDTState = digitalRead(ENC_MAIN_1_DT);
 
     if (currentCLKState != ENC_MAIN_1_CLK_STATE) {
-        ENC_MAIN_1_VALUE += (currentDTState == currentCLKState) ? 2 : -2;
+        ENC_MAIN_1_VALUE += (currentDTState == currentCLKState) ? 3 : -3;
     }
 
     ENC_MAIN_1_VALUE = constrain(ENC_MAIN_1_VALUE, -255, 255);
