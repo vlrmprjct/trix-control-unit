@@ -1,10 +1,11 @@
-#include "config.h"
 #include "buttonControl.h"
+#include "config.h"
 #include "lcdControl.h"
 #include "motorControl.h"
 #include "relayControl.h"
 #include "servoControl.h"
 #include <Adafruit_PWMServoDriver.h>
+#include <EEPROM.h>
 #include <LiquidCrystal.h>
 #include <Wire.h>
 
@@ -51,13 +52,10 @@ void setup() {
     pinMode(MOTOR_HBF2_1, OUTPUT);
     pinMode(MOTOR_HBF2_2, OUTPUT);
 
-    // INIT SERVO MODULE ##########################################################################
+    // INIT TURNOUTS SERVO MODULE ##################################################################
     servo.begin();
     servo.setPWMFreq(60);
     // INITIALIZE ALL TURNOUTS TO "STRAIGHT" (80°)
-    // for (int i = 0; i < 8; i++) {
-    //     ServoControl::switchTurnout(servo, i, true);
-    // }
 
     // INIT RELAYS ################################################################################
     pinMode(RELAY_LATCH, OUTPUT);
@@ -101,16 +99,25 @@ void loop() {
         HBF3 = false;
         ServoControl::switchTurnout(servo, 0, false);
         ServoControl::switchTurnout(servo, 1, true);
-        ServoControl::switchTurnout(servo, 2, true);
+        ServoControl::switchTurnout(servo, 2, false);
     });
 
-    pushButton(8, []() {
+    pushButton(2, []() {
         HBF1 = false;
         HBF2 = true;
         HBF3 = false;
         ServoControl::switchTurnout(servo, 0, true);
         ServoControl::switchTurnout(servo, 1, false);
         ServoControl::switchTurnout(servo, 2, false);
+    });
+
+    pushButton(3, []() {
+        HBF1 = false;
+        HBF2 = false;
+        HBF3 = true;
+        ServoControl::switchTurnout(servo, 0, true);
+        ServoControl::switchTurnout(servo, 1, false);
+        ServoControl::switchTurnout(servo, 2, true);
     });
 
     // LCD PRINT TEST #############################################################################
@@ -126,6 +133,8 @@ void loop() {
         LCDControl::print(lcd, 0, 5, 1, "HBF1");
     } else if (HBF2) {
         LCDControl::print(lcd, 0, 5, 1, "HBF2");
+    } else if (HBF3) {
+        LCDControl::print(lcd, 0, 5, 1, "HBF3");
     } else {
         LCDControl::print(lcd, 0, 5, 1, "     ");
     }
