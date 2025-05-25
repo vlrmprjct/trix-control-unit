@@ -1,4 +1,5 @@
 #include "buttonControl.h"
+#include "encoderControl.h"
 #include "config.h"
 #include "lcdControl.h"
 #include "motorControl.h"
@@ -12,19 +13,6 @@
 Adafruit_PWMServoDriver servo = Adafruit_PWMServoDriver();
 LiquidCrystal lcd(LCD_RS, LCD_EN, LCD1_D4, LCD1_D5,LCD1_D6, LCD1_D7);
 
-int REED_PIN1 = 51;
-int REED_PIN2 = 53;
-int lastSwitchState = HIGH;
-int counter = 0;
-
-const float trackDistance = 1.0;
-const float scaleFactor = 160.0;
-unsigned long startTime = 0;
-unsigned long endTime = 0;
-bool measurementStarted = false;
-bool reed1Triggered = false;
-bool reed2Triggered = false;
-
 void setup() {
 
     Serial.begin(9600);
@@ -35,14 +23,11 @@ void setup() {
     delay(2000);
     lcd.clear();
 
-    pinMode(REED_PIN1, INPUT_PULLUP);
-    pinMode(REED_PIN2, INPUT_PULLUP);
-
     // INIT ENCODER (MAIN) ########################################################################
     pinMode(ENC_MAIN_1_CLK, INPUT_PULLUP);
     pinMode(ENC_MAIN_1_DT, INPUT_PULLUP);
     ENC_MAIN_1_CLK_STATE = digitalRead(ENC_MAIN_1_CLK);
-    attachInterrupt(digitalPinToInterrupt(ENC_MAIN_1_CLK), processEncoder, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(ENC_MAIN_1_CLK), EncoderControl::process, CHANGE);
 
     // INIT MOTOR MODULE (MAIN) ####################################################################
     pinMode(MOTOR_IN1, OUTPUT);
@@ -132,38 +117,6 @@ void loop() {
         LCDControl::print(lcd, 0, 5, 1, "     ");
     }
 
-    // REED SWITCH TEST ###########################################################################
-    int switchState = digitalRead(REED_PIN1);
-    if (switchState == LOW && lastSwitchState == HIGH) {
-        counter++;
-        // LCDControl::print(lcd, 6, 19, 3, String((int)counter));
-    }
-    lastSwitchState = switchState;
-
-    // SPEED MEASURE ##############################################################################
-    if (digitalRead(REED_PIN1) == LOW && !reed1Triggered) {
-        startMeasurement();
-        reed1Triggered = true;
-    }
-
-    if (digitalRead(REED_PIN2) == LOW && reed1Triggered && !reed2Triggered) {
-        stopMeasurement();
-        reed2Triggered = true;
-    }
-
-    if (measurementStarted && endTime > startTime) {
-        float timeTaken = (endTime - startTime) / 1000.0; // Zeit in Sekunden
-        float speed = trackDistance / timeTaken; // Geschwindigkeit in m/s
-        float realSpeed = speed * scaleFactor * 3.6; // Geschwindigkeit im Original in km/h
-
-        // lcdPrint(lcd, 0, 3, 3, String((int)realSpeed));
-        // lcdPrint(lcd, 7, 10, 3, "km/h");
-
-        measurementStarted = false; // Messung zurücksetzen
-        reed1Triggered = false;
-        reed2Triggered = false;
-    }
-
     // MAIN SPEED CONTROL #########################################################################
     motorEncoderControl(ENC_MAIN_1_VALUE, MOTOR_IN1, MOTOR_IN2);
     motorEncoderControl(HBF_STATE.HBF1 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF1_1, MOTOR_HBF1_2);
@@ -172,25 +125,4 @@ void loop() {
     setButtonStates();
 
     delay(25);
-}
-
-void processEncoder() {
-    int currentCLKState = digitalRead(ENC_MAIN_1_CLK);
-    int currentDTState = digitalRead(ENC_MAIN_1_DT);
-
-    if (currentCLKState != ENC_MAIN_1_CLK_STATE) {
-        ENC_MAIN_1_VALUE += (currentDTState == currentCLKState) ? 3 : -3;
-    }
-
-    ENC_MAIN_1_VALUE = constrain(ENC_MAIN_1_VALUE, -255, 255);
-    ENC_MAIN_1_CLK_STATE = currentCLKState;
-}
-
-void startMeasurement() {
-    startTime = millis();
-    measurementStarted = true;
-}
-
-void stopMeasurement() {
-    endTime = millis();
 }
