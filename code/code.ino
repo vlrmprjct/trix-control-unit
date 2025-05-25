@@ -116,11 +116,11 @@ void loop() {
     // LCD PRINT TEST #############################################################################
     int percent = map(abs(ENC_MAIN_1_VALUE), 0, 255, 0, 100);
 
-    LCDControl::print(lcd, 0, 5, 0, "SPEED:");
+    LCDControl::print(lcd, 0, 3, 0, "VEL:");
     LCDControl::print(lcd, 6, 8, 0, ENC_MAIN_1_VALUE > 0 ? ">" : "<");
     LCDControl::print(lcd, 11, 14, 0, String((int)ENC_MAIN_1_VALUE));
+    LCDControl::print(lcd, 18, 19, 0, "0%");
     LCDControl::print(lcd, 16, 18, 0, String((int)percent), "RTL");
-    LCDControl::print(lcd, 19, 19, 0, "%");
 
     if (HBF_STATE.HBF1) {
         LCDControl::print(lcd, 0, 5, 1, "HBF 1");
