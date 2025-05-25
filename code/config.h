@@ -4,9 +4,11 @@
 #include <Arduino.h>
 
 // TRACK INITIALIZATION
-inline volatile bool HBF1 = true;
-inline volatile bool HBF2 = false;
-inline volatile bool HBF3 = false;
+inline struct HBF_State {
+    bool HBF1;
+    bool HBF2;
+    bool HBF3;
+} HBF_STATE;
 
 // LCD DOT MATRIX PINS
 const int LCD_RS = 34; // COMMON PIN FOR LCD1, LCD2, LCD3

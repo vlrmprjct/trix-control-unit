@@ -55,7 +55,6 @@ void setup() {
     // INIT TURNOUTS SERVO MODULE ##################################################################
     servo.begin();
     servo.setPWMFreq(60);
-    // INITIALIZE ALL TURNOUTS TO "STRAIGHT" (80°)
 
     // INIT RELAYS ################################################################################
     pinMode(RELAY_LATCH, OUTPUT);
@@ -79,13 +78,10 @@ void setup() {
     analogWrite(MOTOR_HBF1_1, 128); // 50% Duty Cycle
     analogWrite(MOTOR_HBF2_1, 128); // 50% Duty Cycle
 
+    // READ FROM EEPROM ###########################################################################
     // INIT TRACK STATION #########################################################################
-    HBF1 = false;
-    HBF2 = true;
-    HBF3 = false;
-    ServoControl::switchTurnout(servo, 0, true);
-    ServoControl::switchTurnout(servo, 1, false);
-    ServoControl::switchTurnout(servo, 2, false);
+    EEPROM.get(0, HBF_STATE);
+
 }
 
 void loop() {
@@ -94,30 +90,27 @@ void loop() {
     updateButtonStates();
 
     pushButton(1, []() {
-        HBF1 = true;
-        HBF2 = false;
-        HBF3 = false;
         ServoControl::switchTurnout(servo, 0, false);
         ServoControl::switchTurnout(servo, 1, true);
         ServoControl::switchTurnout(servo, 2, false);
+        HBF_STATE = { true, false, false };
+        EEPROM.put(0, HBF_STATE);
     });
 
     pushButton(2, []() {
-        HBF1 = false;
-        HBF2 = true;
-        HBF3 = false;
         ServoControl::switchTurnout(servo, 0, true);
         ServoControl::switchTurnout(servo, 1, false);
         ServoControl::switchTurnout(servo, 2, false);
+        HBF_STATE = { false, true, false };
+        EEPROM.put(0, HBF_STATE);
     });
 
     pushButton(3, []() {
-        HBF1 = false;
-        HBF2 = false;
-        HBF3 = true;
         ServoControl::switchTurnout(servo, 0, true);
         ServoControl::switchTurnout(servo, 1, false);
         ServoControl::switchTurnout(servo, 2, true);
+        HBF_STATE = { false, false, true };
+        EEPROM.put(0, HBF_STATE);
     });
 
     // LCD PRINT TEST #############################################################################
@@ -129,12 +122,12 @@ void loop() {
     LCDControl::print(lcd, 16, 18, 0, String((int)percent), "RTL");
     LCDControl::print(lcd, 19, 19, 0, "%");
 
-    if (HBF1) {
-        LCDControl::print(lcd, 0, 5, 1, "HBF1");
-    } else if (HBF2) {
-        LCDControl::print(lcd, 0, 5, 1, "HBF2");
-    } else if (HBF3) {
-        LCDControl::print(lcd, 0, 5, 1, "HBF3");
+    if (HBF_STATE.HBF1) {
+        LCDControl::print(lcd, 0, 5, 1, "HBF 1");
+    } else if (HBF_STATE.HBF2) {
+        LCDControl::print(lcd, 0, 5, 1, "HBF 2");
+    } else if (HBF_STATE.HBF3) {
+        LCDControl::print(lcd, 0, 5, 1, "HBF 3");
     } else {
         LCDControl::print(lcd, 0, 5, 1, "     ");
     }
@@ -173,8 +166,8 @@ void loop() {
 
     // MAIN SPEED CONTROL #########################################################################
     motorEncoderControl(ENC_MAIN_1_VALUE, MOTOR_IN1, MOTOR_IN2);
-    motorEncoderControl(HBF1 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF1_1, MOTOR_HBF1_2);
-    motorEncoderControl(HBF2 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF2_1, MOTOR_HBF2_2);
+    motorEncoderControl(HBF_STATE.HBF1 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF1_1, MOTOR_HBF1_2);
+    motorEncoderControl(HBF_STATE.HBF2 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF2_1, MOTOR_HBF2_2);
 
     setButtonStates();
 
