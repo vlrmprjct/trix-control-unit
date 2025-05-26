@@ -3,14 +3,14 @@
 
 #include <Arduino.h>
 
-// TRACK INITIALIZATION
+// TRACK NAMING
 inline struct HBF_State {
     bool HBF1;
     bool HBF2;
     bool HBF3;
 } HBF_STATE;
 
-// LCD DOT MATRIX PINS
+// LCD DOT MATRIX
 const int LCD_RS = 34; // COMMON PIN FOR LCD1, LCD2, LCD3
 const int LCD_EN = 36; // COMMON PIN FOR LCD1, LCD2, LCD3
 const int LCD1_D4 = 38;
@@ -18,24 +18,24 @@ const int LCD1_D5 = 40;
 const int LCD1_D6 = 42;
 const int LCD1_D7 = 44;
 
-// MOTOR MDL 1 (MAIN)
-const int MOTOR_IN1 = 6; // BLUE  | PIN 6
-const int MOTOR_IN2 = 7; // WHITE | PIN 7
+// MOTOR MDL MAIN
+const int MOTOR_MAIN_1 = 6; // BLUE  | PIN 6
+const int MOTOR_MAIN_2 = 7; // WHITE | PIN 7
 
-// MOTOR MDL 1 (HBF2)
-const int MOTOR_HBF2_1 = 4; // BLUE  | PIN 4
-const int MOTOR_HBF2_2 = 5; // WHITE | PIN 5
-
-// MOTOR MDL 1 (HBF1)
+// MOTOR MDL HBF1
 const int MOTOR_HBF1_1 = 2; // BLUE  | PIN 2
 const int MOTOR_HBF1_2 = 3; // WHITE | PIN 3
+
+// MOTOR MDL HBF2
+const int MOTOR_HBF2_1 = 4; // BLUE  | PIN 4
+const int MOTOR_HBF2_2 = 5; // WHITE | PIN 5
 
 // BUTTON CTRL
 const int BTN_DATA   = 46;  // BLUE   | PIN 46
 const int BTN_CLOCK  = 48;  // YELLOW | PIN 48
 const int BTN_LATCH  = 50;  // GREEN  | PIN 50
 
-// ENCODER MOTOR MDL 1
+// ENCODER MOTOR MDL MAIN
 const int ENC_MAIN_1_CLK = 18; // GREEN  | PIN 18 | INTERRUPT
 const int ENC_MAIN_1_DT  = 28; // YELLOW | PIN 28
 inline int ENC_MAIN_1_CLK_STATE;

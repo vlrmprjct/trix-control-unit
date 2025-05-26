@@ -30,8 +30,8 @@ void setup() {
     attachInterrupt(digitalPinToInterrupt(ENC_MAIN_1_CLK), EncoderControl::process, CHANGE);
 
     // INIT MOTOR MODULE (MAIN) ####################################################################
-    pinMode(MOTOR_IN1, OUTPUT);
-    pinMode(MOTOR_IN2, OUTPUT);
+    pinMode(MOTOR_MAIN_1, OUTPUT);
+    pinMode(MOTOR_MAIN_2, OUTPUT);
     pinMode(MOTOR_HBF1_1, OUTPUT);
     pinMode(MOTOR_HBF1_2, OUTPUT);
     pinMode(MOTOR_HBF2_1, OUTPUT);
@@ -59,7 +59,7 @@ void setup() {
     // 0x02    / 0x03  / 0x04  / 0x05
     // 3.92kHz / 490Hz / 122Hz / 30.5Hz
     TCCR4B = (TCCR4B & 0b11111000) | 0x03;
-    analogWrite(MOTOR_IN1, 128);    // 50% Duty Cycle
+    analogWrite(MOTOR_MAIN_1, 128);    // 50% Duty Cycle
     analogWrite(MOTOR_HBF1_1, 128); // 50% Duty Cycle
     analogWrite(MOTOR_HBF2_1, 128); // 50% Duty Cycle
 
@@ -118,7 +118,7 @@ void loop() {
     }
 
     // MAIN SPEED CONTROL #########################################################################
-    motorEncoderControl(ENC_MAIN_1_VALUE, MOTOR_IN1, MOTOR_IN2);
+    motorEncoderControl(ENC_MAIN_1_VALUE, MOTOR_MAIN_1, MOTOR_MAIN_2);
     motorEncoderControl(HBF_STATE.HBF1 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF1_1, MOTOR_HBF1_2);
     motorEncoderControl(HBF_STATE.HBF2 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF2_1, MOTOR_HBF2_2);
 
