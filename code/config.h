@@ -35,6 +35,10 @@ const int BTN_DATA   = 46;  // BLUE   | PIN 46
 const int BTN_CLOCK  = 48;  // YELLOW | PIN 48
 const int BTN_LATCH  = 50;  // GREEN  | PIN 50
 
+const int REED_DATA  = 41; // BLUE   | PIN 41
+const int REED_CLOCK = 43; // YELLOW | PIN 43
+const int REED_LATCH = 45; // GREEN  | PIN 45
+
 // ENCODER MOTOR MDL MAIN
 const int ENC_MAIN_1_CLK = 18; // GREEN  | PIN 18 | INTERRUPT
 const int ENC_MAIN_1_DT  = 28; // YELLOW | PIN 28
@@ -43,8 +47,8 @@ inline int ENC_MAIN_1_DT_STATE;
 inline volatile int ENC_MAIN_1_VALUE = 0;
 
 // SERVO MODULE [ NOT USED SOMEWHERE, JUST FOR PINOUT ]
-// const int SERVO_SDA = 20;    // GREEN | PIN 20 SDA
-// const int SERVO_SCL = 21;    // BLUE  | PIN 21 SCL
+// const int SERVO_SDA = 20;             // GREEN | PIN 20 SDA
+// const int SERVO_SCL = 21;             // BLUE  | PIN 21 SCL
 // const int SERVO_VOLTAGE_INTERNAL = 5; // YELLOW | 5V VOLTAGE PIN
 // const int SERVO_VOLTAGE_EXTERNAL = 5; // RED | 5V EXTERNAL VOLTAGE
 

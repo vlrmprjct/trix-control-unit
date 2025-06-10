@@ -1,17 +1,16 @@
 #include "buttonControl.h"
+#include "reedControl.h"
 #include "encoderControl.h"
 #include "config.h"
 #include "lcdControl.h"
 #include "motorControl.h"
 #include "relayControl.h"
 #include "servoControl.h"
+
 #include <Adafruit_PWMServoDriver.h>
 #include <EEPROM.h>
 #include <LiquidCrystal.h>
 #include <Wire.h>
-
-Adafruit_PWMServoDriver servo = Adafruit_PWMServoDriver();
-LiquidCrystal lcd(LCD_RS, LCD_EN, LCD1_D4, LCD1_D5,LCD1_D6, LCD1_D7);
 
 void setup() {
 
@@ -19,7 +18,7 @@ void setup() {
 
     // INIT LCD DOT MATRIX ########################################################################
     lcd.begin(20, 4);
-    lcd.print("      Hello! :)     ");
+    lcd.print("BOOTING ...");
     delay(2000);
     lcd.clear();
 
@@ -55,6 +54,11 @@ void setup() {
     pinMode(BTN_CLOCK, OUTPUT);
     pinMode(BTN_LATCH, OUTPUT);
 
+    // INIT REED CTRL #############################################################################
+    pinMode(REED_DATA, INPUT);
+    pinMode(REED_CLOCK, OUTPUT);
+    pinMode(REED_LATCH, OUTPUT);
+
     // SET PWM FREQUENCY ##########################################################################
     // 0x02    / 0x03  / 0x04  / 0x05
     // 3.92kHz / 490Hz / 122Hz / 30.5Hz
@@ -70,6 +74,17 @@ void setup() {
 }
 
 void loop() {
+
+    // REEDS TEST #################################################################################
+    updateReedStates();
+
+    pushReed(8, []() {
+        ServoControl::switchTurnout(servo, 0, false);
+        ServoControl::switchTurnout(servo, 1, true);
+        ServoControl::switchTurnout(servo, 2, false);
+        HBF_STATE = { true, false, false };
+        EEPROM.put(0, HBF_STATE);
+    });
 
     // BUTTON TEST ################################################################################
     updateButtonStates();
@@ -107,14 +122,10 @@ void loop() {
     LCDControl::print(lcd, 18, 19, 0, "0%");
     LCDControl::print(lcd, 16, 18, 0, String((int)percent), "RTL");
 
-    if (HBF_STATE.HBF1) {
-        LCDControl::print(lcd, 0, 5, 1, "HBF 1");
-    } else if (HBF_STATE.HBF2) {
-        LCDControl::print(lcd, 0, 5, 1, "HBF 2");
-    } else if (HBF_STATE.HBF3) {
-        LCDControl::print(lcd, 0, 5, 1, "HBF 3");
-    } else {
-        LCDControl::print(lcd, 0, 5, 1, "     ");
+    // DIPLAY HBF STATE ###########################################################################
+    for (int i = 0; i < 3; ++i) {
+        String label = (HBF_STATE.HBF1 && i == 0) || (HBF_STATE.HBF2 && i == 1) || (HBF_STATE.HBF3 && i == 2) ? ">" : " ";
+        LCDControl::print(lcd, 0, 5, i + 1, label + "HBF " + String(i + 1));
     }
 
     // MAIN SPEED CONTROL #########################################################################
@@ -123,6 +134,7 @@ void loop() {
     motorEncoderControl(HBF_STATE.HBF2 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF2_1, MOTOR_HBF2_2);
 
     setButtonStates();
+    setReedStates();
 
     delay(25);
 }
