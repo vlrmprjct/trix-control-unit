@@ -3,12 +3,11 @@
 
 #include <Arduino.h>
 
-int readReeds();
-
-void pushReed(int buttonNr, void (*callback)());
-
-void updateReedStates();
-
-void setReedStates();
+namespace ReedControl {
+    int read();
+    void push(int buttonNr, void (*callback)());
+    void updateStates();
+    void setStates();
+}
 
 #endif

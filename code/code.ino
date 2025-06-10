@@ -12,6 +12,9 @@
 #include <LiquidCrystal.h>
 #include <Wire.h>
 
+Adafruit_PWMServoDriver servo = Adafruit_PWMServoDriver();
+LiquidCrystal lcd(LCD_RS, LCD_EN, LCD1_D4, LCD1_D5, LCD1_D6, LCD1_D7);
+
 void setup() {
 
     Serial.begin(9600);
@@ -76,9 +79,9 @@ void setup() {
 void loop() {
 
     // REEDS TEST #################################################################################
-    updateReedStates();
+    ReedControl::updateStates();
 
-    pushReed(8, []() {
+    ReedControl::push(8, []() {
         ServoControl::switchTurnout(servo, 0, false);
         ServoControl::switchTurnout(servo, 1, true);
         ServoControl::switchTurnout(servo, 2, false);
@@ -134,7 +137,7 @@ void loop() {
     motorEncoderControl(HBF_STATE.HBF2 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF2_1, MOTOR_HBF2_2);
 
     setButtonStates();
-    setReedStates();
+    ReedControl::setStates();
 
     delay(25);
 }
