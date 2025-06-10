@@ -26,10 +26,10 @@ void setup() {
     lcd.clear();
 
     // INIT ENCODER (MAIN) ########################################################################
-    pinMode(ENC_MAIN_1_CLK, INPUT_PULLUP);
+    pinMode(ENC_MAIN_1_CLOCK, INPUT_PULLUP);
     pinMode(ENC_MAIN_1_DT, INPUT_PULLUP);
-    ENC_MAIN_1_CLK_STATE = digitalRead(ENC_MAIN_1_CLK);
-    attachInterrupt(digitalPinToInterrupt(ENC_MAIN_1_CLK), EncoderControl::process, CHANGE);
+    ENC_MAIN_1_CLOCK_STATE = digitalRead(ENC_MAIN_1_CLOCK);
+    attachInterrupt(digitalPinToInterrupt(ENC_MAIN_1_CLOCK), EncoderControl::process, CHANGE);
 
     // INIT MOTOR MODULE (MAIN) ####################################################################
     pinMode(MOTOR_MAIN_1, OUTPUT);

@@ -35,14 +35,14 @@ const int BTN_DATA   = 46;  // BLUE   | PIN 46
 const int BTN_CLOCK  = 48;  // YELLOW | PIN 48
 const int BTN_LATCH  = 50;  // GREEN  | PIN 50
 
-const int REED_DATA  = 41; // BLUE   | PIN 41
-const int REED_CLOCK = 43; // YELLOW | PIN 43
-const int REED_LATCH = 45; // GREEN  | PIN 45
+const int REED_DATA  = 41;  // BLUE   | PIN 41
+const int REED_CLOCK = 43;  // YELLOW | PIN 43
+const int REED_LATCH = 45;  // GREEN  | PIN 45
 
 // ENCODER MOTOR MDL MAIN
-const int ENC_MAIN_1_CLK = 18; // GREEN  | PIN 18 | INTERRUPT
+const int ENC_MAIN_1_CLOCK = 18; // GREEN  | PIN 18 | INTERRUPT
 const int ENC_MAIN_1_DT  = 28; // YELLOW | PIN 28
-inline int ENC_MAIN_1_CLK_STATE;
+inline int ENC_MAIN_1_CLOCK_STATE;
 inline int ENC_MAIN_1_DT_STATE;
 inline volatile int ENC_MAIN_1_VALUE = 0;
 
