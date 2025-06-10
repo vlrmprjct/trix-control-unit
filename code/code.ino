@@ -1,9 +1,9 @@
 #include "buttonControl.h"
-#include "reedControl.h"
-#include "encoderControl.h"
 #include "config.h"
+#include "encoderControl.h"
 #include "lcdControl.h"
 #include "motorControl.h"
+#include "reedControl.h"
 #include "relayControl.h"
 #include "servoControl.h"
 
@@ -21,7 +21,7 @@ void setup() {
 
     // INIT LCD DOT MATRIX ########################################################################
     lcd.begin(20, 4);
-    lcd.print("BOOTING ...");
+    LCDControl::print(lcd, 0, 10, 0, "BOOTING ...");
     delay(2000);
     lcd.clear();
 
@@ -31,7 +31,7 @@ void setup() {
     ENC_MAIN_1_CLOCK_STATE = digitalRead(ENC_MAIN_1_CLOCK);
     attachInterrupt(digitalPinToInterrupt(ENC_MAIN_1_CLOCK), EncoderControl::process, CHANGE);
 
-    // INIT MOTOR MODULE (MAIN) ####################################################################
+    // INIT MOTOR MODULE (MAIN) ###################################################################
     pinMode(MOTOR_MAIN_1, OUTPUT);
     pinMode(MOTOR_MAIN_2, OUTPUT);
     pinMode(MOTOR_HBF1_1, OUTPUT);
@@ -39,7 +39,7 @@ void setup() {
     pinMode(MOTOR_HBF2_1, OUTPUT);
     pinMode(MOTOR_HBF2_2, OUTPUT);
 
-    // INIT TURNOUTS SERVO MODULE ##################################################################
+    // INIT TURNOUTS SERVO MODULE #################################################################
     servo.begin();
     servo.setPWMFreq(60);
 
@@ -52,7 +52,7 @@ void setup() {
         setRelay(i, false);
     }
 
-    // INIT BUTTON CTRL ##########################################################################
+    // INIT BUTTON CTRL ###########################################################################
     pinMode(BTN_DATA, INPUT);
     pinMode(BTN_CLOCK, OUTPUT);
     pinMode(BTN_LATCH, OUTPUT);
@@ -88,7 +88,7 @@ void loop() {
         EEPROM.put(0, HBF_STATE);
     });
 
-    // TURNOUT MANUAL CONTROL ######################################################################
+    // TURNOUT MANUAL CONTROL #####################################################################
     updateButtonStates();
 
     pushButton(1, []() {
