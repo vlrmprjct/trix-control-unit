@@ -66,19 +66,18 @@ void setup() {
     // 0x02    / 0x03  / 0x04  / 0x05
     // 3.92kHz / 490Hz / 122Hz / 30.5Hz
     TCCR4B = (TCCR4B & 0b11111000) | 0x03;
-    analogWrite(MOTOR_MAIN_1, 128);    // 50% Duty Cycle
+    analogWrite(MOTOR_MAIN_1, 128); // 50% Duty Cycle
     analogWrite(MOTOR_HBF1_1, 128); // 50% Duty Cycle
     analogWrite(MOTOR_HBF2_1, 128); // 50% Duty Cycle
 
     // READ FROM EEPROM ###########################################################################
     // INIT TRACK STATION #########################################################################
     EEPROM.get(0, HBF_STATE);
-
 }
 
 void loop() {
 
-    // REEDS TEST #################################################################################
+    // TRACK REED #################################################################################
     ReedControl::updateStates();
 
     ReedControl::push(8, []() {
@@ -89,7 +88,7 @@ void loop() {
         EEPROM.put(0, HBF_STATE);
     });
 
-    // BUTTON TEST ################################################################################
+    // TURNOUT MANUAL CONTROL ######################################################################
     updateButtonStates();
 
     pushButton(1, []() {
@@ -116,7 +115,7 @@ void loop() {
         EEPROM.put(0, HBF_STATE);
     });
 
-    // LCD PRINT TEST #############################################################################
+    // DISPLAY COMMON STATES ######################################################################
     int percent = map(abs(ENC_MAIN_1_VALUE), 0, 255, 0, 100);
 
     LCDControl::print(lcd, 0, 3, 0, "VEL:");
@@ -133,6 +132,8 @@ void loop() {
 
     // MAIN SPEED CONTROL #########################################################################
     motorEncoderControl(ENC_MAIN_1_VALUE, MOTOR_MAIN_1, MOTOR_MAIN_2);
+
+    // HBF MOTOR CONTROL ##########################################################################
     motorEncoderControl(HBF_STATE.HBF1 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF1_1, MOTOR_HBF1_2);
     motorEncoderControl(HBF_STATE.HBF2 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF2_1, MOTOR_HBF2_2);
 

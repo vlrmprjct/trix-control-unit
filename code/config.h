@@ -11,8 +11,8 @@ inline struct HBF_State {
 } HBF_STATE;
 
 // LCD DOT MATRIX
-const int LCD_RS = 34; // COMMON PIN FOR LCD1, LCD2, LCD3
-const int LCD_EN = 36; // COMMON PIN FOR LCD1, LCD2, LCD3
+const int LCD_RS  = 34; // COMMON PIN FOR LCD1, LCD2, LCD3
+const int LCD_EN  = 36; // COMMON PIN FOR LCD1, LCD2, LCD3
 const int LCD1_D4 = 38;
 const int LCD1_D5 = 40;
 const int LCD1_D6 = 42;
@@ -30,20 +30,20 @@ const int MOTOR_HBF1_2 = 3; // WHITE | PIN 3
 const int MOTOR_HBF2_1 = 4; // BLUE  | PIN 4
 const int MOTOR_HBF2_2 = 5; // WHITE | PIN 5
 
-// BUTTON CTRL
+// MANUAL BUTTON CTRL
 const int BTN_DATA   = 46;  // BLUE   | PIN 46
 const int BTN_CLOCK  = 48;  // YELLOW | PIN 48
 const int BTN_LATCH  = 50;  // GREEN  | PIN 50
 
+// TRACK REED CTRL
 const int REED_DATA  = 41;  // BLUE   | PIN 41
 const int REED_CLOCK = 43;  // YELLOW | PIN 43
 const int REED_LATCH = 45;  // GREEN  | PIN 45
 
 // ENCODER MOTOR MDL MAIN
 const int ENC_MAIN_1_CLOCK = 18; // GREEN  | PIN 18 | INTERRUPT
-const int ENC_MAIN_1_DT  = 28; // YELLOW | PIN 28
+const int ENC_MAIN_1_DT    = 28; // YELLOW | PIN 28
 inline int ENC_MAIN_1_CLOCK_STATE;
-inline int ENC_MAIN_1_DT_STATE;
 inline volatile int ENC_MAIN_1_VALUE = 0;
 
 // SERVO MODULE [ NOT USED SOMEWHERE, JUST FOR PINOUT ]
