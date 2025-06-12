@@ -11,6 +11,7 @@ namespace Utils {
     extern float currentSpeed;
 
     float speedMeasure(unsigned long startTime, unsigned long endTime, float distance);
+    float scaleSpeed(float cmPerSec);
 }
 
 #endif

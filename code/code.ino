@@ -102,6 +102,8 @@ void loop() {
         ? LCDControl::print(lcd, 9, 19, 3, "v:" + String(Utils::currentSpeed, 2) + "cm/s")
         : LCDControl::print(lcd, 9, 19, 3, "v:--.--cm/s");
 
+    LCDControl::print(lcd, 9, 19, 2, "v:" + String(Utils::scaleSpeed(Utils::currentSpeed)) + "km/h");
+
     // TURNOUT MANUAL CONTROL #####################################################################
     updateButtonStates();
 
