@@ -16,6 +16,9 @@
 Adafruit_PWMServoDriver servo = Adafruit_PWMServoDriver();
 LiquidCrystal lcd(LCD_RS, LCD_EN, LCD1_D4, LCD1_D5, LCD1_D6, LCD1_D7);
 
+int smoothEncoderValue_HBF1 = 0;
+bool hbf1ShouldStop = false;
+
 void setup() {
 
     Serial.begin(9600);
@@ -96,13 +99,17 @@ void loop() {
     ReedControl::push(7, []() {
         Utils::speedEnd = millis();
         Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, 31.0);
+        hbf1ShouldStop = true;
     });
 
-    Utils::currentSpeed != 0.0
-        ? LCDControl::print(lcd, 9, 19, 3, "v:" + String(Utils::currentSpeed, 2) + "cm/s")
-        : LCDControl::print(lcd, 9, 19, 3, "v:--.--cm/s");
+    ReedControl::push(8, []() {
+        hbf1ShouldStop = false;
+        ENC_MAIN_1_VALUE = 0;
+    });
 
-    LCDControl::print(lcd, 9, 19, 2, "v:" + String(Utils::scaleSpeed(Utils::currentSpeed)) + "km/h");
+    if (hbf1ShouldStop) {
+        MotorControl::smoothStop(ENC_MAIN_1_VALUE);
+    }
 
     // TURNOUT MANUAL CONTROL #####################################################################
     updateButtonStates();
@@ -139,6 +146,12 @@ void loop() {
     LCDControl::print(lcd, 11, 14, 0, String((int)ENC_MAIN_1_VALUE));
     LCDControl::print(lcd, 18, 19, 0, "0%");
     LCDControl::print(lcd, 16, 18, 0, String((int)percent), "RTL");
+
+    Utils::currentSpeed != 0.0
+        ? LCDControl::print(lcd, 9, 19, 3, "v:" + String(Utils::currentSpeed, 2) + "cm/s")
+        : LCDControl::print(lcd, 9, 19, 3, "v:--.--cm/s");
+
+    LCDControl::print(lcd, 9, 19, 2, "v:" + String(Utils::scaleSpeed(Utils::currentSpeed)) + "km/h");
 
     // DIPLAY HBF STATE ###########################################################################
     for (int i = 0; i < 3; ++i) {
