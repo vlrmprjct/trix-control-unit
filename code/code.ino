@@ -1,12 +1,12 @@
-#include "buttonControl.h"
 #include "config.h"
-#include "encoderControl.h"
-#include "lcdControl.h"
-#include "motorControl.h"
-#include "reedControl.h"
-#include "relayControl.h"
-#include "servoControl.h"
-#include "utils.h"
+#include "src/controls/buttonControl.h"
+#include "src/controls/encoderControl.h"
+#include "src/controls/lcdControl.h"
+#include "src/controls/motorControl.h"
+#include "src/controls/reedControl.h"
+#include "src/controls/relayControl.h"
+#include "src/controls/servoControl.h"
+#include "src/utils/utils.h"
 
 #include <Adafruit_PWMServoDriver.h>
 #include <EEPROM.h>

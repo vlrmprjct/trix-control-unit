@@ -1,4 +1,4 @@
-#include "config.h"
+#include "../../config.h"
 #include <Arduino.h>
 
 static int previousReedStates = 0;
