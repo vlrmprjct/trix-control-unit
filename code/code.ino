@@ -145,11 +145,11 @@ void loop() {
     }
 
     // MAIN SPEED CONTROL #########################################################################
-    motorEncoderControl(ENC_MAIN_1_VALUE, MOTOR_MAIN_1, MOTOR_MAIN_2);
+    MotorControl::setValue(ENC_MAIN_1_VALUE, MOTOR_MAIN_1, MOTOR_MAIN_2);
 
     // HBF MOTOR CONTROL ##########################################################################
-    motorEncoderControl(HBF_STATE.HBF1 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF1_1, MOTOR_HBF1_2);
-    motorEncoderControl(HBF_STATE.HBF2 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF2_1, MOTOR_HBF2_2);
+    MotorControl::setValue(HBF_STATE.HBF1 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF1_1, MOTOR_HBF1_2);
+    MotorControl::setValue(HBF_STATE.HBF2 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF2_1, MOTOR_HBF2_2);
 
     setButtonStates();
     ReedControl::setStates();
