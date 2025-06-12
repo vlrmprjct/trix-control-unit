@@ -6,6 +6,7 @@
 #include "reedControl.h"
 #include "relayControl.h"
 #include "servoControl.h"
+#include "utils.h"
 
 #include <Adafruit_PWMServoDriver.h>
 #include <EEPROM.h>
@@ -87,6 +88,19 @@ void loop() {
         HBF_STATE = { true, false, false };
         EEPROM.put(0, HBF_STATE);
     });
+
+    ReedControl::push(6, []() {
+        Utils::speedStart = millis();
+    });
+
+    ReedControl::push(7, []() {
+        Utils::speedEnd = millis();
+        Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, 31.0);
+    });
+
+    Utils::currentSpeed != 0.0
+        ? LCDControl::print(lcd, 9, 19, 3, "v:" + String(Utils::currentSpeed, 2) + "cm/s")
+        : LCDControl::print(lcd, 9, 19, 3, "v:--.--cm/s");
 
     // TURNOUT MANUAL CONTROL #####################################################################
     updateButtonStates();
