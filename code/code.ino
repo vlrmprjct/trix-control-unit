@@ -108,7 +108,7 @@ void loop() {
     });
 
     if (hbf1ShouldStop) {
-        MotorControl::smoothStop(ENC_MAIN_1_VALUE);
+        MotorControl::smoothStop(ENC_MAIN_1_VALUE, 2, 70);
     }
 
     // TURNOUT MANUAL CONTROL #####################################################################

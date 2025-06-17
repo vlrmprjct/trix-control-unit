@@ -3,8 +3,7 @@
 
 namespace MotorControl {
     void setValue(int encoderVal, int in1Pin, int in2Pin);
-    void smoothStop(volatile int& encoderValue, int step, unsigned long interval)
-}
-
+    void smoothStop(volatile int& encoderValue, int step, unsigned long interval);
+    }
 
 #endif
