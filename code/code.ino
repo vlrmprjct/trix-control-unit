@@ -84,14 +84,6 @@ void loop() {
     // TRACK REED #################################################################################
     ReedControl::updateStates();
 
-    ReedControl::push(8, []() {
-        ServoControl::switchTurnout(servo, 0, false);
-        ServoControl::switchTurnout(servo, 1, true);
-        ServoControl::switchTurnout(servo, 2, false);
-        HBF_STATE = { true, false, false };
-        EEPROM.put(0, HBF_STATE);
-    });
-
     ReedControl::push(6, []() {
         Utils::speedStart = millis();
     });
@@ -114,11 +106,11 @@ void loop() {
     // TURNOUT MANUAL CONTROL #####################################################################
     updateButtonStates();
 
-    pushButton(1, []() {
-        ServoControl::switchTurnout(servo, 0, false);
-        ServoControl::switchTurnout(servo, 1, true);
-        ServoControl::switchTurnout(servo, 2, false);
-        HBF_STATE = { true, false, false };
+    pushButton(3, []() {
+        ServoControl::switchTurnout(servo, 0, true);
+        ServoControl::switchTurnout(servo, 1, false);
+        ServoControl::switchTurnout(servo, 2, true);
+        HBF_STATE = { false, false, true };
         EEPROM.put(0, HBF_STATE);
     });
 
@@ -130,11 +122,11 @@ void loop() {
         EEPROM.put(0, HBF_STATE);
     });
 
-    pushButton(3, []() {
-        ServoControl::switchTurnout(servo, 0, true);
-        ServoControl::switchTurnout(servo, 1, false);
-        ServoControl::switchTurnout(servo, 2, true);
-        HBF_STATE = { false, false, true };
+    pushButton(1, []() {
+        ServoControl::switchTurnout(servo, 0, false);
+        ServoControl::switchTurnout(servo, 1, true);
+        ServoControl::switchTurnout(servo, 2, false);
+        HBF_STATE = { true, false, false };
         EEPROM.put(0, HBF_STATE);
     });
 

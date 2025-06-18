@@ -13,7 +13,7 @@ namespace ReedControl {
         delayMicroseconds(5);
         digitalWrite(REED_LATCH, HIGH);
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < REED_COUNT; i++) {
             int bit = digitalRead(REED_DATA);
             if (bit == HIGH) {
                 states |= (1 << i);
@@ -22,7 +22,13 @@ namespace ReedControl {
             delayMicroseconds(5);
             digitalWrite(REED_CLOCK, LOW);
         }
-
+        // Serial.print("Reed states: ");
+        // for (int i = 0; i < 16; i++) {
+        //     // Serial.print((states >> i) & 1);
+        //     if (i < 15) Serial.print(",");
+        // }
+        // Serial.println();
+        // delayMicroseconds(500); // Ensure clock is stable before next read
         return states;
     }
 

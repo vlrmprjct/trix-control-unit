@@ -39,6 +39,7 @@ const int BTN_LATCH  = 50;  // GREEN  | PIN 50
 const int REED_DATA  = 41;  // BLUE   | PIN 41
 const int REED_CLOCK = 43;  // YELLOW | PIN 43
 const int REED_LATCH = 45;  // GREEN  | PIN 45
+const int REED_COUNT = 16;  // REED COUNT
 
 // ENCODER MOTOR MDL MAIN
 const int ENC_MAIN_1_CLOCK = 18; // GREEN  | PIN 18 | INTERRUPT
