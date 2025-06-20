@@ -67,7 +67,7 @@ void setup() {
     pinMode(REED_LATCH, OUTPUT);
 
     // SET PWM FREQUENCY ##########################################################################
-    Utils::setPrescalerAllTimers(0x01);
+    Utils::setPrescalerTimers(0x01);
 
     // READ FROM EEPROM ###########################################################################
     // INIT TRACK STATION #########################################################################
