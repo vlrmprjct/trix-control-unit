@@ -99,9 +99,9 @@ void loop() {
     }
 
     // TURNOUT MANUAL CONTROL #####################################################################
-    updateButtonStates();
+    ButtonControl::updateStates();
 
-    pushButton(3, []() {
+    ButtonControl::pushButton(3, []() {
         ServoControl::switchTurnout(servo, 0, true);
         ServoControl::switchTurnout(servo, 1, false);
         ServoControl::switchTurnout(servo, 2, true);
@@ -109,7 +109,7 @@ void loop() {
         EEPROM.put(0, HBF_STATE);
     });
 
-    pushButton(2, []() {
+    ButtonControl::pushButton(2, []() {
         ServoControl::switchTurnout(servo, 0, true);
         ServoControl::switchTurnout(servo, 1, false);
         ServoControl::switchTurnout(servo, 2, false);
@@ -117,7 +117,7 @@ void loop() {
         EEPROM.put(0, HBF_STATE);
     });
 
-    pushButton(1, []() {
+    ButtonControl::pushButton(1, []() {
         ServoControl::switchTurnout(servo, 0, false);
         ServoControl::switchTurnout(servo, 1, true);
         ServoControl::switchTurnout(servo, 2, false);
@@ -153,7 +153,7 @@ void loop() {
     MotorControl::setValue(HBF_STATE.HBF1 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF1_1, MOTOR_HBF1_2);
     MotorControl::setValue(HBF_STATE.HBF2 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF2_1, MOTOR_HBF2_2);
 
-    setButtonStates();
+    ButtonControl::setStates();
     ReedControl::setStates();
 
     delay(25);

@@ -3,12 +3,11 @@
 
 #include <Arduino.h>
 
-int readButtons();
-
-void pushButton(int buttonNr, void (*callback)());
-
-void updateButtonStates();
-
-void setButtonStates();
+namespace ButtonControl {
+    int readButtons();
+    void pushButton(int buttonNr, void (*callback)());
+    void updateStates();
+    void setStates();
+}
 
 #endif
