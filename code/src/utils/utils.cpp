@@ -36,4 +36,25 @@ namespace Utils {
         // 1 cm/s in the model corresponds to (0.036 * scale) km/h in the original
         return cmPerSec * 0.036 * 160;
     }
+
+    /**
+     * Sets the prescaler for the timers to control their speed.
+     * The scale parameter determines the speed of the timers.
+     * Default value is 0x03, which corresponds to a prescaler of 64.
+     *
+     * 0x01    / 0x02    / 0x03  / 0x04  / 0x05
+     * 62.5kHz / 3.92kHz / 490Hz / 122Hz / 30.5Hz
+     *
+     * @param scale The prescaler value (default is 0x03).
+     */
+    void setPrescalerTimers(uint8_t scale = 0x03) {
+        // ITS RECOMMENDED NOT TO USE TIMER0 ON ARDUINO TO ITS CONFLICT WITH MILLIS() AND DELAY() FUNCTION
+        // TCCR0B = (TCCR0B & 0b11111000) | scale;
+        TCCR1B = (TCCR1B & 0b11111000) | scale;
+        // ITS RECOMMENDED NOT TO USE TIMER2 ON ARDUINO TO ITS CONFLICT WITH MILLIS() AND DELAY() FUNCTION
+        // TCCR2B = (TCCR2B & 0b11111000) | scale;
+        TCCR3B = (TCCR3B & 0b11111000) | scale;
+        TCCR4B = (TCCR4B & 0b11111000) | scale;
+        TCCR5B = (TCCR5B & 0b11111000) | scale;
+    }
 }

@@ -12,6 +12,7 @@ namespace Utils {
 
     float speedMeasure(unsigned long startTime, unsigned long endTime, float distance);
     float scaleSpeed(float cmPerSec);
+    void setPrescalerTimers(uint8_t scale = 0x03) ;
 }
 
 #endif

@@ -67,12 +67,7 @@ void setup() {
     pinMode(REED_LATCH, OUTPUT);
 
     // SET PWM FREQUENCY ##########################################################################
-    // 0x02    / 0x03  / 0x04  / 0x05
-    // 3.92kHz / 490Hz / 122Hz / 30.5Hz
-    TCCR4B = (TCCR4B & 0b11111000) | 0x03;
-    analogWrite(MOTOR_MAIN_1, 128); // 50% Duty Cycle
-    analogWrite(MOTOR_HBF1_1, 128); // 50% Duty Cycle
-    analogWrite(MOTOR_HBF2_1, 128); // 50% Duty Cycle
+    Utils::setPrescalerAllTimers(0x01);
 
     // READ FROM EEPROM ###########################################################################
     // INIT TRACK STATION #########################################################################
