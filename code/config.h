@@ -27,7 +27,7 @@ const int MOTOR_HBF1_1 = 2; // BLUE  | PIN 2
 const int MOTOR_HBF1_2 = 3; // WHITE | PIN 3
 
 // MOTOR MDL HBF2
-const int MOTOR_HBF2_1 = 4; // BLUE  | PIN 4
+const int MOTOR_HBF2_1 = 8; // BLUE  | PIN 8
 const int MOTOR_HBF2_2 = 5; // WHITE | PIN 5
 
 // MANUAL BUTTON CTRL
