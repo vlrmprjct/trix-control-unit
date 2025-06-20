@@ -9,7 +9,7 @@ namespace EncoderControl {
         int currentDTState = digitalRead(ENC_MAIN_1_DT);
 
         if (currentCLKState != ENC_MAIN_1_CLOCK_STATE) {
-            ENC_MAIN_1_VALUE += (currentDTState == currentCLKState) ? 3 : -3;
+            ENC_MAIN_1_VALUE += (currentDTState == currentCLKState) ? 1 : -1;
         }
 
         ENC_MAIN_1_VALUE = constrain(ENC_MAIN_1_VALUE, -255, 255);

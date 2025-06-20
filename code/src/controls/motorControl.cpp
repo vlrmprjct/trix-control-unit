@@ -15,10 +15,10 @@ namespace MotorControl {
     void setValue(int encoderVal, int in1Pin, int in2Pin) {
         int speed = abs(encoderVal);
 
-        if (encoderVal > 5) {
+        if (encoderVal > 1) {
             digitalWrite(in1Pin, LOW);
             analogWrite(in2Pin, speed);
-        } else if (encoderVal < 5) {
+        } else if (encoderVal < 1) {
             digitalWrite(in2Pin, LOW);
             analogWrite(in1Pin, speed);
 
