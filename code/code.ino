@@ -1,4 +1,6 @@
 #include "config.h"
+#include "naming.h"
+#include "state.h"
 #include "src/controls/buttonControl.h"
 #include "src/controls/encoderControl.h"
 #include "src/controls/lcdControl.h"
@@ -67,11 +69,11 @@ void setup() {
     pinMode(REED_LATCH, OUTPUT);
 
     // SET PWM FREQUENCY ##########################################################################
-    Utils::setPrescalerTimers(0x01);
+    Utils::setPrescalerTimers(0x03);
 
     // READ FROM EEPROM ###########################################################################
     // INIT TRACK STATION #########################################################################
-    EEPROM.get(0, HBF_STATE);
+    EEPROM.get(0, HBF_ROUTE);
 }
 
 void loop() {
@@ -102,27 +104,27 @@ void loop() {
     ButtonControl::updateStates();
 
     ButtonControl::pushButton(3, []() {
-        ServoControl::switchTurnout(servo, 0, true);
-        ServoControl::switchTurnout(servo, 1, false);
-        ServoControl::switchTurnout(servo, 2, true);
-        HBF_STATE = { false, false, true };
-        EEPROM.put(0, HBF_STATE);
+        ServoControl::switchTurnout(servo, W1, true);
+        ServoControl::switchTurnout(servo, W2, false);
+        ServoControl::switchTurnout(servo, W3, true);
+        HBF_ROUTE = { false, false, true };
+        EEPROM.put(0, HBF_ROUTE);
     });
 
     ButtonControl::pushButton(2, []() {
-        ServoControl::switchTurnout(servo, 0, true);
-        ServoControl::switchTurnout(servo, 1, false);
-        ServoControl::switchTurnout(servo, 2, false);
-        HBF_STATE = { false, true, false };
-        EEPROM.put(0, HBF_STATE);
+        ServoControl::switchTurnout(servo, W1, true);
+        ServoControl::switchTurnout(servo, W2, false);
+        ServoControl::switchTurnout(servo, W3, false);
+        HBF_ROUTE = { false, true, false };
+        EEPROM.put(0, HBF_ROUTE);
     });
 
     ButtonControl::pushButton(1, []() {
-        ServoControl::switchTurnout(servo, 0, false);
-        ServoControl::switchTurnout(servo, 1, true);
-        ServoControl::switchTurnout(servo, 2, false);
-        HBF_STATE = { true, false, false };
-        EEPROM.put(0, HBF_STATE);
+        ServoControl::switchTurnout(servo, W1, false);
+        ServoControl::switchTurnout(servo, W2, true);
+        ServoControl::switchTurnout(servo, W3, false);
+        HBF_ROUTE = { true, false, false };
+        EEPROM.put(0, HBF_ROUTE);
     });
 
     // DISPLAY COMMON STATES ######################################################################
@@ -142,7 +144,7 @@ void loop() {
 
     // DISPLAY HBF STATE ##########################################################################
     for (int i = 0; i < 3; ++i) {
-        String label = (HBF_STATE.HBF1 && i == 0) || (HBF_STATE.HBF2 && i == 1) || (HBF_STATE.HBF3 && i == 2) ? ">" : " ";
+        String label = (HBF_ROUTE.HBF1 && i == 0) || (HBF_ROUTE.HBF2 && i == 1) || (HBF_ROUTE.HBF3 && i == 2) ? ">" : " ";
         LCDControl::print(lcd, 0, 5, i + 1, label + "HBF " + String(i + 1));
     }
 
@@ -150,8 +152,8 @@ void loop() {
     MotorControl::setValue(ENC_MAIN_1_VALUE, MOTOR_MAIN_1, MOTOR_MAIN_2);
 
     // HBF MOTOR CONTROL ##########################################################################
-    MotorControl::setValue(HBF_STATE.HBF1 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF1_1, MOTOR_HBF1_2);
-    MotorControl::setValue(HBF_STATE.HBF2 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF2_1, MOTOR_HBF2_2);
+    // MotorControl::setValue(HBF_ROUTE.HBF1 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF1_1, MOTOR_HBF1_2);
+    MotorControl::setValue((HBF_ROUTE.HBF1 || HBF_ROUTE.HBF2) ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF2_1, MOTOR_HBF2_2);
 
     ButtonControl::setStates();
     ReedControl::setStates();

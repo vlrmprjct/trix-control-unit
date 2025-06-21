@@ -1,14 +1,6 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
 
 #include <Arduino.h>
-
-// TRACK NAMING
-inline struct HBF_State {
-    bool HBF1;
-    bool HBF2;
-    bool HBF3;
-} HBF_STATE;
 
 // LCD DOT MATRIX
 const int LCD_RS  = 34; // COMMON PIN FOR LCD1, LCD2, LCD3
@@ -60,5 +52,3 @@ const int RELAY_CLOCK = 35; // BLUE   | PIN 35 | SH_CP
 
 // RELAY COUNT
 const int RELAY_COUNT = 24; // RELAY COUNT
-
-#endif
