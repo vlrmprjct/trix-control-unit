@@ -18,7 +18,6 @@
 Adafruit_PWMServoDriver servo = Adafruit_PWMServoDriver();
 LiquidCrystal lcd(LCD_RS, LCD_EN, LCD1_D4, LCD1_D5, LCD1_D6, LCD1_D7);
 
-int smoothEncoderValue_HBF1 = 0;
 bool hbf1ShouldStop = false;
 
 void setup() {
@@ -89,16 +88,16 @@ void loop() {
     ReedControl::push(7, []() {
         Utils::speedEnd = millis();
         Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, 31.0);
-        hbf1ShouldStop = true;
+        if(!HBF_ACTIVE.HBF1) hbf1ShouldStop = true;
     });
 
     ReedControl::push(8, []() {
         hbf1ShouldStop = false;
-        ENC_MAIN_1_VALUE = 0;
+        if (!HBF_ACTIVE.HBF1) ENC_MAIN_1_VALUE = 0;
     });
 
-    if (hbf1ShouldStop) {
-        MotorControl::smoothStop(ENC_MAIN_1_VALUE, 2, 70);
+    if (!HBF_ACTIVE.HBF1 && hbf1ShouldStop) {
+        MotorControl::rampDown(ENC_MAIN_1_VALUE, 2, 60);
     }
 
     // TURNOUT MANUAL CONTROL #####################################################################
@@ -172,7 +171,7 @@ void loop() {
 
     // HBF MOTOR CONTROL ##########################################################################
     // MotorControl::setValue(HBF_ROUTE.HBF1 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF1_1, MOTOR_HBF1_2);
-    MotorControl::setValue(HBF_ACTIVE.HBF1 && (HBF_ROUTE.HBF1 || HBF_ROUTE.HBF2) ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF2_1, MOTOR_HBF2_2);
+    MotorControl::setValue((HBF_ROUTE.HBF1 || HBF_ROUTE.HBF2) ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF2_1, MOTOR_HBF2_2);
 
     ButtonControl::setStates();
     ReedControl::setStates();

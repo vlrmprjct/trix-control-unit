@@ -36,16 +36,16 @@ namespace MotorControl {
      * @param step The amount by which to reduce the encoder value each time this function is called.
      * @param interval The time interval in milliseconds between successive calls to this function.
      */
-    void smoothStop(volatile int& value, int step = 2, unsigned long interval = 70) {
+    void rampDown(volatile int& value, int step = 2, unsigned long interval = 250) {
         static unsigned long lastUpdate = 0;
         unsigned long now = millis();
 
         if (now - lastUpdate >= interval) {
             lastUpdate = now;
-            if (value > 50) {
-                value = max(50, value - step);
-            } else if (value < -50) {
-                value = min(-50, value + step);
+            if (value > 48) {
+                value = max(48, value - step);
+            } else if (value < -48) {
+                value = min(-48, value + step);
             }
         }
     }
