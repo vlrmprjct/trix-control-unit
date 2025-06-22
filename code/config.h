@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Arduino.h>
-
 // LCD DOT MATRIX
 const int LCD_RS  = 34; // COMMON PIN FOR LCD1, LCD2, LCD3
 const int LCD_EN  = 36; // COMMON PIN FOR LCD1, LCD2, LCD3
