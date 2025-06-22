@@ -3,10 +3,10 @@
 enum HBFControls {
     SW_HBF1 = 1,
     SW_HBF2 = 2,
-    SW_HBF3 = 3
+    SW_HBF3 = 3,
     BTN_HBF1 = 8,
     BTN_HBF2 = 7,
-    BTN_HBF3 = 7,
+    BTN_HBF3 = 6
 };
 
 enum BBFControls {
