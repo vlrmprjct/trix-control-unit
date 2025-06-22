@@ -74,6 +74,7 @@ void setup() {
     // READ FROM EEPROM ###########################################################################
     // INIT TRACK STATION #########################################################################
     EEPROM.get(0, HBF_ROUTE);
+    EEPROM.get(10, HBF_ACTIVE);
 }
 
 void loop() {
@@ -103,7 +104,22 @@ void loop() {
     // TURNOUT MANUAL CONTROL #####################################################################
     ButtonControl::updateStates();
 
-    ButtonControl::pushButton(3, []() {
+    ButtonControl::pushButton(BTN_HBF1, []() {
+        HBF_ACTIVE.HBF1 = !HBF_ACTIVE.HBF1;
+        EEPROM.put(10, HBF_ACTIVE);
+    });
+
+    ButtonControl::pushButton(BTN_HBF2, []() {
+        HBF_ACTIVE.HBF2 = !HBF_ACTIVE.HBF2;
+        EEPROM.put(10, HBF_ACTIVE);
+    });
+
+    ButtonControl::pushButton(BTN_HBF3, []() {
+        HBF_ACTIVE.HBF3 = !HBF_ACTIVE.HBF3;
+        EEPROM.put(10, HBF_ACTIVE);
+    });
+
+    ButtonControl::pushButton(SW_HBF3, []() {
         ServoControl::switchTurnout(servo, W1, true);
         ServoControl::switchTurnout(servo, W2, false);
         ServoControl::switchTurnout(servo, W3, true);
@@ -111,7 +127,7 @@ void loop() {
         EEPROM.put(0, HBF_ROUTE);
     });
 
-    ButtonControl::pushButton(2, []() {
+    ButtonControl::pushButton(SW_HBF2, []() {
         ServoControl::switchTurnout(servo, W1, true);
         ServoControl::switchTurnout(servo, W2, false);
         ServoControl::switchTurnout(servo, W3, false);
@@ -119,7 +135,7 @@ void loop() {
         EEPROM.put(0, HBF_ROUTE);
     });
 
-    ButtonControl::pushButton(1, []() {
+    ButtonControl::pushButton(SW_HBF1, []() {
         ServoControl::switchTurnout(servo, W1, false);
         ServoControl::switchTurnout(servo, W2, true);
         ServoControl::switchTurnout(servo, W3, false);
@@ -146,6 +162,9 @@ void loop() {
     for (int i = 0; i < 3; ++i) {
         String label = (HBF_ROUTE.HBF1 && i == 0) || (HBF_ROUTE.HBF2 && i == 1) || (HBF_ROUTE.HBF3 && i == 2) ? ">" : " ";
         LCDControl::print(lcd, 0, 5, i + 1, label + "HBF " + String(i + 1));
+
+        bool active = (i == 0 && HBF_ACTIVE.HBF1) || (i == 1 && HBF_ACTIVE.HBF2) || (i == 2 && HBF_ACTIVE.HBF3);
+        LCDControl::print(lcd, 6, 7, i + 1, active ? "*" : " ");
     }
 
     // MAIN SPEED CONTROL #########################################################################
@@ -153,7 +172,7 @@ void loop() {
 
     // HBF MOTOR CONTROL ##########################################################################
     // MotorControl::setValue(HBF_ROUTE.HBF1 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF1_1, MOTOR_HBF1_2);
-    MotorControl::setValue((HBF_ROUTE.HBF1 || HBF_ROUTE.HBF2) ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF2_1, MOTOR_HBF2_2);
+    MotorControl::setValue(HBF_ACTIVE.HBF1 && (HBF_ROUTE.HBF1 || HBF_ROUTE.HBF2) ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF2_1, MOTOR_HBF2_2);
 
     ButtonControl::setStates();
     ReedControl::setStates();
