@@ -13,17 +13,17 @@ const int MOTOR_MAIN_1 = 6; // BLUE  | PIN 6
 const int MOTOR_MAIN_2 = 7; // WHITE | PIN 7
 
 // MOTOR MDL HBF1
-const int MOTOR_HBF1_1 = 2; // BLUE  | PIN 2
-const int MOTOR_HBF1_2 = 3; // WHITE | PIN 3
+const int MOTOR_HBF1_1 = 8; // BLUE  | PIN 8
+const int MOTOR_HBF1_2 = 9; // WHITE | PIN 9
 
 // MOTOR MDL HBF2
-const int MOTOR_HBF2_1 = 8; // BLUE  | PIN 8
+const int MOTOR_HBF2_1 = 4; // BLUE  | PIN 8
 const int MOTOR_HBF2_2 = 5; // WHITE | PIN 5
 
 // MANUAL BUTTON CTRL
-const int BTN_DATA   = 46;  // BLUE   | PIN 46
-const int BTN_CLOCK  = 48;  // YELLOW | PIN 48
-const int BTN_LATCH  = 50;  // GREEN  | PIN 50
+const int BTN_DATA   = 22;  // BLUE   | PIN 22
+const int BTN_CLOCK  = 23;  // YELLOW | PIN 23
+const int BTN_LATCH  = 24;  // GREEN  | PIN 24
 
 // TRACK REED CTRL
 const int REED_DATA  = 41;  // BLUE   | PIN 41

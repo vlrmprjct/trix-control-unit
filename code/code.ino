@@ -146,7 +146,7 @@ void loop() {
     int percent = map(abs(ENC_MAIN_1_VALUE), 0, 255, 0, 100);
 
     LCDControl::print(lcd, 0, 3, 0, "VEL:");
-    LCDControl::print(lcd, 6, 8, 0, ENC_MAIN_1_VALUE > 0 ? ">" : "<");
+    LCDControl::print(lcd, 6, 8, 0, ENC_MAIN_1_VALUE > 0 ? "<" : ">");
     LCDControl::print(lcd, 11, 14, 0, String((int)ENC_MAIN_1_VALUE));
     LCDControl::print(lcd, 18, 19, 0, "0%");
     LCDControl::print(lcd, 16, 18, 0, String((int)percent), "RTL");
@@ -170,8 +170,8 @@ void loop() {
     MotorControl::setValue(ENC_MAIN_1_VALUE, MOTOR_MAIN_1, MOTOR_MAIN_2);
 
     // HBF MOTOR CONTROL ##########################################################################
-    // MotorControl::setValue(HBF_ROUTE.HBF1 ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF1_1, MOTOR_HBF1_2);
-    MotorControl::setValue((HBF_ROUTE.HBF1 || HBF_ROUTE.HBF2) ? ENC_MAIN_1_VALUE : 0, MOTOR_HBF2_1, MOTOR_HBF2_2);
+    MotorControl::setValue(ENC_MAIN_1_VALUE, MOTOR_HBF1_1, MOTOR_HBF1_2);
+    MotorControl::setValue(ENC_MAIN_1_VALUE, MOTOR_HBF2_1, MOTOR_HBF2_2);
 
     ButtonControl::setStates();
     ReedControl::setStates();
