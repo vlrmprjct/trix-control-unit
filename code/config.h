@@ -8,6 +8,10 @@ const int LCD1_D5 = 40;
 const int LCD1_D6 = 42;
 const int LCD1_D7 = 44;
 
+// NFC RC522 RFID MODULE
+const int NFC_SDA = 53; // SS PIN | PIN 53
+const int NFC_RST = 49; // RST PIN | PIN 49
+
 // MOTOR MDL MAIN
 const int MOTOR_MAIN_1 = 6; // BLUE  | PIN 6
 const int MOTOR_MAIN_2 = 7; // WHITE | PIN 7

@@ -1,6 +1,6 @@
 #include "config.h"
 #include "naming.h"
-#include "state.h"
+#include "profiles.h"
 #include "src/controls/buttonControl.h"
 #include "src/controls/encoderControl.h"
 #include "src/controls/lcdControl.h"
@@ -8,21 +8,33 @@
 #include "src/controls/reedControl.h"
 #include "src/controls/relayControl.h"
 #include "src/controls/servoControl.h"
+#include "src/controls/tagreader.h"
 #include "src/utils/utils.h"
+#include "state.h"
 
 #include <Adafruit_PWMServoDriver.h>
 #include <EEPROM.h>
 #include <LiquidCrystal.h>
+#include <MFRC522.h>
+#include <SPI.h>
 #include <Wire.h>
 
 Adafruit_PWMServoDriver servo = Adafruit_PWMServoDriver();
 LiquidCrystal lcd(LCD_RS, LCD_EN, LCD1_D4, LCD1_D5, LCD1_D6, LCD1_D7);
+MFRC522 rfid(NFC_SDA, NFC_RST);
 
+UIDProfile* currentProfile = nullptr;
 bool hbf1ShouldStop = false;
 
 void setup() {
 
     Serial.begin(9600);
+
+    // INIT I2C BUS ###############################################################################
+    SPI.begin();
+
+    // INIT NFC RC522 RFID MODULE #################################################################
+    rfid.PCD_Init();
 
     // INIT LCD DOT MATRIX ########################################################################
     lcd.begin(20, 4);
@@ -77,6 +89,13 @@ void setup() {
 }
 
 void loop() {
+
+    currentProfile = getTag(rfid);
+
+    if (currentProfile) {
+        Serial.print("Erkannt: ");
+        Serial.println(currentProfile->name);
+    }
 
     // TRACK REED #################################################################################
     ReedControl::updateStates();
