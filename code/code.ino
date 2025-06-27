@@ -25,6 +25,8 @@ MFRC522 rfid(NFC_SDA, NFC_RST);
 
 UIDProfile* currentProfile = nullptr;
 bool hbf1ShouldStop = false;
+char* profileName = "";
+
 
 void setup() {
 
@@ -90,11 +92,13 @@ void setup() {
 
 void loop() {
 
+    // NFC READER #################################################################################
     currentProfile = getTag(rfid);
-
     if (currentProfile) {
-        Serial.print("Erkannt: ");
+        Serial.print("Profile: ");
+        Serial.println(currentProfile->uid);
         Serial.println(currentProfile->name);
+        profileName = currentProfile->name;
     }
 
     // TRACK REED #################################################################################
@@ -184,6 +188,8 @@ void loop() {
         bool active = (i == 0 && HBF_ACTIVE.HBF1) || (i == 1 && HBF_ACTIVE.HBF2) || (i == 2 && HBF_ACTIVE.HBF3);
         LCDControl::print(lcd, 6, 7, i + 1, active ? "*" : " ");
     }
+
+    LCDControl::print(lcd, 9, 19, 1, profileName);
 
     // MAIN SPEED CONTROL #########################################################################
     MotorControl::setValue(ENC_MAIN_1_VALUE, MOTOR_MAIN_1, MOTOR_MAIN_2);
