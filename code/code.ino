@@ -9,6 +9,7 @@
 #include "src/controls/relayControl.h"
 #include "src/controls/servoControl.h"
 #include "src/controls/tagreader.h"
+#include "src/utils/eeprom.h"
 #include "src/utils/utils.h"
 #include "state.h"
 
@@ -86,8 +87,16 @@ void setup() {
 
     // READ FROM EEPROM ###########################################################################
     // INIT TRACK STATION #########################################################################
+    initState();
     EEPROM.get(0, HBF_ROUTE);
-    EEPROM.get(10, HBF_ACTIVE);
+    EEPROM.get(100, HBF_ACTIVE);
+
+    // CLEAR EEPROM ###############################################################################
+    // for (int i = 0; i < EEPROM.length(); i++) {
+    //     EEPROM.write(i, 0xFF); // oder 0x00, je nach gewünschtem "leer"-Wert
+    // }
+    // while (1)
+    //     ; // Stoppt das Programm, damit nichts weiter passiert
 }
 
 void loop() {
@@ -111,15 +120,17 @@ void loop() {
     ReedControl::push(7, []() {
         Utils::speedEnd = millis();
         Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, 31.0);
-        if(!HBF_ACTIVE.HBF1) hbf1ShouldStop = true;
+        if (!HBF_ACTIVE.HBF1.active)
+            hbf1ShouldStop = true;
     });
 
     ReedControl::push(8, []() {
         hbf1ShouldStop = false;
-        if (!HBF_ACTIVE.HBF1) ENC_MAIN_1_VALUE = 0;
+        if (!HBF_ACTIVE.HBF1.active)
+            ENC_MAIN_1_VALUE = 0;
     });
 
-    if (!HBF_ACTIVE.HBF1 && hbf1ShouldStop) {
+    if (!HBF_ACTIVE.HBF1.active && hbf1ShouldStop) {
         MotorControl::rampDown(ENC_MAIN_1_VALUE, 2, 60);
     }
 
@@ -127,25 +138,27 @@ void loop() {
     ButtonControl::updateStates();
 
     ButtonControl::pushButton(BTN_HBF1, []() {
-        HBF_ACTIVE.HBF1 = !HBF_ACTIVE.HBF1;
-        EEPROM.put(10, HBF_ACTIVE);
+        HBF_ACTIVE.HBF1.active = !HBF_ACTIVE.HBF1.active;
+        EEPROM.put(100, HBF_ACTIVE);
     });
 
     ButtonControl::pushButton(BTN_HBF2, []() {
-        HBF_ACTIVE.HBF2 = !HBF_ACTIVE.HBF2;
-        EEPROM.put(10, HBF_ACTIVE);
+        HBF_ACTIVE.HBF2.active = !HBF_ACTIVE.HBF2.active;
+        EEPROM.put(100, HBF_ACTIVE);
     });
 
     ButtonControl::pushButton(BTN_HBF3, []() {
-        HBF_ACTIVE.HBF3 = !HBF_ACTIVE.HBF3;
-        EEPROM.put(10, HBF_ACTIVE);
+        HBF_ACTIVE.HBF3.active = !HBF_ACTIVE.HBF3.active;
+        EEPROM.put(100, HBF_ACTIVE);
     });
 
     ButtonControl::pushButton(SW_HBF3, []() {
         ServoControl::switchTurnout(servo, W1, true);
         ServoControl::switchTurnout(servo, W2, false);
         ServoControl::switchTurnout(servo, W3, true);
-        HBF_ROUTE = { false, false, true };
+        HBF_ROUTE.HBF1.active = false;
+        HBF_ROUTE.HBF2.active = false;
+        HBF_ROUTE.HBF3.active = true;
         EEPROM.put(0, HBF_ROUTE);
     });
 
@@ -153,7 +166,9 @@ void loop() {
         ServoControl::switchTurnout(servo, W1, true);
         ServoControl::switchTurnout(servo, W2, false);
         ServoControl::switchTurnout(servo, W3, false);
-        HBF_ROUTE = { false, true, false };
+        HBF_ROUTE.HBF1.active = false;
+        HBF_ROUTE.HBF2.active = true;
+        HBF_ROUTE.HBF3.active = false;
         EEPROM.put(0, HBF_ROUTE);
     });
 
@@ -161,7 +176,9 @@ void loop() {
         ServoControl::switchTurnout(servo, W1, false);
         ServoControl::switchTurnout(servo, W2, true);
         ServoControl::switchTurnout(servo, W3, false);
-        HBF_ROUTE = { true, false, false };
+        HBF_ROUTE.HBF1.active = true;
+        HBF_ROUTE.HBF2.active = false;
+        HBF_ROUTE.HBF3.active = false;
         EEPROM.put(0, HBF_ROUTE);
     });
 
@@ -182,10 +199,10 @@ void loop() {
 
     // DISPLAY HBF STATE ##########################################################################
     for (int i = 0; i < 3; ++i) {
-        String label = (HBF_ROUTE.HBF1 && i == 0) || (HBF_ROUTE.HBF2 && i == 1) || (HBF_ROUTE.HBF3 && i == 2) ? ">" : " ";
+        String label = (HBF_ROUTE.HBF1.active && i == 0) || (HBF_ROUTE.HBF2.active && i == 1) || (HBF_ROUTE.HBF3.active && i == 2) ? ">" : " ";
         LCDControl::print(lcd, 0, 5, i + 1, label + "HBF " + String(i + 1));
 
-        bool active = (i == 0 && HBF_ACTIVE.HBF1) || (i == 1 && HBF_ACTIVE.HBF2) || (i == 2 && HBF_ACTIVE.HBF3);
+        bool active = (i == 0 && HBF_ACTIVE.HBF1.active) || (i == 1 && HBF_ACTIVE.HBF2.active) || (i == 2 && HBF_ACTIVE.HBF3.active);
         LCDControl::print(lcd, 6, 7, i + 1, active ? "*" : " ");
     }
 

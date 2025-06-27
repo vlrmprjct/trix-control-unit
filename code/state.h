@@ -1,9 +1,14 @@
 #pragma once
 
+struct HBF_SLOT {
+    bool active;
+    char name[32];
+};
+
 struct HBF_STATE {
-    bool HBF1;
-    bool HBF2;
-    bool HBF3;
+    HBF_SLOT HBF1;
+    HBF_SLOT HBF2;
+    HBF_SLOT HBF3;
 };
 
 inline HBF_STATE HBF_ROUTE;
