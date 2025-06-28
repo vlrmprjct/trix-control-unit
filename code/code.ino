@@ -68,7 +68,7 @@ void setup() {
     pinMode(RELAY_CLOCK, OUTPUT);
     pinMode(RELAY_DATA, OUTPUT);
     // INITIALIZE ALL RELAYS "OFF"
-    for (int i = 0; i < RELAY_COUNT; i++) {
+    for (int i = 0; i < RELAY_COUNT + 1; i++) {
         setRelay(i, false);
     }
 
@@ -139,17 +139,23 @@ void loop() {
 
     ButtonControl::pushButton(BTN_HBF1, []() {
         HBF_ACTIVE.HBF1.active = !HBF_ACTIVE.HBF1.active;
-        EEPROM.put(100, HBF_ACTIVE);
+        HBF_ACTIVE.HBF2.active = false;
+        HBF_ACTIVE.HBF3.active = false;
+        EEPROM.put(EEPROM_ACTIVE, HBF_ACTIVE);
     });
 
     ButtonControl::pushButton(BTN_HBF2, []() {
+        HBF_ACTIVE.HBF1.active = false;
         HBF_ACTIVE.HBF2.active = !HBF_ACTIVE.HBF2.active;
-        EEPROM.put(100, HBF_ACTIVE);
+        HBF_ACTIVE.HBF3.active = false;
+        EEPROM.put(EEPROM_ACTIVE, HBF_ACTIVE);
     });
 
     ButtonControl::pushButton(BTN_HBF3, []() {
+        HBF_ACTIVE.HBF1.active = false;
+        HBF_ACTIVE.HBF2.active = false;
         HBF_ACTIVE.HBF3.active = !HBF_ACTIVE.HBF3.active;
-        EEPROM.put(100, HBF_ACTIVE);
+        EEPROM.put(EEPROM_ACTIVE, HBF_ACTIVE);
     });
 
     ButtonControl::pushButton(SW_HBF3, []() {
@@ -159,7 +165,7 @@ void loop() {
         HBF_ROUTE.HBF1.active = false;
         HBF_ROUTE.HBF2.active = false;
         HBF_ROUTE.HBF3.active = true;
-        EEPROM.put(0, HBF_ROUTE);
+        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
     ButtonControl::pushButton(SW_HBF2, []() {
@@ -169,7 +175,7 @@ void loop() {
         HBF_ROUTE.HBF1.active = false;
         HBF_ROUTE.HBF2.active = true;
         HBF_ROUTE.HBF3.active = false;
-        EEPROM.put(0, HBF_ROUTE);
+        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
     ButtonControl::pushButton(SW_HBF1, []() {
@@ -179,7 +185,7 @@ void loop() {
         HBF_ROUTE.HBF1.active = true;
         HBF_ROUTE.HBF2.active = false;
         HBF_ROUTE.HBF3.active = false;
-        EEPROM.put(0, HBF_ROUTE);
+        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
     // DISPLAY COMMON STATES ######################################################################
@@ -205,8 +211,6 @@ void loop() {
         bool active = (i == 0 && HBF_ACTIVE.HBF1.active) || (i == 1 && HBF_ACTIVE.HBF2.active) || (i == 2 && HBF_ACTIVE.HBF3.active);
         LCDControl::print(lcd, 6, 7, i + 1, active ? "*" : " ");
     }
-
-    LCDControl::print(lcd, 9, 19, 1, profileName);
 
     // MAIN SPEED CONTROL #########################################################################
     MotorControl::setValue(ENC_MAIN_1_VALUE, MOTOR_MAIN_1, MOTOR_MAIN_2);
