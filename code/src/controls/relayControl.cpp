@@ -6,9 +6,9 @@ uint32_t relaisState = 0;
 void setRelays(uint32_t value) {
     digitalWrite(RELAY_LATCH, LOW);
 
-    shiftOut(RELAY_DATA, RELAY_CLOCK, MSBFIRST, value & 0xFF);
-    shiftOut(RELAY_DATA, RELAY_CLOCK, MSBFIRST, (value >> 8) & 0xFF);
     shiftOut(RELAY_DATA, RELAY_CLOCK, MSBFIRST, (value >> 16) & 0xFF);
+    shiftOut(RELAY_DATA, RELAY_CLOCK, MSBFIRST, (value >> 8) & 0xFF);
+    shiftOut(RELAY_DATA, RELAY_CLOCK, MSBFIRST, value & 0xFF);
 
     digitalWrite(RELAY_LATCH, HIGH);
 }
