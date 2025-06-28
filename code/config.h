@@ -21,8 +21,8 @@ const int MOTOR_MAIN_1 = 6; // BLUE  | PIN 6
 const int MOTOR_MAIN_2 = 7; // WHITE | PIN 7
 
 // MOTOR MDL HBF1
-const int MOTOR_HBF1_1 = 8; // BLUE  | PIN 8
-const int MOTOR_HBF1_2 = 9; // WHITE | PIN 9
+const int MOTOR_HBF1_1 = 2; // BLUE  | PIN 8
+const int MOTOR_HBF1_2 = 3; // WHITE | PIN 9
 
 // MOTOR MDL HBF2
 const int MOTOR_HBF2_1 = 4; // BLUE  | PIN 8
