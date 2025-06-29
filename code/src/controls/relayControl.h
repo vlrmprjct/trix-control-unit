@@ -1,8 +1,8 @@
-#ifndef RELAYCONTROL_H
-#define RELAYCONTROL_H
+#pragma once
 
-void setRelays(uint32_t value);
-void setRelay(int relayNumber, bool state);
-void toggleRelay(int relayNumber);
-
-#endif
+namespace RelayControl {
+    void initRelays();
+    void setRelays(uint32_t value);
+    void setRelay(int relayNumber, bool state);
+    void toggleRelay(int relayNumber);
+}

@@ -1,35 +1,46 @@
 #include "../../config.h"
 #include <Arduino.h>
+#include <EEPROM.h>
 
-uint32_t relaisState = 0;
+uint32_t relayState = 0;
 
-void setRelays(uint32_t value) {
-    digitalWrite(RELAY_LATCH, LOW);
+namespace RelayControl {
 
-    shiftOut(RELAY_DATA, RELAY_CLOCK, MSBFIRST, (value >> 16) & 0xFF);
-    shiftOut(RELAY_DATA, RELAY_CLOCK, MSBFIRST, (value >> 8) & 0xFF);
-    shiftOut(RELAY_DATA, RELAY_CLOCK, MSBFIRST, value & 0xFF);
+    void setRelays(uint32_t value) {
+        digitalWrite(RELAY_LATCH, LOW);
 
-    digitalWrite(RELAY_LATCH, HIGH);
-}
+        shiftOut(RELAY_DATA, RELAY_CLOCK, MSBFIRST, (value >> 16) & 0xFF);
+        shiftOut(RELAY_DATA, RELAY_CLOCK, MSBFIRST, (value >> 8) & 0xFF);
+        shiftOut(RELAY_DATA, RELAY_CLOCK, MSBFIRST, value & 0xFF);
 
-void setRelay(int relayNumber, bool state) {
-    if (relayNumber < 1 || relayNumber > RELAY_COUNT)
-        return;
-    uint32_t mask = (1UL << (relayNumber - 1));
-
-    if (!state) {
-        relaisState |= mask;
-    } else {
-        relaisState &= ~mask;
+        digitalWrite(RELAY_LATCH, HIGH);
     }
-    setRelays(relaisState);
-}
 
-void toggleRelay(int relayNumber) {
-    if (relayNumber < 1 || relayNumber > RELAY_COUNT)
-        return;
+    void setRelay(int relayNumber, bool state) {
+        if (relayNumber < 1 || relayNumber > RELAY_COUNT)
+            return;
+        uint32_t mask = (1UL << (relayNumber - 1));
 
-    relaisState ^= (1UL << (relayNumber - 1));
-    setRelays(relaisState);
+        if (!state) {
+            relayState |= mask;
+        } else {
+            relayState &= ~mask;
+        }
+        setRelays(relayState);
+        EEPROM.put(EEPROM_RELAY, relayState);
+    }
+
+    void toggleRelay(int relayNumber) {
+        if (relayNumber < 1 || relayNumber > RELAY_COUNT)
+            return;
+
+        relayState ^= (1UL << (relayNumber - 1));
+        setRelays(relayState);
+        EEPROM.put(EEPROM_RELAY, relayState);
+    }
+
+    void initRelays() {
+        EEPROM.get(EEPROM_RELAY, relayState);
+        setRelays(relayState);
+    }
 }
