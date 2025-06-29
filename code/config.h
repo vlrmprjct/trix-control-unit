@@ -1,8 +1,9 @@
 #pragma once
 
 // EEPROM ADDRESS CONSTANTS
-constexpr int EEPROM_ROUTE = 0;
+constexpr int EEPROM_ROUTE  = 0;
 constexpr int EEPROM_ACTIVE = 100;
+constexpr int EEPROM_RELAY  = 200;
 
 // LCD DOT MATRIX
 const int LCD_RS  = 34; // COMMON PIN FOR LCD1, LCD2, LCD3
@@ -37,6 +38,8 @@ const int BTN_LATCH  = 24;  // GREEN  | PIN 24
 const int REED_DATA  = 41;  // BLUE   | PIN 41
 const int REED_CLOCK = 43;  // YELLOW | PIN 43
 const int REED_LATCH = 45;  // GREEN  | PIN 45
+
+// REED COUNT
 const int REED_COUNT = 16;  // REED COUNT
 
 // ENCODER MOTOR MDL MAIN
