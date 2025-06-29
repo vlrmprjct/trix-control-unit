@@ -3,8 +3,6 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 
-
-
 namespace Utils {
     extern unsigned long speedStart;
     extern unsigned long speedEnd;
