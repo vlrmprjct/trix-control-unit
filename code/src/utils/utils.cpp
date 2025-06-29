@@ -75,4 +75,11 @@ namespace Utils {
             Serial.println(value, DEC);
         }
     }
+
+    void clearEEPROM(uint8_t value) {
+        for (int i = 0; i < EEPROM.length(); i++) {
+            EEPROM.write(i, value);
+        }
+        while (1);
+    }
 }
