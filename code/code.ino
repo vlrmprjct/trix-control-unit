@@ -26,8 +26,6 @@ MFRC522 rfid(NFC_SDA, NFC_RST);
 
 UIDProfile* currentProfile = nullptr;
 bool hbf1ShouldStop = false;
-char* profileName = "";
-
 
 void setup() {
 
@@ -67,10 +65,7 @@ void setup() {
     pinMode(RELAY_LATCH, OUTPUT);
     pinMode(RELAY_CLOCK, OUTPUT);
     pinMode(RELAY_DATA, OUTPUT);
-    // INITIALIZE ALL RELAYS "OFF"
-    for (int i = 0; i < RELAY_COUNT + 1; i++) {
-        setRelay(i, false);
-    }
+    RelayControl::initRelays(); // Relais auf gespeicherten Zustand setzen
 
     // INIT BUTTON CTRL ###########################################################################
     pinMode(BTN_DATA, INPUT);
@@ -85,29 +80,50 @@ void setup() {
     // SET PWM FREQUENCY ##########################################################################
     Utils::setPrescalerTimers(0x03);
 
-    // READ FROM EEPROM ###########################################################################
-    // INIT TRACK STATION #########################################################################
+    // INIT STATE / READ FROM EEPROM ##############################################################
     initState();
-    EEPROM.get(0, HBF_ROUTE);
-    EEPROM.get(100, HBF_ACTIVE);
+    EEPROM.get(EEPROM_ROUTE, HBF_ROUTE);
+    EEPROM.get(EEPROM_ACTIVE, HBF_ACTIVE);
 
     // CLEAR EEPROM ###############################################################################
-    // for (int i = 0; i < EEPROM.length(); i++) {
-    //     EEPROM.write(i, 0xFF); // oder 0x00, je nach gewünschtem "leer"-Wert
-    // }
-    // while (1)
-    //     ; // Stoppt das Programm, damit nichts weiter passiert
+    // Utils::clearEEPROM();
 }
 
 void loop() {
 
     // NFC READER #################################################################################
     currentProfile = getTag(rfid);
+
     if (currentProfile) {
-        Serial.print("Profile: ");
-        Serial.println(currentProfile->uid);
-        Serial.println(currentProfile->name);
-        profileName = currentProfile->name;
+        // Array mit Zeigern auf die Namen der drei HBF-Slots
+        char* hbfNames[3] = {
+            HBF_ACTIVE.HBF1.name,
+            HBF_ACTIVE.HBF2.name,
+            HBF_ACTIVE.HBF3.name
+        };
+
+        // Namen aus allen Feldern entfernen, falls vorhanden (nur exakt passenden Namen)
+        for (int i = 0; i < 3; ++i) {
+            if (strncmp(hbfNames[i], currentProfile->name, sizeof(HBF_ACTIVE.HBF1.name)) == 0) {
+                hbfNames[i][0] = '\0';
+            }
+        }
+
+        // Aktives HBF-Feld finden und Namen setzen
+        bool* hbfActive[3] = {
+            &HBF_ROUTE.HBF1.active,
+            &HBF_ROUTE.HBF2.active,
+            &HBF_ROUTE.HBF3.active
+        };
+
+        for (int i = 0; i < 3; ++i) {
+            if (*hbfActive[i]) {
+                strncpy(hbfNames[i], currentProfile->name, sizeof(HBF_ACTIVE.HBF1.name));
+                break; // Nur in das erste aktive Feld schreiben
+            }
+        }
+
+        EEPROM.put(EEPROM_ACTIVE, HBF_ACTIVE);
     }
 
     // TRACK REED #################################################################################
@@ -126,18 +142,23 @@ void loop() {
 
     ReedControl::push(8, []() {
         hbf1ShouldStop = false;
-        if (!HBF_ACTIVE.HBF1.active)
+        if (!HBF_ACTIVE.HBF1.active) {
             ENC_MAIN_1_VALUE = 0;
+            RelayControl::setRelay(8, false);
+        }
     });
 
     if (!HBF_ACTIVE.HBF1.active && hbf1ShouldStop) {
         MotorControl::rampDown(ENC_MAIN_1_VALUE, 2, 60);
     }
 
-    // TURNOUT MANUAL CONTROL #####################################################################
+    // TRACK CONTROL ##############################################################################
     ButtonControl::updateStates();
 
     ButtonControl::pushButton(BTN_HBF1, []() {
+        if (!HBF_ACTIVE.HBF1.active) {
+            RelayControl::setRelay(8, true);
+        }
         HBF_ACTIVE.HBF1.active = !HBF_ACTIVE.HBF1.active;
         HBF_ACTIVE.HBF2.active = false;
         HBF_ACTIVE.HBF3.active = false;
@@ -158,6 +179,7 @@ void loop() {
         EEPROM.put(EEPROM_ACTIVE, HBF_ACTIVE);
     });
 
+    // TURNOUT MANUAL CONTROL #####################################################################
     ButtonControl::pushButton(SW_HBF3, []() {
         ServoControl::switchTurnout(servo, W1, true);
         ServoControl::switchTurnout(servo, W2, false);
@@ -211,6 +233,8 @@ void loop() {
         bool active = (i == 0 && HBF_ACTIVE.HBF1.active) || (i == 1 && HBF_ACTIVE.HBF2.active) || (i == 2 && HBF_ACTIVE.HBF3.active);
         LCDControl::print(lcd, 6, 7, i + 1, active ? "*" : " ");
     }
+
+    LCDControl::print(lcd, 9, 19, 1, String(HBF_ACTIVE.HBF1.name));
 
     // MAIN SPEED CONTROL #########################################################################
     MotorControl::setValue(ENC_MAIN_1_VALUE, MOTOR_MAIN_1, MOTOR_MAIN_2);
