@@ -29,25 +29,26 @@ namespace MotorControl {
     }
 
     /**
-     * Smoothly stops the motor by gradually reducing the encoder value.
-     * This function is useful for preventing abrupt stops and ensuring a smoother operation.
+     * Ramps the motor value up or down to a target value.
+     * This function adjusts the motor speed gradually to avoid sudden changes.
      *
-     * @param value The current value of the encoder, which will be modified to stop the motor.
-     * @param step The amount by which to reduce the encoder value each time this function is called.
-     * @param interval The time interval in milliseconds between successive calls to this function.
+     * @param value The current value of the motor speed.
+     * @param target The target value to ramp towards (default is 80).
+     * @param step The increment or decrement step for each update (default is 2).
+     * @param interval The time interval in milliseconds between updates (default is 250).
      */
-    void rampDown(volatile int& value, int step = 2, unsigned long interval = 250) {
+    void rampValue(volatile int& value, int target = 80, int step = 2, unsigned long interval = 250) {
         static unsigned long lastUpdate = 0;
         unsigned long now = millis();
 
         if (now - lastUpdate >= interval) {
             lastUpdate = now;
-            if (value > 48) {
-                value = max(48, value - step);
-            } else if (value < -48) {
-                value = min(-48, value + step);
+            if (value < target) {
+                value = min(value + step, target);
+            } else if (value > target) {
+                value = max(value - step, target);
             }
         }
     }
-}
 
+}
