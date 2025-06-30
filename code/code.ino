@@ -222,11 +222,10 @@ void loop() {
 
     // DISPLAY COMMON STATES ######################################################################
     int percent = map(abs(ENC_MAIN_1_VALUE), 0, 255, 0, 100);
-    String dirSymbol = (dir == EncoderControl::CW) ? "<" :
-                    (dir == EncoderControl::CCW) ? ">" : " ";
+    String dirAnim = Utils::getDirectionAnimation(dir, 500);
 
     LCDControl::print(lcd, 0, 3, 0, "VEL:");
-    LCDControl::print(lcd, 6, 8, 0, dirSymbol);
+    LCDControl::print(lcd, 6, 8, 0, dirAnim);
     LCDControl::print(lcd, 11, 14, 0, String((int)ENC_MAIN_1_VALUE));
     LCDControl::print(lcd, 18, 19, 0, "0%");
     LCDControl::print(lcd, 16, 18, 0, String((int)percent), "RTL");
