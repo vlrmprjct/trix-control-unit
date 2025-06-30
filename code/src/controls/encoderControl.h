@@ -1,8 +1,13 @@
-#ifndef ENCODER_CONTROL_H
-#define ENCODER_CONTROL_H
+#pragma once
 
 namespace EncoderControl {
-    void process();
-}
 
-#endif
+    enum Direction {
+        STOP = 0,
+        CW = 1,
+        CCW = -1
+    };
+
+    void process();
+    Direction getDirection();
+}
