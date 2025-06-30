@@ -5,6 +5,7 @@ struct UIDProfile {
     const char* name;
     int min;
     int max;
+    int brake;
 };
 
 inline UIDProfile profiles[] = {
@@ -19,6 +20,13 @@ inline UIDProfile profiles[] = {
     {
         "12 1E 90 AB",
         "Test NFC 3"
+    },
+    {
+        "12 1E 90 AB",
+        "BR132",
+        48,
+        80,
+        68
     }
 };
 
