@@ -19,10 +19,6 @@ inline UIDProfile profiles[] = {
     },
     {
         "12 1E 90 AB",
-        "Test NFC 3"
-    },
-    {
-        "12 1E 90 AB",
         "BR132",
         48,
         80,

@@ -96,36 +96,32 @@ void loop() {
     // GET DIRECTION ##############################################################################
     int dir = EncoderControl::getDirection();
 
-    // NFC READER #################################################################################
+    // NFC PROFILE READER #########################################################################
     currentProfile = getTag(rfid);
 
     if (currentProfile) {
-        // Array mit Zeigern auf die Namen der drei HBF-Slots
-        char* hbfNames[3] = {
-            HBF_ACTIVE.HBF1.name,
-            HBF_ACTIVE.HBF2.name,
-            HBF_ACTIVE.HBF3.name
-        };
 
-        // Namen aus allen Feldern entfernen, falls vorhanden (nur exakt passenden Namen)
         for (int i = 0; i < 3; ++i) {
-            if (strncmp(hbfNames[i], currentProfile->name, sizeof(HBF_ACTIVE.HBF1.name)) == 0) {
-                hbfNames[i][0] = '\0';
+            HBF_SLOT* slot = (i == 0) ? &HBF_ACTIVE.HBF1 : (i == 1) ? &HBF_ACTIVE.HBF2
+                                                                    : &HBF_ACTIVE.HBF3;
+
+            if (strncmp(slot->name, currentProfile->name, sizeof(slot->name)) == 0 || strncmp(slot->uid, currentProfile->uid, sizeof(slot->uid)) == 0) {
+                slot->name[0] = '\0';
+                slot->uid[0] = '\0';
             }
         }
 
-        // Aktives HBF-Feld finden und Namen setzen
-        bool* hbfActive[3] = {
-            &HBF_ROUTE.HBF1.active,
-            &HBF_ROUTE.HBF2.active,
-            &HBF_ROUTE.HBF3.active
-        };
+        HBF_SLOT* activeSlot = nullptr;
+        if (HBF_ROUTE.HBF1.active)
+            activeSlot = &HBF_ACTIVE.HBF1;
+        else if (HBF_ROUTE.HBF2.active)
+            activeSlot = &HBF_ACTIVE.HBF2;
+        else if (HBF_ROUTE.HBF3.active)
+            activeSlot = &HBF_ACTIVE.HBF3;
 
-        for (int i = 0; i < 3; ++i) {
-            if (*hbfActive[i]) {
-                strncpy(hbfNames[i], currentProfile->name, sizeof(HBF_ACTIVE.HBF1.name));
-                break; // Nur in das erste aktive Feld schreiben
-            }
+        if (activeSlot) {
+            strncpy(activeSlot->name, currentProfile->name, sizeof(activeSlot->name));
+            strncpy(activeSlot->uid, currentProfile->uid, sizeof(activeSlot->uid));
         }
 
         EEPROM.put(EEPROM_ACTIVE, HBF_ACTIVE);
@@ -256,6 +252,7 @@ void loop() {
     if (!HBF_ACTIVE.HBF1.active && hbfStop) {
         MotorControl::rampValue(ENC_MAIN_1_VALUE, -58, 2, 140);
     }
+
     MotorControl::setValue(ENC_MAIN_1_VALUE, MOTOR_MAIN_1, MOTOR_MAIN_2);
 
     // HBF MOTOR CONTROL ##########################################################################

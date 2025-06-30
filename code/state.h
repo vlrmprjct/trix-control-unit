@@ -3,6 +3,7 @@
 struct HBF_SLOT {
     bool active;
     char name[32];
+    char uid[32];
 };
 
 struct HBF_STATE {
