@@ -25,7 +25,9 @@ LiquidCrystal lcd(LCD_RS, LCD_EN, LCD1_D4, LCD1_D5, LCD1_D6, LCD1_D7);
 MFRC522 rfid(NFC_SDA, NFC_RST);
 
 UIDProfile* currentProfile = nullptr;
-bool hbf1ShouldStop = false;
+
+bool hbfStop = false;
+bool hbfStart = false;
 
 void setup() {
 
@@ -131,26 +133,26 @@ void loop() {
 
     ReedControl::push(6, []() {
         Utils::speedStart = millis();
+        if (!HBF_ACTIVE.HBF1.active) {
+            ENC_MAIN_1_VALUE = -76;
+        }
     });
 
     ReedControl::push(7, []() {
         Utils::speedEnd = millis();
         Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, 31.0);
-        if (!HBF_ACTIVE.HBF1.active)
-            hbf1ShouldStop = true;
+        if (!HBF_ACTIVE.HBF1.active) {
+            hbfStop = true;
+        }
     });
 
     ReedControl::push(8, []() {
-        hbf1ShouldStop = false;
+        hbfStop = false;
         if (!HBF_ACTIVE.HBF1.active) {
             ENC_MAIN_1_VALUE = 0;
             RelayControl::setRelay(8, false);
         }
     });
-
-    if (!HBF_ACTIVE.HBF1.active && hbf1ShouldStop) {
-        MotorControl::rampDown(ENC_MAIN_1_VALUE, 2, 60);
-    }
 
     // TRACK CONTROL ##############################################################################
     ButtonControl::updateStates();
@@ -159,10 +161,15 @@ void loop() {
         if (!HBF_ACTIVE.HBF1.active) {
             RelayControl::setRelay(8, true);
         }
+        bool wasActive = HBF_ACTIVE.HBF1.active;
         HBF_ACTIVE.HBF1.active = !HBF_ACTIVE.HBF1.active;
         HBF_ACTIVE.HBF2.active = false;
         HBF_ACTIVE.HBF3.active = false;
         EEPROM.put(EEPROM_ACTIVE, HBF_ACTIVE);
+
+        if (!wasActive && HBF_ACTIVE.HBF1.active) {
+            hbfStart = true;
+        }
     });
 
     ButtonControl::pushButton(BTN_HBF2, []() {
@@ -237,6 +244,14 @@ void loop() {
     LCDControl::print(lcd, 9, 19, 1, String(HBF_ACTIVE.HBF1.name));
 
     // MAIN SPEED CONTROL #########################################################################
+    if (hbfStart) {
+        MotorControl::rampValue(ENC_MAIN_1_VALUE, -80, 2, 150);
+        if (ENC_MAIN_1_VALUE == -80)
+            hbfStart = false;
+    }
+    if (!HBF_ACTIVE.HBF1.active && hbfStop) {
+        MotorControl::rampValue(ENC_MAIN_1_VALUE, -58, 2, 140);
+    }
     MotorControl::setValue(ENC_MAIN_1_VALUE, MOTOR_MAIN_1, MOTOR_MAIN_2);
 
     // HBF MOTOR CONTROL ##########################################################################
