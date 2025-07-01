@@ -1,6 +1,5 @@
 #include "../../config.h"
 #include <Arduino.h>
-#include <EEPROM.h>
 
 namespace Utils {
 
@@ -59,29 +58,6 @@ namespace Utils {
         TCCR5B = (TCCR5B & 0b11111000) | scale;
     }
 
-    /**
-     * Prints the contents of the EEPROM memory to the Serial Monitor.
-     *
-     * @param from The starting address in EEPROM to read from (default is 0).
-     * @param to The ending address in EEPROM to read to (default is EEPROM.length()).
-     */
-    void debugEEPROM(int from = 0, int to = EEPROM.length()) {
-        Serial.println("EEPROM dump:");
-        for (int i = from; i < to; ++i) {
-            byte value = EEPROM.read(i);
-            Serial.print("Addr ");
-            Serial.print(i);
-            Serial.print(": ");
-            Serial.println(value, DEC);
-        }
-    }
-
-    void clearEEPROM(uint8_t value) {
-        for (int i = 0; i < EEPROM.length(); i++) {
-            EEPROM.write(i, value);
-        }
-        while (1);
-    }
 
     String getDirectionAnimation(int dir, unsigned long interval) {
         static unsigned long lastAnimUpdate = 0;

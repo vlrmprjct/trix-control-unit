@@ -87,12 +87,12 @@ void setup() {
     Utils::setPrescalerTimers(0x03);
 
     // INIT STATE / READ FROM EEPROM ##############################################################
-    initState();
+    Eeprom::initState();
     EEPROM.get(EEPROM_ROUTE, HBF_ROUTE);
     EEPROM.get(EEPROM_ACTIVE, HBF_ACTIVE);
 
     // CLEAR EEPROM ###############################################################################
-    // Utils::clearEEPROM();
+    // Eeprom::clear();
 
     lcd.clear();
 }
