@@ -170,6 +170,9 @@ void loop() {
     ButtonControl::updateStates();
 
     ButtonControl::pushButton(BTN_HBF1, []() {
+        if (!HBF_ROUTE.HBF1.active) {
+            return;
+        }
         if (!HBF_ACTIVE.HBF1.active) {
             RelayControl::setRelay(8, true);
         }
