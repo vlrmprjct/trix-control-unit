@@ -4,6 +4,9 @@ struct HBF_SLOT {
     bool active;
     char name[32];
     char uid[32];
+    int min;
+    int max;
+    int brake;
 };
 
 struct HBF_STATE {

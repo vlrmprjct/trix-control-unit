@@ -28,6 +28,9 @@ UIDProfile* currentProfile = nullptr;
 
 bool hbfStop = false;
 bool hbfStart = false;
+int hbfMin = 60;
+int hbfMax = 80;
+int hbfBrake = 70;
 
 void setup() {
 
@@ -43,7 +46,6 @@ void setup() {
     lcd.begin(20, 4);
     LCDControl::print(lcd, 0, 10, 0, "BOOTING ...");
     delay(2000);
-    lcd.clear();
 
     // INIT ENCODER (MAIN) ########################################################################
     pinMode(ENC_MAIN_1_CLOCK, INPUT_PULLUP);
@@ -62,12 +64,14 @@ void setup() {
     // INIT TURNOUTS SERVO MODULE #################################################################
     servo.begin();
     servo.setPWMFreq(60);
+    delay(500);
 
     // INIT RELAYS ################################################################################
     pinMode(RELAY_LATCH, OUTPUT);
     pinMode(RELAY_CLOCK, OUTPUT);
     pinMode(RELAY_DATA, OUTPUT);
-    RelayControl::initRelays(); // Relais auf gespeicherten Zustand setzen
+    RelayControl::initRelays();
+    delay(500);
 
     // INIT BUTTON CTRL ###########################################################################
     pinMode(BTN_DATA, INPUT);
@@ -89,12 +93,14 @@ void setup() {
 
     // CLEAR EEPROM ###############################################################################
     // Utils::clearEEPROM();
+
+    lcd.clear();
 }
 
 void loop() {
 
     // GET DIRECTION ##############################################################################
-    int dir = EncoderControl::getDirection();
+    static int dir = EncoderControl::getDirection();
 
     // NFC PROFILE READER #########################################################################
     currentProfile = getTag(rfid);
@@ -108,6 +114,9 @@ void loop() {
             if (strncmp(slot->name, currentProfile->name, sizeof(slot->name)) == 0 || strncmp(slot->uid, currentProfile->uid, sizeof(slot->uid)) == 0) {
                 slot->name[0] = '\0';
                 slot->uid[0] = '\0';
+                slot->min = 0;
+                slot->max = 0;
+                slot->brake = 0;
             }
         }
 
@@ -122,6 +131,9 @@ void loop() {
         if (activeSlot) {
             strncpy(activeSlot->name, currentProfile->name, sizeof(activeSlot->name));
             strncpy(activeSlot->uid, currentProfile->uid, sizeof(activeSlot->uid));
+            activeSlot->min = currentProfile->min;
+            activeSlot->max = currentProfile->max;
+            activeSlot->brake = currentProfile->brake;
         }
 
         EEPROM.put(EEPROM_ACTIVE, HBF_ACTIVE);
@@ -133,7 +145,7 @@ void loop() {
     ReedControl::push(6, []() {
         Utils::speedStart = millis();
         if (!HBF_ACTIVE.HBF1.active) {
-            ENC_MAIN_1_VALUE = -76;
+            ENC_MAIN_1_VALUE = abs(HBF_ACTIVE.HBF1.brake) * (-1);
         }
     });
 
@@ -142,13 +154,14 @@ void loop() {
         Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, 31.0);
         if (!HBF_ACTIVE.HBF1.active) {
             hbfStop = true;
+            hbfMin = abs(HBF_ACTIVE.HBF1.min) * (-1);
         }
     });
 
     ReedControl::push(8, []() {
         hbfStop = false;
         if (!HBF_ACTIVE.HBF1.active) {
-            ENC_MAIN_1_VALUE = 0;
+            ENC_MAIN_1_VALUE = -1;
             RelayControl::setRelay(8, false);
         }
     });
@@ -168,6 +181,7 @@ void loop() {
 
         if (!wasActive && HBF_ACTIVE.HBF1.active) {
             hbfStart = true;
+            hbfMax = abs(HBF_ACTIVE.HBF1.max) * (-1);
         }
     });
 
@@ -245,12 +259,12 @@ void loop() {
 
     // MAIN SPEED CONTROL #########################################################################
     if (hbfStart) {
-        MotorControl::rampValue(ENC_MAIN_1_VALUE, -80, 2, 150);
-        if (ENC_MAIN_1_VALUE == -80)
+        MotorControl::rampValue(ENC_MAIN_1_VALUE, hbfMax, 2, 150);
+        if (ENC_MAIN_1_VALUE == hbfMax)
             hbfStart = false;
     }
     if (!HBF_ACTIVE.HBF1.active && hbfStop) {
-        MotorControl::rampValue(ENC_MAIN_1_VALUE, -58, 2, 140);
+        MotorControl::rampValue(ENC_MAIN_1_VALUE, hbfMin, 2, 140);
     }
 
     MotorControl::setValue(ENC_MAIN_1_VALUE, MOTOR_MAIN_1, MOTOR_MAIN_2);
