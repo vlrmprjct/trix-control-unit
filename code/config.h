@@ -2,8 +2,8 @@
 
 // EEPROM ADDRESS CONSTANTS
 constexpr int EEPROM_ROUTE  = 0;
-constexpr int EEPROM_ACTIVE = 100;
-constexpr int EEPROM_RELAY  = 200;
+constexpr int EEPROM_ACTIVE = 500;
+constexpr int EEPROM_RELAY  = 1000;
 
 // LCD DOT MATRIX
 const int LCD_RS  = 34; // COMMON PIN FOR LCD1, LCD2, LCD3
