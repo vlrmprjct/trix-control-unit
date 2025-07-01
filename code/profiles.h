@@ -10,19 +10,25 @@ struct UIDProfile {
 
 inline UIDProfile profiles[] = {
     {
-        "04 73 86 3A 25 55 80",
-        "Test NFC 1"
+        "04 3D 36 6A 40 15 90",
+        "BR132-x",
+        62,
+        82,
+        76
     },
     {
         "A2 5E C0 AB",
-        "Test NFC 2"
+        "BR132-1",
+        54,
+        80,
+        74
     },
     {
         "12 1E 90 AB",
         "BR132",
-        48,
+        56,
         80,
-        68
+        76
     }
 };
 
