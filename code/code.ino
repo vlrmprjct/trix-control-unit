@@ -142,6 +142,45 @@ void loop() {
     // TRACK REED #################################################################################
     ReedControl::updateStates();
 
+    ReedControl::push(3, []() {
+        // HBF2 LEFT
+        RelayControl::toggleRelay(3);
+        Utils::speedStart = millis();
+        if (!HBF_ACTIVE.HBF2.active) {
+            ENC_MAIN_1_VALUE = abs(HBF_ACTIVE.HBF2.brake) * (-1);
+        }
+    });
+
+    ReedControl::push(4, []() {
+        // HBF2 CENTER
+        RelayControl::toggleRelay(4);
+        Utils::speedEnd = millis();
+        Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, 31.0);
+        if (!HBF_ACTIVE.HBF2.active) {
+            hbfStop = true;
+            hbfMin = abs(HBF_ACTIVE.HBF2.min) * (-1);
+        }
+    });
+
+    ReedControl::push(5, []() {
+        // HBF2 RIGHT
+        RelayControl::toggleRelay(5);
+        hbfStop = false;
+        if (!HBF_ACTIVE.HBF2.active) {
+            ENC_MAIN_1_VALUE = -1;
+            RelayControl::setRelay(7, false);
+        }
+    });
+
+    ReedControl::push(2, []() {
+        // HBF3 RIGHT
+        RelayControl::toggleRelay(4);
+    });
+    ReedControl::push(1, []() {
+        // HBF3 CENTER
+        RelayControl::toggleRelay(3);
+    });
+
     ReedControl::push(6, []() {
         Utils::speedStart = millis();
         if (!HBF_ACTIVE.HBF1.active) {
@@ -189,10 +228,22 @@ void loop() {
     });
 
     ButtonControl::pushButton(BTN_HBF2, []() {
+        if (!HBF_ROUTE.HBF2.active) {
+            return;
+        }
+        if (!HBF_ACTIVE.HBF2.active) {
+            RelayControl::setRelay(7, true);
+        }
+        bool wasActive = HBF_ACTIVE.HBF1.active;
         HBF_ACTIVE.HBF1.active = false;
         HBF_ACTIVE.HBF2.active = !HBF_ACTIVE.HBF2.active;
         HBF_ACTIVE.HBF3.active = false;
         EEPROM.put(EEPROM_ACTIVE, HBF_ACTIVE);
+
+        if (!wasActive && HBF_ACTIVE.HBF2.active) {
+            hbfStart = true;
+            hbfMax = abs(HBF_ACTIVE.HBF2.max) * (-1);
+        }
     });
 
     ButtonControl::pushButton(BTN_HBF3, []() {
@@ -243,11 +294,11 @@ void loop() {
     LCDControl::print(lcd, 18, 19, 0, "0%");
     LCDControl::print(lcd, 16, 18, 0, String((int)percent), "RTL");
 
-    Utils::currentSpeed != 0.0
-        ? LCDControl::print(lcd, 9, 19, 3, "v:" + String(Utils::currentSpeed, 2) + "cm/s")
-        : LCDControl::print(lcd, 9, 19, 3, "v:--.--cm/s");
+    // Utils::currentSpeed != 0.0
+    //     ? LCDControl::print(lcd, 9, 19, 3, "v:" + String(Utils::currentSpeed, 2) + "cm/s")
+    //     : LCDControl::print(lcd, 9, 19, 3, "v:--.--cm/s");
 
-    LCDControl::print(lcd, 9, 19, 2, "v:" + String(Utils::scaleSpeed(Utils::currentSpeed)) + "km/h");
+    // LCDControl::print(lcd, 9, 19, 2, "v:" + String(Utils::scaleSpeed(Utils::currentSpeed)) + "km/h");
 
     // DISPLAY HBF STATE ##########################################################################
     for (int i = 0; i < 3; ++i) {
@@ -259,6 +310,7 @@ void loop() {
     }
 
     LCDControl::print(lcd, 9, 19, 1, String(HBF_ACTIVE.HBF1.name));
+    LCDControl::print(lcd, 9, 19, 2, String(HBF_ACTIVE.HBF2.name));
 
     // MAIN SPEED CONTROL #########################################################################
     if (hbfStart) {
