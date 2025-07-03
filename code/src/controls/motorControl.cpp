@@ -4,9 +4,7 @@
 namespace MotorControl {
 
     /**
-     * Controls the motor based on the encoder value.
-     * DRV8871 Module
-     *
+     * @brief Controls the motor based on the encoder value for DRV8871 Module
      * @param encoderVal The value from the encoder, which determines the speed and direction.
      * @param in1Pin The pin connected to the motor driver input 1 pin.
      * @param in2Pin The pin connected to the motor driver input 2 pin.
@@ -29,15 +27,13 @@ namespace MotorControl {
     }
 
     /**
-     * Ramps the motor value up or down to a target value.
-     * This function adjusts the motor speed gradually to avoid sudden changes.
-     *
+     * @brief Ramps the motor value up or down to a target value.
      * @param value The current value of the motor speed.
      * @param target The target value to ramp towards (default is 80).
      * @param step The increment or decrement step for each update (default is 2).
      * @param interval The time interval in milliseconds between updates (default is 250).
      */
-    void rampValue(volatile int& value, int target = 80, int step = 2, unsigned long interval = 250) {
+    void rampValue(volatile int& value, int target, int step, unsigned long interval) {
         static unsigned long lastUpdate = 0;
         unsigned long now = millis();
 
@@ -51,4 +47,40 @@ namespace MotorControl {
         }
     }
 
+    /**
+     * @brief Calculates control value with dynamic delay (exponential).
+     * @param elapsedTime Elapsed time since start (ms).
+     * @param spPosition Position of the startpoint (cm).
+     * @param epPosition Position of the endpoint (cm).
+     * @param initialValue Start value (e.g. 100).
+     * @param endValue Target value (e.g. 50).
+     * @param initialSpeed Speed at initialValue (cm/s).
+     * @return int Control value ( example 100 → 50).
+     */
+    int rampDynamicValue(unsigned long elapsedTime, float spPosition, float epPosition, int initialValue, int endValue, float initialSpeed) {
+        float t = elapsedTime / 1000.0;
+        float t_mp = spPosition / initialSpeed;
+
+        // Phase 1: Before MP (constant speed)
+        if (t <= t_mp) {
+            float currentPosition = initialSpeed * t;
+            return initialValue;
+        }
+
+        // Phase 2: Deceleration (exponential decay)
+        float alpha = 0.1; // Deceleration constant (adjust)
+        float x = initialValue * exp(-alpha * (t - t_mp));
+
+        // Limit to endValue
+        x = max(x, (float)endValue);
+
+        // Calculate position (numerical integration)
+        static float lastPosition = spPosition;
+        static unsigned long lastTime = t_mp * 1000;
+        float deltaT = (elapsedTime - lastTime) / 1000.0;
+        lastPosition += (x * 0.1) * deltaT; // v(x) = k * x (here k=0.1)
+        lastTime = elapsedTime;
+
+        return (int)x;
+    }
 }
