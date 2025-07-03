@@ -68,7 +68,7 @@ namespace MotorControl {
         }
 
         // Phase 2: Deceleration (exponential decay)
-        float alpha = 0.1; // Deceleration constant (adjust)
+        float alpha = 0.08; // Deceleration constant (adjust)
         float x = initialValue * exp(-alpha * (t - t_mp));
 
         // Limit to endValue
