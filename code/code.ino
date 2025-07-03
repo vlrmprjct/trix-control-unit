@@ -30,7 +30,9 @@ bool hbfStop = false;
 bool hbfStart = false;
 int hbfMin = 60;
 int hbfMax = 80;
-int hbfBrake = 70;
+int hbfBrake = 110;
+int dist_rd1_rd2 = 31.5; // Distance between reed sensors 1 and 2 in cm
+int dist_rd2_rd3 = 33.0; // Distance between reed sensors 2 and 3 in cm
 
 void setup() {
 
@@ -98,6 +100,9 @@ void setup() {
 }
 
 void loop() {
+
+    // TIMER ######################################################################################
+    static unsigned long startTimer;
 
     // GET DIRECTION ##############################################################################
     static int dir = EncoderControl::getDirection();
@@ -184,16 +189,16 @@ void loop() {
     ReedControl::push(6, []() {
         Utils::speedStart = millis();
         if (!HBF_ACTIVE.HBF1.active) {
-            ENC_MAIN_1_VALUE = abs(HBF_ACTIVE.HBF1.brake) * (-1);
+            hbfBrake = HBF_ACTIVE.HBF1.brake;
         }
     });
 
     ReedControl::push(7, []() {
         Utils::speedEnd = millis();
-        Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, 31.0);
+        Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, dist_rd1_rd2);
         if (!HBF_ACTIVE.HBF1.active) {
             hbfStop = true;
-            hbfMin = abs(HBF_ACTIVE.HBF1.min) * (-1);
+            hbfMin = HBF_ACTIVE.HBF1.min;
         }
     });
 
@@ -318,8 +323,12 @@ void loop() {
         if (ENC_MAIN_1_VALUE == hbfMax)
             hbfStart = false;
     }
+
     if (!HBF_ACTIVE.HBF1.active && hbfStop) {
-        MotorControl::rampValue(ENC_MAIN_1_VALUE, hbfMin, 2, 140);
+        if (startTimer == 0) startTimer = millis();
+        ENC_MAIN_1_VALUE = (-1) * MotorControl::rampDynamicValue(millis() - startTimer, 0, dist_rd2_rd3, abs(hbfBrake), abs(hbfMin), Utils::currentSpeed);
+    } else {
+        startTimer = 0;
     }
 
     MotorControl::setValue(ENC_MAIN_1_VALUE, MOTOR_MAIN_1, MOTOR_MAIN_2);
