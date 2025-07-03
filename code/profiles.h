@@ -19,7 +19,7 @@ inline UIDProfile profiles[] = {
     {
         "04 08 3C 6A 40 15 91",
         "BR220",
-        90,
+        74,
         120,
         110
     }
