@@ -152,7 +152,7 @@ void loop() {
         RelayControl::toggleRelay(3);
         Utils::speedStart = millis();
         if (!HBF_ACTIVE.HBF2.active) {
-            ENC_MAIN_1_VALUE = abs(HBF_ACTIVE.HBF2.brake) * (-1);
+            hbfBrake = HBF_ACTIVE.HBF2.brake;
         }
     });
 
@@ -163,7 +163,7 @@ void loop() {
         Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, 31.0);
         if (!HBF_ACTIVE.HBF2.active) {
             hbfStop = true;
-            hbfMin = abs(HBF_ACTIVE.HBF2.min) * (-1);
+            hbfMin = HBF_ACTIVE.HBF2.min;
         }
     });
 
