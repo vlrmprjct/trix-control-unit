@@ -48,6 +48,14 @@ namespace Utils {
      * @param scale The prescaler value (default is 0x03).
      */
     void setPrescalerTimers(uint8_t scale = 0x03) {
+
+        noInterrupts();
+        TCNT1 = 0;
+        TCNT3 = 0;
+        TCNT4 = 0;
+        TCNT5 = 0;
+        interrupts();
+
         // ITS RECOMMENDED NOT TO USE TIMER0 ON ARDUINO TO ITS CONFLICT WITH MILLIS() AND DELAY() FUNCTION
         // TCCR0B = (TCCR0B & 0b11111000) | scale;
         TCCR1B = (TCCR1B & 0b11111000) | scale;

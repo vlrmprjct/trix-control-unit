@@ -86,7 +86,7 @@ void setup() {
     pinMode(REED_LATCH, OUTPUT);
 
     // SET PWM FREQUENCY ##########################################################################
-    Utils::setPrescalerTimers(0x03);
+    Utils::setPrescalerTimers(0x02);
 
     // INIT STATE / READ FROM EEPROM ##############################################################
     Eeprom::initState();
@@ -325,7 +325,8 @@ void loop() {
     }
 
     if (!HBF_ACTIVE.HBF1.active && hbfStop) {
-        if (startTimer == 0) startTimer = millis();
+        if (startTimer == 0)
+            startTimer = millis();
         ENC_MAIN_1_VALUE = (-1) * MotorControl::rampDynamicValue(millis() - startTimer, 0, dist_rd2_rd3, abs(hbfBrake), abs(hbfMin), Utils::currentSpeed);
     } else {
         startTimer = 0;
