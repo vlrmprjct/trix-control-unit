@@ -86,7 +86,7 @@ void setup() {
     pinMode(REED_LATCH, OUTPUT);
 
     // SET PWM FREQUENCY ##########################################################################
-    Utils::setPrescalerTimers(0x02);
+    Utils::setPrescalerTimers(0x01);
 
     // INIT STATE / READ FROM EEPROM ##############################################################
     Eeprom::initState();

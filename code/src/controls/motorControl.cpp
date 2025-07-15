@@ -4,6 +4,18 @@
 namespace MotorControl {
 
     /**
+     * @brief Maps the raw encoder value to a speed curve.
+     * @param raw The raw encoder value (0-255).
+     * @return Mapped speed value (0-255).
+     * @usage int speed = mapSpeedCurve(rawValue);
+     */
+    int mapSpeedCurve(int raw) {
+        float normalized = abs(raw) / 255.0;
+        float curved = pow(normalized, 1.5);
+        return (int)(curved * 255.0);
+    }
+
+    /**
      * @brief Controls the motor based on the encoder value for DRV8871 Module
      * @param encoderVal The value from the encoder, which determines the speed and direction.
      * @param in1Pin The pin connected to the motor driver input 1 pin.
@@ -11,15 +23,16 @@ namespace MotorControl {
      * @usage motorEncoderControl(encoderValue, MTR_MDL_1_IN1, MTR_MDL_1_IN2);
      */
     void setValue(int encoderVal, int in1Pin, int in2Pin) {
-        int speed = abs(encoderVal);
+        int direction = encoderVal > 0 ? 1 : (encoderVal < 0 ? -1 : 0);
+        int rawSpeed = abs(encoderVal);
+        int speed = mapSpeedCurve(rawSpeed);
 
-        if (encoderVal > 1) {
+        if (direction > 0) {
             digitalWrite(in1Pin, LOW);
             analogWrite(in2Pin, speed);
-        } else if (encoderVal < 1) {
+        } else if (direction < 0) {
             digitalWrite(in2Pin, LOW);
             analogWrite(in1Pin, speed);
-
         } else {
             digitalWrite(in1Pin, LOW);
             digitalWrite(in2Pin, LOW);
