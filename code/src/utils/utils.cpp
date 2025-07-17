@@ -66,7 +66,6 @@ namespace Utils {
         TCCR5B = (TCCR5B & 0b11111000) | scale;
     }
 
-
     String getDirectionAnimation(int dir, unsigned long interval) {
         static unsigned long lastAnimUpdate = 0;
         static int animFrame = 0;
