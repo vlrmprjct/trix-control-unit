@@ -1,4 +1,5 @@
 #include "lcdControl.h"
+#include <LiquidCrystal.h>
 
 namespace LCDControl {
 
@@ -28,6 +29,13 @@ namespace LCDControl {
 
         lcd.setCursor(col, row);
         lcd.print(value);
+    }
+
+    void resetLCD(int buttonPin, LiquidCrystal& lcd) {
+        if (digitalRead(buttonPin) == LOW) return;
+        lcd.clear();
+        lcd.print("RST");
+        delay(1000);
     }
 
 }
