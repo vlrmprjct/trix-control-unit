@@ -324,12 +324,10 @@ void loop() {
     LCDControl::print(lcd, 9, 19, 1, String(HBF_ACTIVE.HBF2.name));
 
     int percent = map(abs(ENC_PRIMARY_VALUE), 0, 255, 0, 100);
-    String dirAnim = Utils::getDirectionAnimation(dir, 500);
-
-    // LCDControl::print(lcd, 6, 8, 3, dirAnim);
 
     LCDControl::print(lcd, 0, 3, 3, String((int)ENC_PRIMARY_VALUE), "RTL");
     LCDControl::print(lcd, 15, 18, 3, String((int)ENC_SECONDARY_VALUE), "RTL");
+
     // LCDControl::print(lcd, 18, 19, 3, "0%");
     // LCDControl::print(lcd, 16, 18, 3, String((int)percent), "RTL");
 

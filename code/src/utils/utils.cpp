@@ -65,26 +65,4 @@ namespace Utils {
         TCCR4B = (TCCR4B & 0b11111000) | scale;
         TCCR5B = (TCCR5B & 0b11111000) | scale;
     }
-
-    String getDirectionAnimation(int dir, unsigned long interval) {
-        static unsigned long lastAnimUpdate = 0;
-        static int animFrame = 0;
-        const char* ccwAnim[] = { "   ", ">  ", ">> ", ">>>" };
-        const char* cwAnim[] = { "   ", "  <", " <<", "<<<" };
-        const int animFrames = 4;
-
-        unsigned long now = millis();
-        if (now - lastAnimUpdate > interval) {
-            lastAnimUpdate = now;
-            animFrame = (animFrame + 1) % animFrames;
-        }
-
-        if (dir > 0) {
-            return String(cwAnim[animFrame]);
-        } else if (dir < 0) {
-            return String(ccwAnim[animFrame]);
-        } else {
-            return " ";
-        }
-    }
 }
