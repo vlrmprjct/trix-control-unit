@@ -4,10 +4,19 @@
 namespace LCDControl {
 
     void print(LiquidCrystal& lcd, int startChar, int endChar, int row, String value, const char* direction) {
-        static String lastValue = "";
-        if (value == lastValue)
+        static String lastValue1 = "";
+        static String lastValue2 = "";
+
+        String* lastValue = nullptr;
+        if (startChar <= 7) {
+            lastValue = &lastValue1;
+        } else {
+            lastValue = &lastValue2;
+        }
+
+        if (value == *lastValue)
             return;
-        lastValue = value;
+        *lastValue = value;
 
         int length = endChar - startChar + 1;
 
@@ -20,8 +29,7 @@ namespace LCDControl {
 
         if (direction == "RTL") {
             int textLength = value.length();
-            col = 19 - textLength;
-
+            col = endChar - textLength + 1;
             if (col < startChar) {
                 col = startChar;
             }
@@ -30,6 +38,8 @@ namespace LCDControl {
         lcd.setCursor(col, row);
         lcd.print(value);
     }
+
+
 
     void resetLCD(int buttonPin, LiquidCrystal& lcd) {
         if (digitalRead(buttonPin) == LOW) return;
