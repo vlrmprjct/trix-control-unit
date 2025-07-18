@@ -49,19 +49,28 @@ void setup() {
     LCDControl::print(lcd, 0, 10, 0, "BOOTING ...");
     delay(2000);
 
-    // INIT ENCODER (MAIN) ########################################################################
-    pinMode(ENC_MAIN_1_CLOCK, INPUT_PULLUP);
-    pinMode(ENC_MAIN_1_DT, INPUT_PULLUP);
-    ENC_MAIN_1_CLOCK_STATE = digitalRead(ENC_MAIN_1_CLOCK);
-    attachInterrupt(digitalPinToInterrupt(ENC_MAIN_1_CLOCK), EncoderControl::process, CHANGE);
+    // RESET LCD DOT MATRIX IN CASE OF WEIRD CHARACTERS ###########################################
+    pinMode(LCD_RST, INPUT);
 
-    // INIT MOTOR MODULE (MAIN) ###################################################################
-    pinMode(MOTOR_MAIN_1, OUTPUT);
-    pinMode(MOTOR_MAIN_2, OUTPUT);
-    pinMode(MOTOR_HBF1_1, OUTPUT);
-    pinMode(MOTOR_HBF1_2, OUTPUT);
-    pinMode(MOTOR_HBF2_1, OUTPUT);
-    pinMode(MOTOR_HBF2_2, OUTPUT);
+    // INIT ENCODER (PRIMARY) #####################################################################
+    pinMode(ENC_PRIMARY_CLOCK, INPUT_PULLUP);
+    pinMode(ENC_PRIMARY_DT, INPUT_PULLUP);
+    ENC_PRIMARY_CLOCK_STATE = digitalRead(ENC_PRIMARY_CLOCK);
+    attachInterrupt(digitalPinToInterrupt(ENC_PRIMARY_CLOCK), EncoderControl::processPrimary, CHANGE);
+
+    // INIT ENCODER (SECONDARY) ###################################################################
+    pinMode(ENC_SECONDARY_CLOCK, INPUT_PULLUP);
+    pinMode(ENC_SECONDARY_DT, INPUT_PULLUP);
+    ENC_SECONDARY_CLOCK_STATE = digitalRead(ENC_SECONDARY_CLOCK);
+    attachInterrupt(digitalPinToInterrupt(ENC_SECONDARY_CLOCK), EncoderControl::processSecondary, CHANGE);
+
+    // INIT MOTOR MODULE ##########################################################################
+    pinMode(MOTOR_ZONE_A_1, OUTPUT);
+    pinMode(MOTOR_ZONE_A_2, OUTPUT);
+    pinMode(MOTOR_ZONE_B_1, OUTPUT);
+    pinMode(MOTOR_ZONE_B_2, OUTPUT);
+    pinMode(MOTOR_ZONE_C_1, OUTPUT);
+    pinMode(MOTOR_ZONE_C_2, OUTPUT);
 
     // INIT TURNOUTS SERVO MODULE #################################################################
     servo.begin();
@@ -101,11 +110,17 @@ void setup() {
 
 void loop() {
 
+    // LCD RESET ##################################################################################
+    LCDControl::resetLCD(LCD_RST, lcd);
+
     // TIMER ######################################################################################
     static unsigned long startTimer;
 
     // GET DIRECTION ##############################################################################
-    static int dir = EncoderControl::getDirection();
+    static int dir = EncoderControl::getDirection(EncoderControl::primaryEncoder);
+
+    // SYNC DIRECTION
+    EncoderControl::syncDirections(EncoderControl::primaryEncoder, EncoderControl::secondaryEncoder);
 
     // NFC PROFILE READER #########################################################################
     currentProfile = getTag(rfid);
@@ -172,7 +187,7 @@ void loop() {
         RelayControl::toggleRelay(5);
         hbfStop = false;
         if (!HBF_ACTIVE.HBF2.active) {
-            ENC_MAIN_1_VALUE = -1;
+            ENC_PRIMARY_VALUE = -1;
             RelayControl::setRelay(7, false);
         }
     });
@@ -205,7 +220,7 @@ void loop() {
     ReedControl::push(8, []() {
         hbfStop = false;
         if (!HBF_ACTIVE.HBF1.active) {
-            ENC_MAIN_1_VALUE = -1;
+            ENC_PRIMARY_VALUE = -1;
             RelayControl::setRelay(8, false);
         }
     });
@@ -290,15 +305,6 @@ void loop() {
     });
 
     // DISPLAY COMMON STATES ######################################################################
-    int percent = map(abs(ENC_MAIN_1_VALUE), 0, 255, 0, 100);
-    String dirAnim = Utils::getDirectionAnimation(dir, 500);
-
-    LCDControl::print(lcd, 0, 3, 0, "VEL:");
-    LCDControl::print(lcd, 6, 8, 0, dirAnim);
-    LCDControl::print(lcd, 11, 14, 0, String((int)ENC_MAIN_1_VALUE));
-    LCDControl::print(lcd, 18, 19, 0, "0%");
-    LCDControl::print(lcd, 16, 18, 0, String((int)percent), "RTL");
-
     // Utils::currentSpeed != 0.0
     //     ? LCDControl::print(lcd, 9, 19, 3, "v:" + String(Utils::currentSpeed, 2) + "cm/s")
     //     : LCDControl::print(lcd, 9, 19, 3, "v:--.--cm/s");
@@ -308,35 +314,55 @@ void loop() {
     // DISPLAY HBF STATE ##########################################################################
     for (int i = 0; i < 3; ++i) {
         String label = (HBF_ROUTE.HBF1.active && i == 0) || (HBF_ROUTE.HBF2.active && i == 1) || (HBF_ROUTE.HBF3.active && i == 2) ? ">" : " ";
-        LCDControl::print(lcd, 0, 5, i + 1, label + "HBF " + String(i + 1));
+        LCDControl::print(lcd, 0, 5, i, label + "HBF " + String(i + 1));
 
         bool active = (i == 0 && HBF_ACTIVE.HBF1.active) || (i == 1 && HBF_ACTIVE.HBF2.active) || (i == 2 && HBF_ACTIVE.HBF3.active);
-        LCDControl::print(lcd, 6, 7, i + 1, active ? "*" : " ");
+        LCDControl::print(lcd, 6, 7, i, active ? "*" : " ");
     }
 
-    LCDControl::print(lcd, 9, 19, 1, String(HBF_ACTIVE.HBF1.name));
-    LCDControl::print(lcd, 9, 19, 2, String(HBF_ACTIVE.HBF2.name));
+    LCDControl::print(lcd, 9, 19, 0, String(HBF_ACTIVE.HBF1.name));
+    LCDControl::print(lcd, 9, 19, 1, String(HBF_ACTIVE.HBF2.name));
+
+    int percent = map(abs(ENC_PRIMARY_VALUE), 0, 255, 0, 100);
+    String dirAnim = Utils::getDirectionAnimation(dir, 500);
+
+    // LCDControl::print(lcd, 6, 8, 3, dirAnim);
+
+    LCDControl::print(lcd, 0, 3, 3, String((int)ENC_PRIMARY_VALUE), "RTL");
+    LCDControl::print(lcd, 15, 18, 3, String((int)ENC_SECONDARY_VALUE), "RTL");
+    // LCDControl::print(lcd, 18, 19, 3, "0%");
+    // LCDControl::print(lcd, 16, 18, 3, String((int)percent), "RTL");
+
+    // # PRIMARY ENCODER BUTTON ###################################################################
+    ButtonControl::pushButton(4, []() {
+        // DO SOMETHING ON PRIMARY ENCODER BUTTON
+    });
+
+    // # SECONDARY ENCODER BUTTON ###################################################################
+    ButtonControl::pushButton(5, []() {
+        // DO SOMETHING ON SECONDARY ENCODER BUTTON
+    });
 
     // MAIN SPEED CONTROL #########################################################################
-    if (hbfStart) {
-        MotorControl::rampValue(ENC_MAIN_1_VALUE, hbfMax, 2, 150);
-        if (ENC_MAIN_1_VALUE == hbfMax)
-            hbfStart = false;
-    }
+    // if (hbfStart) {
+    //     MotorControl::rampValue(ENC_SECONDARY_VALUE, hbfMax, 2, 150);
+    //     if (ENC_SECONDARY_VALUE == hbfMax)
+    //         hbfStart = false;
+    // }
 
-    if (!HBF_ACTIVE.HBF1.active && hbfStop) {
-        if (startTimer == 0)
-            startTimer = millis();
-        ENC_MAIN_1_VALUE = (-1) * MotorControl::rampDynamicValue(millis() - startTimer, 0, dist_rd2_rd3, abs(hbfBrake), abs(hbfMin), Utils::currentSpeed);
-    } else {
-        startTimer = 0;
-    }
+    // if (!HBF_ACTIVE.HBF1.active && hbfStop) {
+    //     if (startTimer == 0)
+    //         startTimer = millis();
+    //     ENC_SECONDARY_VALUE = (-1) * MotorControl::rampDynamicValue(millis() - startTimer, 0, dist_rd2_rd3, abs(hbfBrake), abs(hbfMin), Utils::currentSpeed);
+    // } else {
+    //     startTimer = 0;
+    // }
 
-    MotorControl::setValue(ENC_MAIN_1_VALUE, MOTOR_MAIN_1, MOTOR_MAIN_2);
-
-    // HBF MOTOR CONTROL ##########################################################################
-    MotorControl::setValue(ENC_MAIN_1_VALUE, MOTOR_HBF1_1, MOTOR_HBF1_2);
-    MotorControl::setValue(ENC_MAIN_1_VALUE, MOTOR_HBF2_1, MOTOR_HBF2_2);
+    // MOTOR CONTROL ##############################################################################
+    // CIRCUIT HBF - ZONE A
+    MotorControl::setValue(ENC_PRIMARY_VALUE, MOTOR_ZONE_A_1, MOTOR_ZONE_A_2);
+    // CIRCUIT BBF - ZONE C
+    MotorControl::setValue(ENC_SECONDARY_VALUE, MOTOR_ZONE_C_1, MOTOR_ZONE_C_2);
 
     ButtonControl::setStates();
     ReedControl::setStates();

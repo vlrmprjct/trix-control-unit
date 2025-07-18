@@ -13,51 +13,59 @@ const int LCD1_D5 = 40;
 const int LCD1_D6 = 42;
 const int LCD1_D7 = 44;
 
+const int LCD_RST = 27;
+
 // NFC RC522 RFID MODULE
-const int NFC_SDA = 53; // SS PIN | PIN 53
-const int NFC_RST = 49; // RST PIN | PIN 49
+const int NFC_SDA = 53; // SS PIN
+const int NFC_RST = 49; // RST PIN
 
-// MOTOR MDL MAIN
-const int MOTOR_MAIN_1 = 6; // BLUE  | PIN 6
-const int MOTOR_MAIN_2 = 7; // WHITE | PIN 7
+// MOTOR MDL ZONE A
+const int MOTOR_ZONE_A_1 = 2; // BLUE
+const int MOTOR_ZONE_A_2 = 3; // WHITE
 
-// MOTOR MDL HBF1
-const int MOTOR_HBF1_1 = 2; // BLUE  | PIN 8
-const int MOTOR_HBF1_2 = 3; // WHITE | PIN 9
+// MOTOR MDL ZONE B / NOT USED FOR NOW
+const int MOTOR_ZONE_B_1 = 4; // BLUE
+const int MOTOR_ZONE_B_2 = 5; // WHITE
 
-// MOTOR MDL HBF2
-const int MOTOR_HBF2_1 = 4; // BLUE  | PIN 8
-const int MOTOR_HBF2_2 = 5; // WHITE | PIN 5
+// MOTOR MDL ZONE C
+const int MOTOR_ZONE_C_1 = 6; // BLUE
+const int MOTOR_ZONE_C_2 = 7; // WHITE
 
 // MANUAL BUTTON CTRL
-const int BTN_DATA   = 22;  // BLUE   | PIN 22
-const int BTN_CLOCK  = 23;  // YELLOW | PIN 23
-const int BTN_LATCH  = 24;  // GREEN  | PIN 24
+const int BTN_DATA   = 22;  // BLUE
+const int BTN_CLOCK  = 23;  // YELLOW
+const int BTN_LATCH  = 24;  // GREEN
 
 // TRACK REED CTRL
-const int REED_DATA  = 41;  // BLUE   | PIN 41
-const int REED_CLOCK = 43;  // YELLOW | PIN 43
-const int REED_LATCH = 45;  // GREEN  | PIN 45
+const int REED_DATA  = 41;  // BLUE
+const int REED_CLOCK = 43;  // YELLOW
+const int REED_LATCH = 45;  // GREEN
 
 // REED COUNT
 const int REED_COUNT = 16;  // REED COUNT
 
-// ENCODER MOTOR MDL MAIN
-const int ENC_MAIN_1_CLOCK = 18; // GREEN  | PIN 18 | INTERRUPT
-const int ENC_MAIN_1_DT    = 28; // YELLOW | PIN 28
-inline int ENC_MAIN_1_CLOCK_STATE;
-inline volatile int ENC_MAIN_1_VALUE = 0;
+// ENCODER PRIMARY
+const int ENC_PRIMARY_CLOCK = 18; // GREEN  | INTERRUPT
+const int ENC_PRIMARY_DT    = 28; // YELLOW
+inline int ENC_PRIMARY_CLOCK_STATE;
+inline volatile int ENC_PRIMARY_VALUE = 0;
+
+// ENCODER SECONDARY
+const int ENC_SECONDARY_CLOCK = 19; // GREEN  | INTERRUPT
+const int ENC_SECONDARY_DT    = 29; // YELLOW
+inline int ENC_SECONDARY_CLOCK_STATE;
+inline volatile int ENC_SECONDARY_VALUE = 0;
 
 // SERVO MODULE [ NOT USED SOMEWHERE, JUST FOR PINOUT ]
-// const int SERVO_SDA = 20;             // GREEN | PIN 20 SDA
-// const int SERVO_SCL = 21;             // BLUE  | PIN 21 SCL
+// const int SERVO_SDA = 20;             // GREEN
+// const int SERVO_SCL = 21;             // BLUE
 // const int SERVO_VOLTAGE_INTERNAL = 5; // YELLOW | 5V VOLTAGE PIN
 // const int SERVO_VOLTAGE_EXTERNAL = 5; // RED | 5V EXTERNAL VOLTAGE
 
 // RELAIS 74HC595 PINS
-const int RELAY_LATCH = 39; // YELLOW | PIN 39 | ST_CP
-const int RELAY_DATA  = 37; // GREEN  | PIN 37 | DS
-const int RELAY_CLOCK = 35; // BLUE   | PIN 35 | SH_CP
+const int RELAY_LATCH = 39; // YELLOW
+const int RELAY_DATA  = 37; // GREEN
+const int RELAY_CLOCK = 35; // BLUE
 
 // RELAY COUNT
-const int RELAY_COUNT = 24; // RELAY COUNT
+const int RELAY_COUNT = 24;
