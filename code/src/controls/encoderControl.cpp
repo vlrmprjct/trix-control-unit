@@ -4,26 +4,58 @@
 
 namespace EncoderControl {
 
-    void process() {
-        int currentCLKState = digitalRead(ENC_MAIN_1_CLOCK);
-        int currentDTState = digitalRead(ENC_MAIN_1_DT);
+    Encoder primaryEncoder   = {ENC_PRIMARY_CLOCK, ENC_PRIMARY_DT, ENC_PRIMARY_CLOCK_STATE, ENC_PRIMARY_VALUE};
+    Encoder secondaryEncoder = {ENC_SECONDARY_CLOCK, ENC_SECONDARY_DT, ENC_SECONDARY_CLOCK_STATE, ENC_SECONDARY_VALUE};
 
-        if (currentCLKState != ENC_MAIN_1_CLOCK_STATE) {
+    void processEncoder(Encoder& enc) {
+        int currentCLKState = digitalRead(enc.clkPin);
+        int currentDTState = digitalRead(enc.dtPin);
+
+        if (currentCLKState != enc.clkState) {
             int delta = (currentDTState == currentCLKState) ? 1 : -1;
-            ENC_MAIN_1_VALUE += delta;
+            enc.value += delta;
         }
 
-        ENC_MAIN_1_VALUE = constrain(ENC_MAIN_1_VALUE, -255, 255);
-        ENC_MAIN_1_CLOCK_STATE = currentCLKState;
+        enc.value = constrain(enc.value, -255, 255);
+        enc.clkState = currentCLKState;
     }
 
-    Direction getDirection() {
-        if (ENC_MAIN_1_VALUE > 0) {
-            return CW;
-        } else if (ENC_MAIN_1_VALUE < 0) {
-            return CCW;
-        } else {
-            return STOP;
+    void processPrimary() {
+        processEncoder(primaryEncoder);
+    }
+
+    void processSecondary() {
+        processEncoder(secondaryEncoder);
+    }
+
+    void syncDirections(Encoder& a, Encoder& b) {
+        int dirA = (a.value > 0) - (a.value < 0);
+        int dirB = (b.value > 0) - (b.value < 0);
+
+        static int lastDirA = 0;
+        static int lastDirB = 0;
+
+        if (dirA == dirB || dirA == 0 || dirB == 0) {
+            lastDirA = dirA;
+            lastDirB = dirB;
+            return;
         }
+
+        if (dirA != lastDirA) {
+            b.value *= -1;
+            lastDirB = -dirB;
+            lastDirA = dirA;
+        } else if (dirB != lastDirB) {
+            a.value *= -1;
+            lastDirA = -dirA;
+            lastDirB = dirB;
+        }
+    }
+
+
+    Direction getDirection(const Encoder& enc) {
+        if (enc.value > 0) return CW;
+        if (enc.value < 0) return CCW;
+        return STOP;
     }
 }
