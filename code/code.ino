@@ -18,8 +18,6 @@
 #include <EEPROM.h>
 #include <LiquidCrystal.h>
 #include <MFRC522.h>
-#include <SPI.h>
-#include <Wire.h>
 
 Adafruit_PWMServoDriver servo = Adafruit_PWMServoDriver();
 LiquidCrystal lcd(LCD_RS, LCD_EN, LCD1_D4, LCD1_D5, LCD1_D6, LCD1_D7);
@@ -95,7 +93,6 @@ void loop() {
 
     ReedControl::push(3, []() {
         // HBF2 LEFT
-        RelayControl::toggleRelay(3);
         Utils::speedStart = millis();
         if (!HBF_ACTIVE.HBF2.active) {
             hbfBrake = HBF_ACTIVE.HBF2.brake;
@@ -104,7 +101,6 @@ void loop() {
 
     ReedControl::push(4, []() {
         // HBF2 CENTER
-        RelayControl::toggleRelay(4);
         Utils::speedEnd = millis();
         Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, 31.0);
         if (!HBF_ACTIVE.HBF2.active) {
@@ -115,21 +111,19 @@ void loop() {
 
     ReedControl::push(5, []() {
         // HBF2 RIGHT
-        RelayControl::toggleRelay(5);
         hbfStop = false;
         if (!HBF_ACTIVE.HBF2.active) {
-            ENC_PRIMARY_VALUE = -1;
-            RelayControl::setRelay(7, false);
+            RelayControl::setRelay(5, true);
+            RelayControl::setRelay(6, false);
         }
     });
 
     ReedControl::push(2, []() {
         // HBF3 RIGHT
-        RelayControl::toggleRelay(4);
     });
+
     ReedControl::push(1, []() {
         // HBF3 CENTER
-        RelayControl::toggleRelay(3);
     });
 
     ReedControl::push(6, []() {
@@ -151,9 +145,16 @@ void loop() {
     ReedControl::push(8, []() {
         hbfStop = false;
         if (!HBF_ACTIVE.HBF1.active) {
-            ENC_PRIMARY_VALUE = -1;
+
+            RelayControl::setRelay(7, true);
             RelayControl::setRelay(8, false);
         }
+    });
+
+    ReedControl::push(14, []() {
+        // SWITCH FROM ZONE C TO A @ HBF1
+        RelayControl::setRelay(5, true);
+        RelayControl::setRelay(7, true);
     });
 
     // TRACK CONTROL ##############################################################################
@@ -163,9 +164,19 @@ void loop() {
         if (!HBF_ROUTE.HBF1.active) {
             return;
         }
+
         if (!HBF_ACTIVE.HBF1.active) {
+            // SWITCH FROM ZONE A TO C
+            RelayControl::setRelay(7, false);
+            // TURN OFF HBF1
             RelayControl::setRelay(8, true);
         }
+
+        if (HBF_ACTIVE.HBF1.active) {
+            // SWITCH FROM ZONE C TO A
+            RelayControl::setRelay(7, true);
+        }
+
         bool wasActive = HBF_ACTIVE.HBF1.active;
         HBF_ACTIVE.HBF1.active = !HBF_ACTIVE.HBF1.active;
         HBF_ACTIVE.HBF2.active = false;
@@ -183,8 +194,17 @@ void loop() {
             return;
         }
         if (!HBF_ACTIVE.HBF2.active) {
-            RelayControl::setRelay(7, true);
+            // SWITCH FROM ZONE A TO C
+            RelayControl::setRelay(5, false);
+            // TURN OFF HBF2
+            RelayControl::setRelay(6, true);
         }
+
+        if (HBF_ACTIVE.HBF2.active) {
+            // SWITCH FROM ZONE C TO A
+            RelayControl::setRelay(5, true);
+        }
+
         bool wasActive = HBF_ACTIVE.HBF1.active;
         HBF_ACTIVE.HBF1.active = false;
         HBF_ACTIVE.HBF2.active = !HBF_ACTIVE.HBF2.active;
