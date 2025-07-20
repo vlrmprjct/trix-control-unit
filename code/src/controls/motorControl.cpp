@@ -25,7 +25,7 @@ namespace MotorControl {
     void setValue(int encoderVal, int in1Pin, int in2Pin) {
         int direction = encoderVal > 0 ? 1 : (encoderVal < 0 ? -1 : 0);
         int rawSpeed = abs(encoderVal);
-        int speed = mapSpeedCurve(rawSpeed);
+        int speed = rawSpeed;
 
         if (direction > 0) {
             digitalWrite(in1Pin, LOW);
