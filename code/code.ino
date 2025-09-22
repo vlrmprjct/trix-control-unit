@@ -145,8 +145,9 @@ void loop() {
     ReedControl::push(8, []() {
         hbfStop = false;
         if (!HBF_ACTIVE.HBF1.active) {
-
+            // SWITCH FROM ZONE C TO A @ HBF1
             RelayControl::setRelay(7, true);
+            // TURN OFF HBF1
             RelayControl::setRelay(8, false);
         }
     });
@@ -165,13 +166,15 @@ void loop() {
             return;
         }
 
+        // DEPARTING TRAIN
         if (!HBF_ACTIVE.HBF1.active) {
             // SWITCH FROM ZONE A TO C
             RelayControl::setRelay(7, false);
-            // TURN OFF HBF1
+            // TURN ON HBF1
             RelayControl::setRelay(8, true);
         }
 
+        // ARRIVING TRAIN
         if (HBF_ACTIVE.HBF1.active) {
             // SWITCH FROM ZONE C TO A
             RelayControl::setRelay(7, true);
@@ -193,6 +196,8 @@ void loop() {
         if (!HBF_ROUTE.HBF2.active) {
             return;
         }
+
+        // DEPARTING TRAIN
         if (!HBF_ACTIVE.HBF2.active) {
             // SWITCH FROM ZONE A TO C
             RelayControl::setRelay(5, false);
@@ -200,6 +205,7 @@ void loop() {
             RelayControl::setRelay(6, true);
         }
 
+        // ARRIVING TRAIN
         if (HBF_ACTIVE.HBF2.active) {
             // SWITCH FROM ZONE C TO A
             RelayControl::setRelay(5, true);
