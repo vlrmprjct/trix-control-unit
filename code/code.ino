@@ -243,7 +243,7 @@ void loop() {
     // LCDControl::print(lcd, 9, 19, 2, "v:" + String(Utils::scaleSpeed(Utils::currentSpeed)) + "km/h");
 
     // DISPLAY HBF STATE ##########################################################################
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 2; ++i) {
         String label = (HBF_ROUTE.HBF1.active && i == 0) || (HBF_ROUTE.HBF2.active && i == 1) ? ">" : " ";
         LCDControl::print(lcd, 0, 5, i, label + "HBF " + String(i + 1));
 
