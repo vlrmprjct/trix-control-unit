@@ -33,7 +33,53 @@ int hbfBrake = 110;
 int dist_rd1_rd2 = 31.5; // Distance between reed sensors 1 and 2 in cm
 int dist_rd2_rd3 = 33.0; // Distance between reed sensors 2 and 3 in cm
 
+
+// MOTOR DIGIPOT PSU
+const int DIGIPOT_MOSI = 33;
+const int DIGIPOT_SCK = 32;
+const int DIGIPOT_CS = 31;
+
+// ------------------------------------------------------------------
+// Ein Byte über Software-SPI senden (MSB first)
+void softSPIWrite(byte dataOut) {
+    for (int i = 7; i >= 0; i--) {
+        // MOSI setzen
+        digitalWrite(DIGIPOT_MOSI, (dataOut & (1 << i)) ? HIGH : LOW);
+        // Clock-Puls erzeugen
+        digitalWrite(DIGIPOT_SCK, HIGH); // steigende Flanke -> Bit wird übernommen
+        digitalWrite(DIGIPOT_SCK, LOW); // zurücksetzen
+    }
+}
+
+// ------------------------------------------------------------------
+// MCP4261 Wiper setzen
+// potNum = 0 oder 1 (Potentiometer A oder B)
+// value  = 0..255 (Wiper-Position)
+void setPot(byte potNum, int value) {
+    if (value < 0)
+        value = 0; // falls jemand -Werte übergibt
+    if (value > 255)
+        value = 255; // Begrenzung nach oben
+
+    byte command = (potNum & 0x01) << 4; // 0x00 = Poti0, 0x10 = Poti1
+
+    digitalWrite(DIGIPOT_CS, LOW);
+    softSPIWrite(command);
+    softSPIWrite((byte)value);
+    digitalWrite(DIGIPOT_CS, HIGH);
+}
+
 void setup() {
+
+    // MOTOR DIGIPOT PSU
+    pinMode(DIGIPOT_MOSI, OUTPUT);
+    pinMode(DIGIPOT_SCK, OUTPUT);
+    pinMode(DIGIPOT_CS, OUTPUT);
+    digitalWrite(DIGIPOT_CS, HIGH);
+    digitalWrite(DIGIPOT_SCK, LOW);
+    setPot(0, 0);
+    setPot(1, 0);
+
     init(servo, lcd, rfid);
 }
 
@@ -183,7 +229,6 @@ void loop() {
         bool wasActive = HBF_ACTIVE.HBF1.active;
         HBF_ACTIVE.HBF1.active = !HBF_ACTIVE.HBF1.active;
         HBF_ACTIVE.HBF2.active = false;
-        HBF_ACTIVE.HBF3.active = false;
         EEPROM.put(EEPROM_ACTIVE, HBF_ACTIVE);
 
         if (!wasActive && HBF_ACTIVE.HBF1.active) {
@@ -214,7 +259,6 @@ void loop() {
         bool wasActive = HBF_ACTIVE.HBF1.active;
         HBF_ACTIVE.HBF1.active = false;
         HBF_ACTIVE.HBF2.active = !HBF_ACTIVE.HBF2.active;
-        HBF_ACTIVE.HBF3.active = false;
         EEPROM.put(EEPROM_ACTIVE, HBF_ACTIVE);
 
         if (!wasActive && HBF_ACTIVE.HBF2.active) {
@@ -223,41 +267,20 @@ void loop() {
         }
     });
 
-    ButtonControl::pushButton(BTN_HBF3, []() {
-        HBF_ACTIVE.HBF1.active = false;
-        HBF_ACTIVE.HBF2.active = false;
-        HBF_ACTIVE.HBF3.active = !HBF_ACTIVE.HBF3.active;
-        EEPROM.put(EEPROM_ACTIVE, HBF_ACTIVE);
-    });
-
-    // TURNOUT MANUAL CONTROL #####################################################################
-    ButtonControl::pushButton(SW_HBF3, []() {
-        ServoControl::switchTurnout(servo, W1, true);
-        ServoControl::switchTurnout(servo, W2, false);
-        ServoControl::switchTurnout(servo, W3, true);
-        HBF_ROUTE.HBF1.active = false;
-        HBF_ROUTE.HBF2.active = false;
-        HBF_ROUTE.HBF3.active = true;
-        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
-    });
 
     ButtonControl::pushButton(SW_HBF2, []() {
         ServoControl::switchTurnout(servo, W1, true);
         ServoControl::switchTurnout(servo, W2, false);
-        ServoControl::switchTurnout(servo, W3, false);
         HBF_ROUTE.HBF1.active = false;
         HBF_ROUTE.HBF2.active = true;
-        HBF_ROUTE.HBF3.active = false;
         EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
     ButtonControl::pushButton(SW_HBF1, []() {
         ServoControl::switchTurnout(servo, W1, false);
         ServoControl::switchTurnout(servo, W2, true);
-        ServoControl::switchTurnout(servo, W3, false);
         HBF_ROUTE.HBF1.active = true;
         HBF_ROUTE.HBF2.active = false;
-        HBF_ROUTE.HBF3.active = false;
         EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
@@ -270,10 +293,10 @@ void loop() {
 
     // DISPLAY HBF STATE ##########################################################################
     for (int i = 0; i < 3; ++i) {
-        String label = (HBF_ROUTE.HBF1.active && i == 0) || (HBF_ROUTE.HBF2.active && i == 1) || (HBF_ROUTE.HBF3.active && i == 2) ? ">" : " ";
+        String label = (HBF_ROUTE.HBF1.active && i == 0) || (HBF_ROUTE.HBF2.active && i == 1) ? ">" : " ";
         LCDControl::print(lcd, 0, 5, i, label + "HBF " + String(i + 1));
 
-        bool active = (i == 0 && HBF_ACTIVE.HBF1.active) || (i == 1 && HBF_ACTIVE.HBF2.active) || (i == 2 && HBF_ACTIVE.HBF3.active);
+        bool active = (i == 0 && HBF_ACTIVE.HBF1.active) || (i == 1 && HBF_ACTIVE.HBF2.active);
         LCDControl::print(lcd, 6, 7, i, active ? "*" : " ");
     }
 
@@ -318,6 +341,10 @@ void loop() {
     MotorControl::setValue(ENC_PRIMARY_VALUE, MOTOR_ZONE_A_1, MOTOR_ZONE_A_2);
     // CIRCUIT BBF - ZONE C
     MotorControl::setValue(ENC_SECONDARY_VALUE, MOTOR_ZONE_C_1, MOTOR_ZONE_C_2);
+
+    // MOTOR DIGIPOT PSU
+    setPot(0, abs(ENC_PRIMARY_VALUE));
+    setPot(1, abs(ENC_SECONDARY_VALUE));
 
     ButtonControl::setStates();
     ReedControl::setStates();
