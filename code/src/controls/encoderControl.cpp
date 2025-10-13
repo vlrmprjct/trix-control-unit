@@ -4,8 +4,8 @@
 
 namespace EncoderControl {
 
-    Encoder primaryEncoder   = {ENC_PRIMARY_CLOCK, ENC_PRIMARY_DT, ENC_PRIMARY_CLOCK_STATE, ENC_PRIMARY_VALUE};
-    Encoder secondaryEncoder = {ENC_SECONDARY_CLOCK, ENC_SECONDARY_DT, ENC_SECONDARY_CLOCK_STATE, ENC_SECONDARY_VALUE};
+    Encoder encoderZoneA   = {ENC_ZONE_A_CLK, ENC_ZONE_A_DT, ENC_ZONE_A_CLK_STATE, ENC_ZONE_A};
+    Encoder encoderZoneB = {ENC_ZONE_B_CLK, ENC_ZONE_B_DT, ENC_ZONE_B_CLK_STATE, ENC_ZONE_B};
 
     void processEncoder(Encoder& enc) {
         int currentCLKState = digitalRead(enc.clkPin);
@@ -21,11 +21,11 @@ namespace EncoderControl {
     }
 
     void processPrimary() {
-        processEncoder(primaryEncoder);
+        processEncoder(encoderZoneA);
     }
 
     void processSecondary() {
-        processEncoder(secondaryEncoder);
+        processEncoder(encoderZoneB);
     }
 
     void syncDirections(Encoder& a, Encoder& b) {

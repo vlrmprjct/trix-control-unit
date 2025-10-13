@@ -15,28 +15,34 @@ namespace MotorControl {
         return (int)(curved * 255.0);
     }
 
-    /**
-     * @brief Controls the motor based on the encoder value for DRV8871 Module
-     * @param encoderVal The value from the encoder, which determines the speed and direction.
-     * @param in1Pin The pin connected to the motor driver input 1 pin.
-     * @param in2Pin The pin connected to the motor driver input 2 pin.
-     * @usage motorEncoderControl(encoderValue, MTR_MDL_1_IN1, MTR_MDL_1_IN2);
-     */
-    void setValue(int encoderVal, int in1Pin, int in2Pin) {
-        int direction = encoderVal > 0 ? 1 : (encoderVal < 0 ? -1 : 0);
-        int rawSpeed = abs(encoderVal);
-        int speed = rawSpeed;
-
-        if (direction > 0) {
-            digitalWrite(in1Pin, LOW);
-            analogWrite(in2Pin, speed);
-        } else if (direction < 0) {
-            digitalWrite(in2Pin, LOW);
-            analogWrite(in1Pin, speed);
-        } else {
-            digitalWrite(in1Pin, LOW);
-            digitalWrite(in2Pin, LOW);
+    void softSPIWrite(byte dataOut) {
+        for (int i = 7; i >= 0; i--) {
+            // MOSI setzen
+            digitalWrite(DIGIPOT_MOSI, (dataOut & (1 << i)) ? HIGH : LOW);
+            // Clock-Puls erzeugen
+            digitalWrite(DIGIPOT_SCK, HIGH); // steigende Flanke -> Bit wird übernommen
+            digitalWrite(DIGIPOT_SCK, LOW); // zurücksetzen
         }
+    }
+
+    /**
+     * @brief Sets the wiper position of the MCP4261 digital potentiometer.
+     * @param potNum The potentiometer number (0 or 1).
+     * @param value The wiper position value (0-255).
+     * @usage setPot(0, 128); // Set potentiometer 0 to mid (128) position
+     */
+    void setValue(byte potNum, int value) {
+        if (value < 0)
+            value = 0;
+        if (value > 255)
+            value = 255;
+
+        byte command = (potNum & 0x01) << 4; // 0x00 = Poti0, 0x10 = Poti1
+
+        digitalWrite(DIGIPOT_CS, LOW);
+        MotorControl::softSPIWrite(command);
+        MotorControl::softSPIWrite((byte)value);
+        digitalWrite(DIGIPOT_CS, HIGH);
     }
 
     /**

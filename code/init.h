@@ -2,9 +2,11 @@
 
 #include "config.h"
 #include "state.h"
+#include "naming.h"
 #include "src/controls/lcdControl.h"
 #include "src/controls/relayControl.h"
 #include "src/controls/encoderControl.h"
+#include "src/controls/motorControl.h"
 #include "src/utils/eeprom.h"
 #include "src/utils/utils.h"
 #include <Adafruit_PWMServoDriver.h>
@@ -31,24 +33,25 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd, MFRC522& rf
     pinMode(LCD_RST, INPUT);
 
     // INIT ENCODER (PRIMARY) #####################################################################
-    pinMode(ENC_PRIMARY_CLOCK, INPUT_PULLUP);
-    pinMode(ENC_PRIMARY_DT, INPUT_PULLUP);
-    ENC_PRIMARY_CLOCK_STATE = digitalRead(ENC_PRIMARY_CLOCK);
-    attachInterrupt(digitalPinToInterrupt(ENC_PRIMARY_CLOCK), EncoderControl::processPrimary, CHANGE);
+    pinMode(ENC_ZONE_A_CLK, INPUT_PULLUP);
+    pinMode(ENC_ZONE_A_DT, INPUT_PULLUP);
+    ENC_ZONE_A_CLK_STATE = digitalRead(ENC_ZONE_A_CLK);
+    attachInterrupt(digitalPinToInterrupt(ENC_ZONE_A_CLK), EncoderControl::processPrimary, CHANGE);
 
     // INIT ENCODER (SECONDARY) ###################################################################
-    pinMode(ENC_SECONDARY_CLOCK, INPUT_PULLUP);
-    pinMode(ENC_SECONDARY_DT, INPUT_PULLUP);
-    ENC_SECONDARY_CLOCK_STATE = digitalRead(ENC_SECONDARY_CLOCK);
-    attachInterrupt(digitalPinToInterrupt(ENC_SECONDARY_CLOCK), EncoderControl::processSecondary, CHANGE);
+    pinMode(ENC_ZONE_B_CLK, INPUT_PULLUP);
+    pinMode(ENC_ZONE_B_DT, INPUT_PULLUP);
+    ENC_ZONE_B_CLK_STATE = digitalRead(ENC_ZONE_B_CLK);
+    attachInterrupt(digitalPinToInterrupt(ENC_ZONE_B_CLK), EncoderControl::processSecondary, CHANGE);
 
     // INIT MOTOR MODULE ##########################################################################
-    pinMode(MOTOR_ZONE_A_1, OUTPUT);
-    pinMode(MOTOR_ZONE_A_2, OUTPUT);
-    pinMode(MOTOR_ZONE_B_1, OUTPUT);
-    pinMode(MOTOR_ZONE_B_2, OUTPUT);
-    pinMode(MOTOR_ZONE_C_1, OUTPUT);
-    pinMode(MOTOR_ZONE_C_2, OUTPUT);
+    pinMode(DIGIPOT_MOSI, OUTPUT);
+    pinMode(DIGIPOT_SCK, OUTPUT);
+    pinMode(DIGIPOT_CS, OUTPUT);
+    digitalWrite(DIGIPOT_CS, HIGH);
+    digitalWrite(DIGIPOT_SCK, LOW);
+    MotorControl::setValue(ZONE_A, 0);
+    MotorControl::setValue(ZONE_B, 0);
 
     // INIT TURNOUTS SERVO MODULE #################################################################
     servo.begin();
@@ -76,7 +79,7 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd, MFRC522& rf
     Utils::setPrescalerTimers(0x01);
 
     // INIT STATE / READ FROM EEPROM ##############################################################
-    Eeprom::initState();
+    // Eeprom::initState();
     EEPROM.get(EEPROM_ROUTE, HBF_ROUTE);
     EEPROM.get(EEPROM_ACTIVE, HBF_ACTIVE);
 

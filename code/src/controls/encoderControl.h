@@ -15,8 +15,8 @@ namespace EncoderControl {
         volatile int& value;
     };
 
-    extern Encoder primaryEncoder;
-    extern Encoder secondaryEncoder;
+    extern Encoder encoderZoneA;
+    extern Encoder encoderZoneB;
 
     void processEncoder(Encoder& enc);
     void processPrimary();

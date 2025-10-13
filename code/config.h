@@ -22,17 +22,10 @@ const int NFC_RST = 49; // RST PIN // BLUE
 // YELLOW = 52
 // GREEN  = 50
 
-// MOTOR MDL ZONE A
-const int MOTOR_ZONE_A_1 = 2; // BLUE
-const int MOTOR_ZONE_A_2 = 3; // WHITE
-
-// MOTOR MDL ZONE B / NOT USED FOR NOW
-const int MOTOR_ZONE_B_1 = 4; // BLUE
-const int MOTOR_ZONE_B_2 = 5; // WHITE
-
-// MOTOR MDL ZONE C
-const int MOTOR_ZONE_C_1 = 6; // BLUE
-const int MOTOR_ZONE_C_2 = 7; // WHITE
+// MOTOR CTRL PSU MCP4261XX
+const int DIGIPOT_MOSI = 33; // YELLOW
+const int DIGIPOT_SCK  = 32; // ORANGE
+const int DIGIPOT_CS   = 31; // PURPLE
 
 // MANUAL BUTTON CTRL
 const int BTN_DATA   = 22;  // PURPLE
@@ -48,16 +41,16 @@ const int REED_LATCH = 45;  // ORANGE
 const int REED_COUNT = 16;  // REED COUNT
 
 // ENCODER PRIMARY
-const int ENC_PRIMARY_CLOCK = 18; // GREEN  | INTERRUPT
-const int ENC_PRIMARY_DT    = 28; // YELLOW
-inline int ENC_PRIMARY_CLOCK_STATE;
-inline volatile int ENC_PRIMARY_VALUE = 0;
+const int ENC_ZONE_A_CLK = 18; // GREEN  | INTERRUPT
+const int ENC_ZONE_A_DT  = 28; // YELLOW
+inline int ENC_ZONE_A_CLK_STATE;
+inline volatile int ENC_ZONE_A = 0;
 
 // ENCODER SECONDARY
-const int ENC_SECONDARY_CLOCK = 19; // GREEN  | INTERRUPT
-const int ENC_SECONDARY_DT    = 29; // YELLOW
-inline int ENC_SECONDARY_CLOCK_STATE;
-inline volatile int ENC_SECONDARY_VALUE = 0;
+const int ENC_ZONE_B_CLK = 19; // GREEN  | INTERRUPT
+const int ENC_ZONE_B_DT  = 29; // YELLOW
+inline int ENC_ZONE_B_CLK_STATE;
+inline volatile int ENC_ZONE_B = 0;
 
 // SERVO MODULE [ NOT USED SOMEWHERE, JUST FOR PINOUT ]
 // const int SERVO_SDA = 20;             // PURPLE

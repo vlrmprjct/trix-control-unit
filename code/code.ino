@@ -33,53 +33,7 @@ int hbfBrake = 110;
 int dist_rd1_rd2 = 31.5; // Distance between reed sensors 1 and 2 in cm
 int dist_rd2_rd3 = 33.0; // Distance between reed sensors 2 and 3 in cm
 
-
-// MOTOR DIGIPOT PSU
-const int DIGIPOT_MOSI = 33;
-const int DIGIPOT_SCK = 32;
-const int DIGIPOT_CS = 31;
-
-// ------------------------------------------------------------------
-// Ein Byte über Software-SPI senden (MSB first)
-void softSPIWrite(byte dataOut) {
-    for (int i = 7; i >= 0; i--) {
-        // MOSI setzen
-        digitalWrite(DIGIPOT_MOSI, (dataOut & (1 << i)) ? HIGH : LOW);
-        // Clock-Puls erzeugen
-        digitalWrite(DIGIPOT_SCK, HIGH); // steigende Flanke -> Bit wird übernommen
-        digitalWrite(DIGIPOT_SCK, LOW); // zurücksetzen
-    }
-}
-
-// ------------------------------------------------------------------
-// MCP4261 Wiper setzen
-// potNum = 0 oder 1 (Potentiometer A oder B)
-// value  = 0..255 (Wiper-Position)
-void setPot(byte potNum, int value) {
-    if (value < 0)
-        value = 0; // falls jemand -Werte übergibt
-    if (value > 255)
-        value = 255; // Begrenzung nach oben
-
-    byte command = (potNum & 0x01) << 4; // 0x00 = Poti0, 0x10 = Poti1
-
-    digitalWrite(DIGIPOT_CS, LOW);
-    softSPIWrite(command);
-    softSPIWrite((byte)value);
-    digitalWrite(DIGIPOT_CS, HIGH);
-}
-
 void setup() {
-
-    // MOTOR DIGIPOT PSU
-    pinMode(DIGIPOT_MOSI, OUTPUT);
-    pinMode(DIGIPOT_SCK, OUTPUT);
-    pinMode(DIGIPOT_CS, OUTPUT);
-    digitalWrite(DIGIPOT_CS, HIGH);
-    digitalWrite(DIGIPOT_SCK, LOW);
-    setPot(0, 0);
-    setPot(1, 0);
-
     init(servo, lcd, rfid);
 }
 
@@ -92,10 +46,10 @@ void loop() {
     static unsigned long startTimer;
 
     // GET DIRECTION ##############################################################################
-    static int dir = EncoderControl::getDirection(EncoderControl::primaryEncoder);
+    static int dir = EncoderControl::getDirection(EncoderControl::encoderZoneA);
 
     // SYNC DIRECTION
-    EncoderControl::syncDirections(EncoderControl::primaryEncoder, EncoderControl::secondaryEncoder);
+    EncoderControl::syncDirections(EncoderControl::encoderZoneA, EncoderControl::encoderZoneB);
 
     // NFC PROFILE READER #########################################################################
     currentProfile = getTag(rfid);
@@ -300,10 +254,10 @@ void loop() {
     LCDControl::print(lcd, 9, 19, 0, String(HBF_ACTIVE.HBF1.name));
     LCDControl::print(lcd, 9, 19, 1, String(HBF_ACTIVE.HBF2.name));
 
-    int percent = map(abs(ENC_PRIMARY_VALUE), 0, 255, 0, 100);
+    int percent = map(abs(ENC_ZONE_A), 0, 255, 0, 100);
 
-    LCDControl::print(lcd, 0, 3, 3, String((int)ENC_PRIMARY_VALUE), "RTL");
-    LCDControl::print(lcd, 15, 18, 3, String((int)ENC_SECONDARY_VALUE), "RTL");
+    LCDControl::print(lcd, 0, 3, 3, String((int)ENC_ZONE_A), "RTL");
+    LCDControl::print(lcd, 15, 18, 3, String((int)ENC_ZONE_B), "RTL");
 
     // LCDControl::print(lcd, 18, 19, 3, "0%");
     // LCDControl::print(lcd, 16, 18, 3, String((int)percent), "RTL");
@@ -320,28 +274,24 @@ void loop() {
 
     // MAIN SPEED CONTROL #########################################################################
     // if (hbfStart) {
-    //     MotorControl::rampValue(ENC_SECONDARY_VALUE, hbfMax, 2, 150);
-    //     if (ENC_SECONDARY_VALUE == hbfMax)
+    //     MotorControl::rampValue(ENC_ZONE_B, hbfMax, 2, 150);
+    //     if (ENC_ZONE_B == hbfMax)
     //         hbfStart = false;
     // }
 
     // if (!HBF_ACTIVE.HBF1.active && hbfStop) {
     //     if (startTimer == 0)
     //         startTimer = millis();
-    //     ENC_SECONDARY_VALUE = (-1) * MotorControl::rampDynamicValue(millis() - startTimer, 0, dist_rd2_rd3, abs(hbfBrake), abs(hbfMin), Utils::currentSpeed);
+    //     ENC_ZONE_B = (-1) * MotorControl::rampDynamicValue(millis() - startTimer, 0, dist_rd2_rd3, abs(hbfBrake), abs(hbfMin), Utils::currentSpeed);
     // } else {
     //     startTimer = 0;
     // }
 
     // MOTOR CONTROL ##############################################################################
     // CIRCUIT HBF - ZONE A
-    MotorControl::setValue(ENC_PRIMARY_VALUE, MOTOR_ZONE_A_1, MOTOR_ZONE_A_2);
-    // CIRCUIT BBF - ZONE C
-    MotorControl::setValue(ENC_SECONDARY_VALUE, MOTOR_ZONE_C_1, MOTOR_ZONE_C_2);
-
-    // MOTOR DIGIPOT PSU
-    setPot(0, abs(ENC_PRIMARY_VALUE));
-    setPot(1, abs(ENC_SECONDARY_VALUE));
+    MotorControl::setValue(ZONE_A, abs(ENC_ZONE_A));
+    // CIRCUIT BBF - ZONE B
+    MotorControl::setValue(ZONE_B, abs(ENC_ZONE_B));
 
     ButtonControl::setStates();
     ReedControl::setStates();

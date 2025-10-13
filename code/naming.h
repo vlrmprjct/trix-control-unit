@@ -1,5 +1,10 @@
 #pragma once
 
+enum MotorControls {
+    ZONE_A = 0,
+    ZONE_B = 1,
+};
+
 enum HBFControls {
     SW_HBF1 = 1,
     SW_HBF2 = 2,
