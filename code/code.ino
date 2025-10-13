@@ -103,8 +103,7 @@ void loop() {
     if (currentProfile) {
 
         for (int i = 0; i < 3; ++i) {
-            HBF_SLOT* slot = (i == 0) ? &HBF_ACTIVE.HBF1 : (i == 1) ? &HBF_ACTIVE.HBF2
-                                                                    : &HBF_ACTIVE.HBF3;
+            HBF_SLOT* slot = (i == 0) ? &HBF_ACTIVE.HBF1 : &HBF_ACTIVE.HBF2;
 
             if (strncmp(slot->name, currentProfile->name, sizeof(slot->name)) == 0 || strncmp(slot->uid, currentProfile->uid, sizeof(slot->uid)) == 0) {
                 slot->name[0] = '\0';
@@ -120,8 +119,6 @@ void loop() {
             activeSlot = &HBF_ACTIVE.HBF1;
         else if (HBF_ROUTE.HBF2.active)
             activeSlot = &HBF_ACTIVE.HBF2;
-        else if (HBF_ROUTE.HBF3.active)
-            activeSlot = &HBF_ACTIVE.HBF3;
 
         if (activeSlot) {
             strncpy(activeSlot->name, currentProfile->name, sizeof(activeSlot->name));
