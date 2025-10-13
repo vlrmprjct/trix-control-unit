@@ -40,13 +40,13 @@ const int REED_LATCH = 45;  // ORANGE
 // REED COUNT
 const int REED_COUNT = 16;  // REED COUNT
 
-// ENCODER PRIMARY
+// ENCODER ZONE A // MOUNTED LEFT
 const int ENC_ZONE_A_CLK = 18; // GREEN  | INTERRUPT
 const int ENC_ZONE_A_DT  = 28; // YELLOW
 inline int ENC_ZONE_A_CLK_STATE;
 inline volatile int ENC_ZONE_A = 0;
 
-// ENCODER SECONDARY
+// ENCODER ZONE B // MOUNTED RIGHT
 const int ENC_ZONE_B_CLK = 19; // GREEN  | INTERRUPT
 const int ENC_ZONE_B_DT  = 29; // YELLOW
 inline int ENC_ZONE_B_CLK_STATE;
