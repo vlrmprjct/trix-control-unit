@@ -3,10 +3,8 @@
 enum HBFControls {
     SW_HBF1 = 1,
     SW_HBF2 = 2,
-    SW_HBF3 = 3,
     BTN_HBF1 = 8,
     BTN_HBF2 = 7,
-    BTN_HBF3 = 6
 };
 
 enum BBFControls {
@@ -21,6 +19,11 @@ enum BBFControls {
 enum TurnoutControls {
     W1 = 0,
     W2 = 1,
-    W3 = 2
+    W3 = 2,
+    W4 = 4,
+    W5 = 5,
+    W6 = 6,
+    W7 = 7,
+    W8 = 8
 };
 

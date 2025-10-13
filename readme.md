@@ -4,7 +4,7 @@ This Arduino project is a **hybrid between analog train operation and digital co
 
 ## Features
 
-- **Motor control** for main track and stations (HBF1, HBF2, HBF3)
+- **Motor control** for main track and stations (HBF1, HBF2)
 - **Smooth braking** when passing reed contacts
 - **Speed measurement** (cm/s and km/h, scaled for 1:160)
 - **Turnout control** via buttons and servos

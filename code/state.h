@@ -12,7 +12,6 @@ struct HBF_SLOT {
 struct HBF_STATE {
     HBF_SLOT HBF1;
     HBF_SLOT HBF2;
-    HBF_SLOT HBF3;
 };
 
 inline HBF_STATE HBF_ROUTE;
