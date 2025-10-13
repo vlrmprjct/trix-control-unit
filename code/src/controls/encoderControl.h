@@ -13,14 +13,15 @@ namespace EncoderControl {
         const int& dtPin;
         int& clkState;
         volatile int& value;
+        int raw;
     };
 
     extern Encoder encoderZoneA;
     extern Encoder encoderZoneB;
 
     void processEncoder(Encoder& enc);
-    void processPrimary();
-    void processSecondary();
+    void processZoneA();
+    void processZoneB();
     void syncDirections(Encoder& a, Encoder& b);
 
     Direction getDirection(const Encoder& enc);

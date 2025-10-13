@@ -8,23 +8,34 @@ namespace EncoderControl {
     Encoder encoderZoneB = {ENC_ZONE_B_CLK, ENC_ZONE_B_DT, ENC_ZONE_B_CLK_STATE, ENC_ZONE_B};
 
     void processEncoder(Encoder& enc) {
-        int currentCLKState = digitalRead(enc.clkPin);
-        int currentDTState = digitalRead(enc.dtPin);
+        int currentCLK = digitalRead(enc.clkPin);
+        int currentDT  = digitalRead(enc.dtPin);
 
-        if (currentCLKState != enc.clkState) {
-            int delta = (currentDTState == currentCLKState) ? 1 : -1;
-            enc.value += delta;
+        if (currentCLK != enc.clkState) {
+            int delta = (currentDT == currentCLK) ? 5 : -5;
+            enc.raw = constrain(enc.raw + delta, -255, 255);
         }
 
-        enc.value = constrain(enc.value, -255, 255);
-        enc.clkState = currentCLKState;
+        enc.clkState = currentCLK;
+
+        int r = enc.raw;
+        if (r == 0) {
+            enc.value = 0;
+            return;
+        }
+
+        int sign = (r > 0) ? 1 : -1;
+        int absRaw = abs(r);
+
+        int mapped = map(absRaw, 1, 255, ENC_MIN, ENC_MAX);
+        enc.value = sign * mapped;
     }
 
-    void processPrimary() {
+    void processZoneA() {
         processEncoder(encoderZoneA);
     }
 
-    void processSecondary() {
+    void processZoneB() {
         processEncoder(encoderZoneB);
     }
 

@@ -52,6 +52,10 @@ const int ENC_ZONE_B_DT  = 29; // YELLOW
 inline int ENC_ZONE_B_CLK_STATE;
 inline volatile int ENC_ZONE_B = 0;
 
+// ENCODER DEFAULTS
+const int ENC_MIN = 70;
+const int ENC_MAX = 255;
+
 // SERVO MODULE [ NOT USED SOMEWHERE, JUST FOR PINOUT ]
 // const int SERVO_SDA = 20;             // PURPLE
 // const int SERVO_SCL = 21;             // YELLOW

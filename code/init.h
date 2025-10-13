@@ -32,17 +32,17 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd, MFRC522& rf
     // RESET LCD DOT MATRIX IN CASE OF WEIRD CHARACTERS ###########################################
     pinMode(LCD_RST, INPUT);
 
-    // INIT ENCODER (PRIMARY) #####################################################################
+    // INIT ENCODER (ZONE A) ######################################################################
     pinMode(ENC_ZONE_A_CLK, INPUT_PULLUP);
     pinMode(ENC_ZONE_A_DT, INPUT_PULLUP);
     ENC_ZONE_A_CLK_STATE = digitalRead(ENC_ZONE_A_CLK);
-    attachInterrupt(digitalPinToInterrupt(ENC_ZONE_A_CLK), EncoderControl::processPrimary, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(ENC_ZONE_A_CLK), EncoderControl::processZoneA, CHANGE);
 
-    // INIT ENCODER (SECONDARY) ###################################################################
+    // INIT ENCODER (ZONE B) ######################################################################
     pinMode(ENC_ZONE_B_CLK, INPUT_PULLUP);
     pinMode(ENC_ZONE_B_DT, INPUT_PULLUP);
     ENC_ZONE_B_CLK_STATE = digitalRead(ENC_ZONE_B_CLK);
-    attachInterrupt(digitalPinToInterrupt(ENC_ZONE_B_CLK), EncoderControl::processSecondary, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(ENC_ZONE_B_CLK), EncoderControl::processZoneB, CHANGE);
 
     // INIT MOTOR MODULE ##########################################################################
     pinMode(DIGIPOT_MOSI, OUTPUT);
