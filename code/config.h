@@ -15,13 +15,6 @@ const int LCD1_D7 = 44;
 
 const int LCD_RST = 27;
 
-// NFC RC522 RFID MODULE
-const int NFC_SDA = 53; // SS PIN // WHITE
-const int NFC_RST = 49; // RST PIN // BLUE
-// BLUE   = 51
-// YELLOW = 52
-// GREEN  = 50
-
 // MOTOR CTRL PSU MCP4261XX
 const int DIGIPOT_MOSI = 33; // YELLOW
 const int DIGIPOT_SCK  = 32; // ORANGE

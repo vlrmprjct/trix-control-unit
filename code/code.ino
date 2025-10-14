@@ -1,7 +1,6 @@
 #include "config.h"
 #include "init.h"
 #include "naming.h"
-#include "profiles.h"
 #include "src/controls/buttonControl.h"
 #include "src/controls/encoderControl.h"
 #include "src/controls/lcdControl.h"
@@ -9,7 +8,6 @@
 #include "src/controls/reedControl.h"
 #include "src/controls/relayControl.h"
 #include "src/controls/servoControl.h"
-#include "src/controls/tagreader.h"
 #include "src/utils/eeprom.h"
 #include "src/utils/utils.h"
 #include "state.h"
@@ -17,13 +15,9 @@
 #include <Adafruit_PWMServoDriver.h>
 #include <EEPROM.h>
 #include <LiquidCrystal.h>
-#include <MFRC522.h>
 
 Adafruit_PWMServoDriver servo = Adafruit_PWMServoDriver();
 LiquidCrystal lcd(LCD_RS, LCD_EN, LCD1_D4, LCD1_D5, LCD1_D6, LCD1_D7);
-MFRC522 rfid(NFC_SDA, NFC_RST);
-
-UIDProfile* currentProfile = nullptr;
 
 bool hbfStop = false;
 bool hbfStart = false;
@@ -34,7 +28,7 @@ int dist_rd1_rd2 = 31.5; // Distance between reed sensors 1 and 2 in cm
 int dist_rd2_rd3 = 33.0; // Distance between reed sensors 2 and 3 in cm
 
 void setup() {
-    init(servo, lcd, rfid);
+    init(servo, lcd);
 }
 
 void loop() {
@@ -50,40 +44,6 @@ void loop() {
 
     // SYNC DIRECTION
     EncoderControl::syncDirections(EncoderControl::encoderZoneA, EncoderControl::encoderZoneB);
-
-    // NFC PROFILE READER #########################################################################
-    currentProfile = getTag(rfid);
-
-    if (currentProfile) {
-
-        for (int i = 0; i < 3; ++i) {
-            HBF_SLOT* slot = (i == 0) ? &HBF_ACTIVE.HBF1 : &HBF_ACTIVE.HBF2;
-
-            if (strncmp(slot->name, currentProfile->name, sizeof(slot->name)) == 0 || strncmp(slot->uid, currentProfile->uid, sizeof(slot->uid)) == 0) {
-                slot->name[0] = '\0';
-                slot->uid[0] = '\0';
-                slot->min = 0;
-                slot->max = 0;
-                slot->brake = 0;
-            }
-        }
-
-        HBF_SLOT* activeSlot = nullptr;
-        if (HBF_ROUTE.HBF1.active)
-            activeSlot = &HBF_ACTIVE.HBF1;
-        else if (HBF_ROUTE.HBF2.active)
-            activeSlot = &HBF_ACTIVE.HBF2;
-
-        if (activeSlot) {
-            strncpy(activeSlot->name, currentProfile->name, sizeof(activeSlot->name));
-            strncpy(activeSlot->uid, currentProfile->uid, sizeof(activeSlot->uid));
-            activeSlot->min = currentProfile->min;
-            activeSlot->max = currentProfile->max;
-            activeSlot->brake = currentProfile->brake;
-        }
-
-        EEPROM.put(EEPROM_ACTIVE, HBF_ACTIVE);
-    }
 
     // TRACK REED #################################################################################
     ReedControl::updateStates();
@@ -250,9 +210,6 @@ void loop() {
         bool active = (i == 0 && HBF_ACTIVE.HBF1.active) || (i == 1 && HBF_ACTIVE.HBF2.active);
         LCDControl::print(lcd, 6, 7, i, active ? "*" : " ");
     }
-
-    LCDControl::print(lcd, 9, 19, 0, String(HBF_ACTIVE.HBF1.name));
-    LCDControl::print(lcd, 9, 19, 1, String(HBF_ACTIVE.HBF2.name));
 
     int percent = map(abs(ENC_ZONE_A), 0, 255, 0, 100);
 

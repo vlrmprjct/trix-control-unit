@@ -11,18 +11,14 @@
 #include "src/utils/utils.h"
 #include <Adafruit_PWMServoDriver.h>
 #include <LiquidCrystal.h>
-#include <MFRC522.h>
 #include <SPI.h>
 #include <Wire.h>
 
-inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd, MFRC522& rfid) {
+inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
     Serial.begin(9600);
 
     // INIT I2C BUS ###############################################################################
     SPI.begin();
-
-    // INIT NFC RC522 RFID MODULE #################################################################
-    rfid.PCD_Init();
 
     // INIT LCD DOT MATRIX ########################################################################
     lcd.begin(20, 4);
