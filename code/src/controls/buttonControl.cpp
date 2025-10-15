@@ -13,7 +13,7 @@ namespace ButtonControl {
         delayMicroseconds(5);
         digitalWrite(BTN_LATCH, HIGH);
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < BTN_COUNT; i++) {
             int bit = digitalRead(BTN_DATA);
             if (bit == HIGH) {
                 states |= (1 << i);
