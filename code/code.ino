@@ -195,6 +195,26 @@ void loop() {
         EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
+    ButtonControl::pushButton(SW_BBF1, []() {
+        ServoControl::switchTurnout(servo, W3, true);
+        ServoControl::switchTurnout(servo, W4, false);
+        ServoControl::switchTurnout(servo, W5, false);
+        ServoControl::switchTurnout(servo, W7, true);
+    });
+
+    ButtonControl::pushButton(SW_BBF2, []() {
+        ServoControl::switchTurnout(servo, W3, true);
+        ServoControl::switchTurnout(servo, W4, true);
+        ServoControl::switchTurnout(servo, W5, true);
+        ServoControl::switchTurnout(servo, W7, true);
+    });
+
+    ButtonControl::pushButton(SW_BBF3, []() {
+        ServoControl::switchTurnout(servo, W3, false);
+        ServoControl::switchTurnout(servo, W6, true);
+        ServoControl::switchTurnout(servo, W7, false);
+    });
+
     // DISPLAY COMMON STATES ######################################################################
     // Utils::currentSpeed != 0.0
     //     ? LCDControl::print(lcd, 9, 19, 3, "v:" + String(Utils::currentSpeed, 2) + "cm/s")

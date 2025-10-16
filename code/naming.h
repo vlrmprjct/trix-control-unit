@@ -13,22 +13,19 @@ enum HBFControls {
 };
 
 enum BBFControls {
-    BBF1 = 1,
-    BBF2 = 2,
-    BBF3 = 3,
-    BBF4 = 4,
-    BBF5 = 5,
-    BBF6 = 6
+    SW_BBF1 = 9,
+    SW_BBF2 = 10,
+    SW_BBF3 = 11,
 };
 
 enum TurnoutControls {
     W1 = 0,
     W2 = 1,
     W3 = 2,
-    W4 = 4,
-    W5 = 5,
-    W6 = 6,
-    W7 = 7,
-    W8 = 8
+    W4 = 3,
+    W5 = 4,
+    W6 = 5,
+    W7 = 6,
+    W8 = 7
 };
 
