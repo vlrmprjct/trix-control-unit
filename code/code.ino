@@ -51,8 +51,8 @@ void loop() {
     ReedControl::push(3, []() {
         // HBF2 LEFT
         Utils::speedStart = millis();
-        if (!HBF_ACTIVE.HBF2.active) {
-            hbfBrake = HBF_ACTIVE.HBF2.brake;
+        if (!HBF_ROUTE.HBF2.powered) {
+            hbfBrake = HBF_ROUTE.HBF2.brake;
         }
     });
 
@@ -60,16 +60,16 @@ void loop() {
         // HBF2 CENTER
         Utils::speedEnd = millis();
         Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, 31.0);
-        if (!HBF_ACTIVE.HBF2.active) {
+        if (!HBF_ROUTE.HBF2.powered) {
             hbfStop = true;
-            hbfMin = HBF_ACTIVE.HBF2.min;
+            hbfMin = HBF_ROUTE.HBF2.min;
         }
     });
 
     ReedControl::push(5, []() {
         // HBF2 RIGHT
         hbfStop = false;
-        if (!HBF_ACTIVE.HBF2.active) {
+        if (!HBF_ROUTE.HBF2.powered) {
             RelayControl::setRelay(5, true);
             RelayControl::setRelay(6, false);
         }
@@ -85,23 +85,23 @@ void loop() {
 
     ReedControl::push(6, []() {
         Utils::speedStart = millis();
-        if (!HBF_ACTIVE.HBF1.active) {
-            hbfBrake = HBF_ACTIVE.HBF1.brake;
+        if (!HBF_ROUTE.HBF1.powered) {
+            hbfBrake = HBF_ROUTE.HBF1.brake;
         }
     });
 
     ReedControl::push(7, []() {
         Utils::speedEnd = millis();
         Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, dist_rd1_rd2);
-        if (!HBF_ACTIVE.HBF1.active) {
+        if (!HBF_ROUTE.HBF1.powered) {
             hbfStop = true;
-            hbfMin = HBF_ACTIVE.HBF1.min;
+            hbfMin = HBF_ROUTE.HBF1.min;
         }
     });
 
     ReedControl::push(8, []() {
         hbfStop = false;
-        if (!HBF_ACTIVE.HBF1.active) {
+        if (!HBF_ROUTE.HBF1.powered) {
             // SWITCH FROM ZONE C TO A @ HBF1
             RelayControl::setRelay(7, true);
             // TURN OFF HBF1
@@ -119,79 +119,72 @@ void loop() {
     ButtonControl::updateStates();
 
     ButtonControl::pushButton(BTN_HBF1, []() {
-        if (!HBF_ROUTE.HBF1.active) {
-            return;
+        if (!HBF_ROUTE.HBF1.selected) {
+            return; // Nur reagieren, wenn Gleis 1 überhaupt gewählt ist
         }
 
-        // DEPARTING TRAIN
-        if (!HBF_ACTIVE.HBF1.active) {
-            // SWITCH FROM ZONE A TO C
-            RelayControl::setRelay(7, false);
-            // TURN ON HBF1
-            RelayControl::setRelay(8, true);
-        }
+        bool wasPowered = HBF_ROUTE.HBF1.powered;
 
-        // ARRIVING TRAIN
-        if (HBF_ACTIVE.HBF1.active) {
-            // SWITCH FROM ZONE C TO A
-            RelayControl::setRelay(7, true);
-        }
+        // Umschalten des Zustands (toggle)
+        HBF_ROUTE.HBF1.powered = !HBF_ROUTE.HBF1.powered;
 
-        bool wasActive = HBF_ACTIVE.HBF1.active;
-        HBF_ACTIVE.HBF1.active = !HBF_ACTIVE.HBF1.active;
-        HBF_ACTIVE.HBF2.active = false;
-        EEPROM.put(EEPROM_ACTIVE, HBF_ACTIVE);
+        if (HBF_ROUTE.HBF1.powered) {
+            // === ABFAHRENDER ZUG ===
+            // Zone C aktivieren, HBF1 einschalten
+            RelayControl::setRelay(7, false);  // Trenne Zone A
+            RelayControl::setRelay(8, true);   // Schalte HBF1 ein
 
-        if (!wasActive && HBF_ACTIVE.HBF1.active) {
             hbfStart = true;
-            hbfMax = abs(HBF_ACTIVE.HBF1.max) * (-1);
+            hbfMax = abs(HBF_ROUTE.HBF1.max) * (-1);
+        } else {
+            // === ANKOMMENDER ZUG ===
+            // Zone A wieder verbinden
+            RelayControl::setRelay(7, true);   // Schalte Zone A an
         }
+
+        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
     ButtonControl::pushButton(BTN_HBF2, []() {
-        if (!HBF_ROUTE.HBF2.active) {
-            return;
+        if (!HBF_ROUTE.HBF2.selected) {
+            return; // Nur reagieren, wenn Gleis 1 überhaupt gewählt ist
         }
 
-        // DEPARTING TRAIN
-        if (!HBF_ACTIVE.HBF2.active) {
-            // SWITCH FROM ZONE A TO C
-            RelayControl::setRelay(5, false);
-            // TURN OFF HBF2
-            RelayControl::setRelay(6, true);
-        }
+        bool wasPowered = HBF_ROUTE.HBF2.powered;
 
-        // ARRIVING TRAIN
-        if (HBF_ACTIVE.HBF2.active) {
-            // SWITCH FROM ZONE C TO A
-            RelayControl::setRelay(5, true);
-        }
+        // Umschalten des Zustands (toggle)
+        HBF_ROUTE.HBF2.powered = !HBF_ROUTE.HBF2.powered;
 
-        bool wasActive = HBF_ACTIVE.HBF1.active;
-        HBF_ACTIVE.HBF1.active = false;
-        HBF_ACTIVE.HBF2.active = !HBF_ACTIVE.HBF2.active;
-        EEPROM.put(EEPROM_ACTIVE, HBF_ACTIVE);
+        if (HBF_ROUTE.HBF2.powered) {
+            // === ABFAHRENDER ZUG ===
+            // Zone C aktivieren, HBF2 einschalten
+            RelayControl::setRelay(5, false);  // Trenne Zone A
+            RelayControl::setRelay(6, true);   // Schalte HBF2 ein
 
-        if (!wasActive && HBF_ACTIVE.HBF2.active) {
             hbfStart = true;
-            hbfMax = abs(HBF_ACTIVE.HBF2.max) * (-1);
+            hbfMax = abs(HBF_ROUTE.HBF2.max) * (-1);
+        } else {
+            // === ANKOMMENDER ZUG ===
+            // Zone A wieder verbinden
+            RelayControl::setRelay(5, true);   // Schalte Zone A an
         }
-    });
 
+        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
+    });
 
     ButtonControl::pushButton(SW_HBF2, []() {
         ServoControl::switchTurnout(servo, W1, true);
         ServoControl::switchTurnout(servo, W2, false);
-        HBF_ROUTE.HBF1.active = false;
-        HBF_ROUTE.HBF2.active = true;
+        HBF_ROUTE.HBF1.selected = false;
+        HBF_ROUTE.HBF2.selected = true;
         EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
     ButtonControl::pushButton(SW_HBF1, []() {
         ServoControl::switchTurnout(servo, W1, false);
         ServoControl::switchTurnout(servo, W2, true);
-        HBF_ROUTE.HBF1.active = true;
-        HBF_ROUTE.HBF2.active = false;
+        HBF_ROUTE.HBF1.selected = true;
+        HBF_ROUTE.HBF2.selected = false;
         EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
@@ -200,6 +193,10 @@ void loop() {
         ServoControl::switchTurnout(servo, W4, false);
         ServoControl::switchTurnout(servo, W5, false);
         ServoControl::switchTurnout(servo, W7, true);
+        HBF_ROUTE.HBF3.selected = true;
+        HBF_ROUTE.HBF4.selected = false;
+        HBF_ROUTE.HBF5.selected = false;
+        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
     ButtonControl::pushButton(SW_BBF2, []() {
@@ -207,12 +204,20 @@ void loop() {
         ServoControl::switchTurnout(servo, W4, true);
         ServoControl::switchTurnout(servo, W5, true);
         ServoControl::switchTurnout(servo, W7, true);
+        HBF_ROUTE.HBF3.selected = false;
+        HBF_ROUTE.HBF4.selected = true;
+        HBF_ROUTE.HBF5.selected = false;
+        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
     ButtonControl::pushButton(SW_BBF3, []() {
         ServoControl::switchTurnout(servo, W3, false);
         ServoControl::switchTurnout(servo, W6, true);
         ServoControl::switchTurnout(servo, W7, false);
+        HBF_ROUTE.HBF3.selected = false;
+        HBF_ROUTE.HBF4.selected = false;
+        HBF_ROUTE.HBF5.selected = true;
+        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
     // DISPLAY COMMON STATES ######################################################################
@@ -224,11 +229,22 @@ void loop() {
 
     // DISPLAY HBF STATE ##########################################################################
     for (int i = 0; i < 2; ++i) {
-        String label = (HBF_ROUTE.HBF1.active && i == 0) || (HBF_ROUTE.HBF2.active && i == 1) ? ">" : " ";
+        String label = (HBF_ROUTE.HBF1.selected && i == 0)
+            || (HBF_ROUTE.HBF2.selected && i == 1) ? ">" : " ";
         LCDControl::print(lcd, 0, 5, i, label + "HBF " + String(i + 1));
 
-        bool active = (i == 0 && HBF_ACTIVE.HBF1.active) || (i == 1 && HBF_ACTIVE.HBF2.active);
-        LCDControl::print(lcd, 6, 7, i, active ? "*" : " ");
+        bool power = (i == 0 && HBF_ROUTE.HBF1.powered) || (i == 1 && HBF_ROUTE.HBF2.powered);
+        LCDControl::print(lcd, 6, 7, i, power ? "*" : " ");
+    }
+
+    for (int i = 0; i < 3; ++i) {
+        String label = (HBF_ROUTE.HBF3.selected && i == 0)
+            || (HBF_ROUTE.HBF4.selected && i == 1)
+            || (HBF_ROUTE.HBF5.selected && i == 2) ? ">" : " ";
+        LCDControl::print(lcd, 13, 18, i, label + "BBF " + String(i + 1));
+
+        bool power = (i == 0 && HBF_ROUTE.HBF3.powered) || (i == 1 && HBF_ROUTE.HBF4.powered) || (i == 1 && HBF_ROUTE.HBF5.powered);
+        LCDControl::print(lcd, 19, 19, i, power ? "*" : " ");
     }
 
     int percent = map(abs(ENC_ZONE_A), 0, 255, 0, 100);
@@ -256,7 +272,7 @@ void loop() {
     //         hbfStart = false;
     // }
 
-    // if (!HBF_ACTIVE.HBF1.active && hbfStop) {
+    // if (!HBF_ROUTE.HBF1.powered && hbfStop) {
     //     if (startTimer == 0)
     //         startTimer = millis();
     //     ENC_ZONE_B = (-1) * MotorControl::rampDynamicValue(millis() - startTimer, 0, dist_rd2_rd3, abs(hbfBrake), abs(hbfMin), Utils::currentSpeed);

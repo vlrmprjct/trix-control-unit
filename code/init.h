@@ -77,7 +77,6 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
     // INIT STATE / READ FROM EEPROM ##############################################################
     // Eeprom::initState();
     EEPROM.get(EEPROM_ROUTE, HBF_ROUTE);
-    EEPROM.get(EEPROM_ACTIVE, HBF_ACTIVE);
 
     // CLEAR EEPROM ###############################################################################
     // Eeprom::clear();
