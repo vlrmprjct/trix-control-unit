@@ -120,10 +120,8 @@ void loop() {
 
     ButtonControl::pushButton(BTN_HBF1, []() {
         if (!HBF_ROUTE.HBF1.selected) {
-            return; // Nur reagieren, wenn Gleis 1 überhaupt gewählt ist
+            return;
         }
-
-        bool wasPowered = HBF_ROUTE.HBF1.powered;
 
         // Umschalten des Zustands (toggle)
         HBF_ROUTE.HBF1.powered = !HBF_ROUTE.HBF1.powered;
@@ -147,11 +145,8 @@ void loop() {
 
     ButtonControl::pushButton(BTN_HBF2, []() {
         if (!HBF_ROUTE.HBF2.selected) {
-            return; // Nur reagieren, wenn Gleis 1 überhaupt gewählt ist
+            return;
         }
-
-        bool wasPowered = HBF_ROUTE.HBF2.powered;
-
         // Umschalten des Zustands (toggle)
         HBF_ROUTE.HBF2.powered = !HBF_ROUTE.HBF2.powered;
 
@@ -172,11 +167,51 @@ void loop() {
         EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
-    ButtonControl::pushButton(SW_HBF2, []() {
-        ServoControl::switchTurnout(servo, W1, true);
-        ServoControl::switchTurnout(servo, W2, false);
-        HBF_ROUTE.HBF1.selected = false;
-        HBF_ROUTE.HBF2.selected = true;
+    ButtonControl::pushButton(BTN_HBF3, []() {
+        if (!HBF_ROUTE.HBF3.selected) {
+            return;
+        }
+
+        HBF_ROUTE.HBF3.powered = !HBF_ROUTE.HBF3.powered;
+
+        if (HBF_ROUTE.HBF3.powered) {
+            RelayControl::setRelay(2, true);
+        } else {
+            RelayControl::setRelay(2, false);
+        }
+
+        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
+    });
+
+    ButtonControl::pushButton(BTN_HBF4, []() {
+        if (!HBF_ROUTE.HBF4.selected) {
+            return;
+        }
+
+        HBF_ROUTE.HBF4.powered = !HBF_ROUTE.HBF4.powered;
+
+        if (HBF_ROUTE.HBF4.powered) {
+            RelayControl::setRelay(3, true);
+        } else {
+            RelayControl::setRelay(3, false);
+        }
+
+        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
+    });
+
+    ButtonControl::pushButton(BTN_HBF5, []() {
+        if (!HBF_ROUTE.HBF5.selected) {
+            return;
+        }
+
+        HBF_ROUTE.HBF5.powered = !HBF_ROUTE.HBF5.powered;
+
+        if (HBF_ROUTE.HBF5.powered) {
+            RelayControl::setRelay(4, true);
+        } else {
+            RelayControl::setRelay(4, false);
+        }
+
         EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
@@ -188,7 +223,15 @@ void loop() {
         EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
-    ButtonControl::pushButton(SW_BBF1, []() {
+    ButtonControl::pushButton(SW_HBF2, []() {
+        ServoControl::switchTurnout(servo, W1, true);
+        ServoControl::switchTurnout(servo, W2, false);
+        HBF_ROUTE.HBF1.selected = false;
+        HBF_ROUTE.HBF2.selected = true;
+        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
+    });
+
+    ButtonControl::pushButton(SW_HBF3, []() {
         ServoControl::switchTurnout(servo, W3, true);
         ServoControl::switchTurnout(servo, W4, false);
         ServoControl::switchTurnout(servo, W5, false);
@@ -199,7 +242,7 @@ void loop() {
         EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
-    ButtonControl::pushButton(SW_BBF2, []() {
+    ButtonControl::pushButton(SW_HBF4, []() {
         ServoControl::switchTurnout(servo, W3, true);
         ServoControl::switchTurnout(servo, W4, true);
         ServoControl::switchTurnout(servo, W5, true);
@@ -210,7 +253,7 @@ void loop() {
         EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
-    ButtonControl::pushButton(SW_BBF3, []() {
+    ButtonControl::pushButton(SW_HBF5, []() {
         ServoControl::switchTurnout(servo, W3, false);
         ServoControl::switchTurnout(servo, W6, true);
         ServoControl::switchTurnout(servo, W7, false);
@@ -243,7 +286,7 @@ void loop() {
             || (HBF_ROUTE.HBF5.selected && i == 2) ? ">" : " ";
         LCDControl::print(lcd, 13, 18, i, label + "BBF " + String(i + 1));
 
-        bool power = (i == 0 && HBF_ROUTE.HBF3.powered) || (i == 1 && HBF_ROUTE.HBF4.powered) || (i == 1 && HBF_ROUTE.HBF5.powered);
+        bool power = (i == 0 && HBF_ROUTE.HBF3.powered) || (i == 1 && HBF_ROUTE.HBF4.powered) || (i == 2 && HBF_ROUTE.HBF5.powered);
         LCDControl::print(lcd, 19, 19, i, power ? "*" : " ");
     }
 

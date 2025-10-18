@@ -13,9 +13,12 @@ enum HBFControls {
 };
 
 enum BBFControls {
-    SW_BBF1 = 9,
-    SW_BBF2 = 10,
-    SW_BBF3 = 11,
+    SW_HBF3 = 9,
+    SW_HBF4 = 10,
+    SW_HBF5 = 11,
+    BTN_HBF3 = 16,
+    BTN_HBF4 = 15,
+    BTN_HBF5 = 14,
 };
 
 enum TurnoutControls {

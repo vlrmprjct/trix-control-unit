@@ -6,23 +6,23 @@
 namespace Eeprom {
 
     void initState() {
-        EEPROM.get(EEPROM_ROUTE, HBF_ROUTE);
+        // EEPROM.get(EEPROM_ROUTE, HBF_ROUTE);
 
-        bool needsInit = false;
-        if (HBF_ROUTE.HBF1.name[0] == '\0' && HBF_ROUTE.HBF2.name[0] == '\0')
-            needsInit = true;
+        // bool needsInit = false;
+        // if (HBF_ROUTE.HBF1.name[0] == '\0' && HBF_ROUTE.HBF2.name[0] == '\0')
+        //     needsInit = true;
 
-        if (needsInit) {
-            // HBF_ROUTE.HBF1.powered = true;
-            // HBF_ROUTE.HBF2.powered = true;
-            // HBF_ROUTE.HBF3.powered = true;
-            // HBF_ROUTE.HBF4.powered = true;
-            // HBF_ROUTE.HBF5.powered = true;
-            // HBF_ROUTE.HBF1.name[0] = '\0';
-            // HBF_ROUTE.HBF2.name[0] = '\0';
+        // if (needsInit) {
+        //     HBF_ROUTE.HBF1.powered = true;
+        //     HBF_ROUTE.HBF2.powered = true;
+        //     HBF_ROUTE.HBF3.powered = true;
+        //     HBF_ROUTE.HBF4.powered = true;
+        //     HBF_ROUTE.HBF5.powered = true;
+        //     HBF_ROUTE.HBF1.name[0] = '\0';
+        //     HBF_ROUTE.HBF2.name[0] = '\0';
 
-            // EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
-        }
+        //     EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
+        // }
     }
 
     void debug(int from = 0, int to = EEPROM.length()) {
