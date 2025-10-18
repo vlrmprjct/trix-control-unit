@@ -129,15 +129,15 @@ void loop() {
         if (HBF_ROUTE.HBF1.powered) {
             // === ABFAHRENDER ZUG ===
             // Zone C aktivieren, HBF1 einschalten
-            RelayControl::setRelay(7, false);  // Trenne Zone A
-            RelayControl::setRelay(8, true);   // Schalte HBF1 ein
+            RelayControl::setRelay(7, false); // Trenne Zone A
+            RelayControl::setRelay(8, true); // Schalte HBF1 ein
 
             hbfStart = true;
             hbfMax = abs(HBF_ROUTE.HBF1.max) * (-1);
         } else {
             // === ANKOMMENDER ZUG ===
             // Zone A wieder verbinden
-            RelayControl::setRelay(7, true);   // Schalte Zone A an
+            RelayControl::setRelay(7, true); // Schalte Zone A an
         }
 
         EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
@@ -153,15 +153,15 @@ void loop() {
         if (HBF_ROUTE.HBF2.powered) {
             // === ABFAHRENDER ZUG ===
             // Zone C aktivieren, HBF2 einschalten
-            RelayControl::setRelay(5, false);  // Trenne Zone A
-            RelayControl::setRelay(6, true);   // Schalte HBF2 ein
+            RelayControl::setRelay(5, false); // Trenne Zone A
+            RelayControl::setRelay(6, true); // Schalte HBF2 ein
 
             hbfStart = true;
             hbfMax = abs(HBF_ROUTE.HBF2.max) * (-1);
         } else {
             // === ANKOMMENDER ZUG ===
             // Zone A wieder verbinden
-            RelayControl::setRelay(5, true);   // Schalte Zone A an
+            RelayControl::setRelay(5, true); // Schalte Zone A an
         }
 
         EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
@@ -171,15 +171,8 @@ void loop() {
         if (!HBF_ROUTE.HBF3.selected) {
             return;
         }
-
         HBF_ROUTE.HBF3.powered = !HBF_ROUTE.HBF3.powered;
-
-        if (HBF_ROUTE.HBF3.powered) {
-            RelayControl::setRelay(2, true);
-        } else {
-            RelayControl::setRelay(2, false);
-        }
-
+        RelayControl::setRelay(2, HBF_ROUTE.HBF3.powered);
         EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
@@ -187,15 +180,8 @@ void loop() {
         if (!HBF_ROUTE.HBF4.selected) {
             return;
         }
-
         HBF_ROUTE.HBF4.powered = !HBF_ROUTE.HBF4.powered;
-
-        if (HBF_ROUTE.HBF4.powered) {
-            RelayControl::setRelay(3, true);
-        } else {
-            RelayControl::setRelay(3, false);
-        }
-
+        RelayControl::setRelay(3, HBF_ROUTE.HBF4.powered);
         EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
@@ -203,15 +189,8 @@ void loop() {
         if (!HBF_ROUTE.HBF5.selected) {
             return;
         }
-
         HBF_ROUTE.HBF5.powered = !HBF_ROUTE.HBF5.powered;
-
-        if (HBF_ROUTE.HBF5.powered) {
-            RelayControl::setRelay(4, true);
-        } else {
-            RelayControl::setRelay(4, false);
-        }
-
+        RelayControl::setRelay(4, HBF_ROUTE.HBF5.powered);
         EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
     });
 
@@ -273,7 +252,9 @@ void loop() {
     // DISPLAY HBF STATE ##########################################################################
     for (int i = 0; i < 2; ++i) {
         String label = (HBF_ROUTE.HBF1.selected && i == 0)
-            || (HBF_ROUTE.HBF2.selected && i == 1) ? ">" : " ";
+                || (HBF_ROUTE.HBF2.selected && i == 1)
+            ? ">"
+            : " ";
         LCDControl::print(lcd, 0, 5, i, label + "HBF " + String(i + 1));
 
         bool power = (i == 0 && HBF_ROUTE.HBF1.powered) || (i == 1 && HBF_ROUTE.HBF2.powered);
@@ -282,8 +263,10 @@ void loop() {
 
     for (int i = 0; i < 3; ++i) {
         String label = (HBF_ROUTE.HBF3.selected && i == 0)
-            || (HBF_ROUTE.HBF4.selected && i == 1)
-            || (HBF_ROUTE.HBF5.selected && i == 2) ? ">" : " ";
+                || (HBF_ROUTE.HBF4.selected && i == 1)
+                || (HBF_ROUTE.HBF5.selected && i == 2)
+            ? ">"
+            : " ";
         LCDControl::print(lcd, 13, 18, i, label + "BBF " + String(i + 1));
 
         bool power = (i == 0 && HBF_ROUTE.HBF3.powered) || (i == 1 && HBF_ROUTE.HBF4.powered) || (i == 2 && HBF_ROUTE.HBF5.powered);
