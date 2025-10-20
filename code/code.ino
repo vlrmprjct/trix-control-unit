@@ -51,8 +51,8 @@ void loop() {
     ReedControl::push(3, []() {
         // HBF2 LEFT
         Utils::speedStart = millis();
-        if (!HBF_ROUTE.HBF2.powered) {
-            hbfBrake = HBF_ROUTE.HBF2.brake;
+        if (!HBF2.powered) {
+            hbfBrake = HBF2.brake;
         }
     });
 
@@ -60,48 +60,48 @@ void loop() {
         // HBF2 CENTER
         Utils::speedEnd = millis();
         Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, 31.0);
-        if (!HBF_ROUTE.HBF2.powered) {
+        if (!HBF2.powered) {
             hbfStop = true;
-            hbfMin = HBF_ROUTE.HBF2.min;
+            hbfMin = HBF2.min;
         }
     });
 
     ReedControl::push(5, []() {
         // HBF2 RIGHT
         hbfStop = false;
-        if (!HBF_ROUTE.HBF2.powered) {
+        if (!HBF2.powered) {
             RelayControl::setRelay(5, true);
             RelayControl::setRelay(6, false);
         }
     });
 
     ReedControl::push(2, []() {
-        // HBF3 RIGHT
+        // BBF1 RIGHT
     });
 
     ReedControl::push(1, []() {
-        // HBF3 CENTER
+        // BBF1 CENTER
     });
 
     ReedControl::push(6, []() {
         Utils::speedStart = millis();
-        if (!HBF_ROUTE.HBF1.powered) {
-            hbfBrake = HBF_ROUTE.HBF1.brake;
+        if (!HBF1.powered) {
+            hbfBrake = HBF1.brake;
         }
     });
 
     ReedControl::push(7, []() {
         Utils::speedEnd = millis();
         Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, dist_rd1_rd2);
-        if (!HBF_ROUTE.HBF1.powered) {
+        if (!HBF1.powered) {
             hbfStop = true;
-            hbfMin = HBF_ROUTE.HBF1.min;
+            hbfMin = HBF1.min;
         }
     });
 
     ReedControl::push(8, []() {
         hbfStop = false;
-        if (!HBF_ROUTE.HBF1.powered) {
+        if (!HBF1.powered) {
             // SWITCH FROM ZONE C TO A @ HBF1
             RelayControl::setRelay(7, true);
             // TURN OFF HBF1
@@ -119,127 +119,127 @@ void loop() {
     ButtonControl::updateStates();
 
     ButtonControl::pushButton(BTN_HBF1, []() {
-        if (!HBF_ROUTE.HBF1.selected) {
+        if (!HBF1.selected) {
             return;
         }
 
         // Umschalten des Zustands (toggle)
-        HBF_ROUTE.HBF1.powered = !HBF_ROUTE.HBF1.powered;
+        HBF1.powered = !HBF1.powered;
 
-        if (HBF_ROUTE.HBF1.powered) {
+        if (HBF1.powered) {
             // === ABFAHRENDER ZUG ===
             // Zone C aktivieren, HBF1 einschalten
             RelayControl::setRelay(7, false); // Trenne Zone A
             RelayControl::setRelay(8, true); // Schalte HBF1 ein
 
             hbfStart = true;
-            hbfMax = abs(HBF_ROUTE.HBF1.max) * (-1);
+            hbfMax = abs(HBF1.max) * (-1);
         } else {
             // === ANKOMMENDER ZUG ===
             // Zone A wieder verbinden
             RelayControl::setRelay(7, true); // Schalte Zone A an
         }
 
-        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
+        EEPROM.put(EEPROM_ROUTE, ROUTE);
     });
 
     ButtonControl::pushButton(BTN_HBF2, []() {
-        if (!HBF_ROUTE.HBF2.selected) {
+        if (!HBF2.selected) {
             return;
         }
         // Umschalten des Zustands (toggle)
-        HBF_ROUTE.HBF2.powered = !HBF_ROUTE.HBF2.powered;
+        HBF2.powered = !HBF2.powered;
 
-        if (HBF_ROUTE.HBF2.powered) {
+        if (HBF2.powered) {
             // === ABFAHRENDER ZUG ===
             // Zone C aktivieren, HBF2 einschalten
             RelayControl::setRelay(5, false); // Trenne Zone A
             RelayControl::setRelay(6, true); // Schalte HBF2 ein
 
             hbfStart = true;
-            hbfMax = abs(HBF_ROUTE.HBF2.max) * (-1);
+            hbfMax = abs(HBF2.max) * (-1);
         } else {
             // === ANKOMMENDER ZUG ===
             // Zone A wieder verbinden
             RelayControl::setRelay(5, true); // Schalte Zone A an
         }
 
-        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
+        EEPROM.put(EEPROM_ROUTE, ROUTE);
     });
 
-    ButtonControl::pushButton(BTN_HBF3, []() {
-        if (!HBF_ROUTE.HBF3.selected) {
+    ButtonControl::pushButton(BTN_BBF1, []() {
+        if (!BBF1.selected) {
             return;
         }
-        HBF_ROUTE.HBF3.powered = !HBF_ROUTE.HBF3.powered;
-        RelayControl::setRelay(2, HBF_ROUTE.HBF3.powered);
-        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
+        BBF1.powered = !BBF1.powered;
+        RelayControl::setRelay(2, BBF1.powered);
+        EEPROM.put(EEPROM_ROUTE, ROUTE);
     });
 
-    ButtonControl::pushButton(BTN_HBF4, []() {
-        if (!HBF_ROUTE.HBF4.selected) {
+    ButtonControl::pushButton(BTN_BBF2, []() {
+        if (!BBF2.selected) {
             return;
         }
-        HBF_ROUTE.HBF4.powered = !HBF_ROUTE.HBF4.powered;
-        RelayControl::setRelay(3, HBF_ROUTE.HBF4.powered);
-        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
+        BBF2.powered = !BBF2.powered;
+        RelayControl::setRelay(3, BBF2.powered);
+        EEPROM.put(EEPROM_ROUTE, ROUTE);
     });
 
-    ButtonControl::pushButton(BTN_HBF5, []() {
-        if (!HBF_ROUTE.HBF5.selected) {
+    ButtonControl::pushButton(BTN_BBF3, []() {
+        if (!BBF3.selected) {
             return;
         }
-        HBF_ROUTE.HBF5.powered = !HBF_ROUTE.HBF5.powered;
-        RelayControl::setRelay(4, HBF_ROUTE.HBF5.powered);
-        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
+        BBF3.powered = !BBF3.powered;
+        RelayControl::setRelay(4, BBF3.powered);
+        EEPROM.put(EEPROM_ROUTE, ROUTE);
     });
 
     ButtonControl::pushButton(SW_HBF1, []() {
         ServoControl::switchTurnout(servo, W1, false);
         ServoControl::switchTurnout(servo, W2, true);
-        HBF_ROUTE.HBF1.selected = true;
-        HBF_ROUTE.HBF2.selected = false;
-        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
+        HBF1.selected = true;
+        HBF2.selected = false;
+        EEPROM.put(EEPROM_ROUTE, ROUTE);
     });
 
     ButtonControl::pushButton(SW_HBF2, []() {
         ServoControl::switchTurnout(servo, W1, true);
         ServoControl::switchTurnout(servo, W2, false);
-        HBF_ROUTE.HBF1.selected = false;
-        HBF_ROUTE.HBF2.selected = true;
-        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
+        HBF1.selected = false;
+        HBF2.selected = true;
+        EEPROM.put(EEPROM_ROUTE, ROUTE);
     });
 
-    ButtonControl::pushButton(SW_HBF3, []() {
+    ButtonControl::pushButton(SW_BBF1, []() {
         ServoControl::switchTurnout(servo, W3, true);
         ServoControl::switchTurnout(servo, W4, false);
         ServoControl::switchTurnout(servo, W5, false);
         ServoControl::switchTurnout(servo, W7, true);
-        HBF_ROUTE.HBF3.selected = true;
-        HBF_ROUTE.HBF4.selected = false;
-        HBF_ROUTE.HBF5.selected = false;
-        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
+        BBF1.selected = true;
+        BBF2.selected = false;
+        BBF3.selected = false;
+        EEPROM.put(EEPROM_ROUTE, ROUTE);
     });
 
-    ButtonControl::pushButton(SW_HBF4, []() {
+    ButtonControl::pushButton(SW_BBF2, []() {
         ServoControl::switchTurnout(servo, W3, true);
         ServoControl::switchTurnout(servo, W4, true);
         ServoControl::switchTurnout(servo, W5, true);
         ServoControl::switchTurnout(servo, W7, true);
-        HBF_ROUTE.HBF3.selected = false;
-        HBF_ROUTE.HBF4.selected = true;
-        HBF_ROUTE.HBF5.selected = false;
-        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
+        BBF1.selected = false;
+        BBF2.selected = true;
+        BBF3.selected = false;
+        EEPROM.put(EEPROM_ROUTE, ROUTE);
     });
 
-    ButtonControl::pushButton(SW_HBF5, []() {
+    ButtonControl::pushButton(SW_BBF3, []() {
         ServoControl::switchTurnout(servo, W3, false);
         ServoControl::switchTurnout(servo, W6, true);
         ServoControl::switchTurnout(servo, W7, false);
-        HBF_ROUTE.HBF3.selected = false;
-        HBF_ROUTE.HBF4.selected = false;
-        HBF_ROUTE.HBF5.selected = true;
-        EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
+        BBF1.selected = false;
+        BBF2.selected = false;
+        BBF3.selected = true;
+        EEPROM.put(EEPROM_ROUTE, ROUTE);
     });
 
     // DISPLAY COMMON STATES ######################################################################
@@ -251,25 +251,25 @@ void loop() {
 
     // DISPLAY HBF STATE ##########################################################################
     for (int i = 0; i < 2; ++i) {
-        String label = (HBF_ROUTE.HBF1.selected && i == 0)
-                || (HBF_ROUTE.HBF2.selected && i == 1)
+        String label = (HBF1.selected && i == 0)
+                || (HBF2.selected && i == 1)
             ? ">"
             : " ";
         LCDControl::print(lcd, 0, 5, i, label + "HBF " + String(i + 1));
 
-        bool power = (i == 0 && HBF_ROUTE.HBF1.powered) || (i == 1 && HBF_ROUTE.HBF2.powered);
+        bool power = (i == 0 && HBF1.powered) || (i == 1 && HBF2.powered);
         LCDControl::print(lcd, 6, 7, i, power ? "*" : " ");
     }
 
     for (int i = 0; i < 3; ++i) {
-        String label = (HBF_ROUTE.HBF3.selected && i == 0)
-                || (HBF_ROUTE.HBF4.selected && i == 1)
-                || (HBF_ROUTE.HBF5.selected && i == 2)
+        String label = (BBF1.selected && i == 0)
+                || (BBF2.selected && i == 1)
+                || (BBF3.selected && i == 2)
             ? ">"
             : " ";
         LCDControl::print(lcd, 13, 18, i, label + "BBF " + String(i + 1));
 
-        bool power = (i == 0 && HBF_ROUTE.HBF3.powered) || (i == 1 && HBF_ROUTE.HBF4.powered) || (i == 2 && HBF_ROUTE.HBF5.powered);
+        bool power = (i == 0 && BBF1.powered) || (i == 1 && BBF2.powered) || (i == 2 && BBF3.powered);
         LCDControl::print(lcd, 19, 19, i, power ? "*" : " ");
     }
 
@@ -298,7 +298,7 @@ void loop() {
     //         hbfStart = false;
     // }
 
-    // if (!HBF_ROUTE.HBF1.powered && hbfStop) {
+    // if (!HBF1.powered && hbfStop) {
     //     if (startTimer == 0)
     //         startTimer = millis();
     //     ENC_ZONE_B = (-1) * MotorControl::rampDynamicValue(millis() - startTimer, 0, dist_rd2_rd3, abs(hbfBrake), abs(hbfMin), Utils::currentSpeed);

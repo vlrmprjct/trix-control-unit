@@ -6,22 +6,22 @@
 namespace Eeprom {
 
     void initState() {
-        // EEPROM.get(EEPROM_ROUTE, HBF_ROUTE);
+        // EEPROM.get(EEPROM_ROUTE, ROUTE);
 
         // bool needsInit = false;
-        // if (HBF_ROUTE.HBF1.name[0] == '\0' && HBF_ROUTE.HBF2.name[0] == '\0')
+        // if (HBF1.name[0] == '\0' && HBF2.name[0] == '\0')
         //     needsInit = true;
 
         // if (needsInit) {
-        //     HBF_ROUTE.HBF1.powered = true;
-        //     HBF_ROUTE.HBF2.powered = true;
-        //     HBF_ROUTE.HBF3.powered = true;
-        //     HBF_ROUTE.HBF4.powered = true;
-        //     HBF_ROUTE.HBF5.powered = true;
-        //     HBF_ROUTE.HBF1.name[0] = '\0';
-        //     HBF_ROUTE.HBF2.name[0] = '\0';
+        //     HBF1.powered = true;
+        //     HBF2.powered = true;
+        //     BBF1.powered = true;
+        //     BBF2.powered = true;
+        //     BBF3.powered = true;
+        //     HBF1.name[0] = '\0';
+        //     HBF2.name[0] = '\0';
 
-        //     EEPROM.put(EEPROM_ROUTE, HBF_ROUTE);
+        //     EEPROM.put(EEPROM_ROUTE, ROUTE);
         // }
     }
 

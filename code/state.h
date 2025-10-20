@@ -1,6 +1,6 @@
 #pragma once
 
-struct HBF_SLOT {
+struct Tracks {
     bool occupied;
     bool selected;
     bool powered;
@@ -11,14 +11,16 @@ struct HBF_SLOT {
     int brake;
 };
 
-struct HBF_STATE {
-    HBF_SLOT HBF1;
-    HBF_SLOT HBF2;
-    HBF_SLOT HBF3;
-    HBF_SLOT HBF4;
-    HBF_SLOT HBF5;
-    HBF_SLOT HBF6;
-    HBF_SLOT HBF7;
+struct Routes {
+    Tracks track[8];
 };
 
-inline HBF_STATE HBF_ROUTE;
+inline Routes ROUTE;
+
+inline Tracks& HBF1 = ROUTE.track[1];
+inline Tracks& HBF2 = ROUTE.track[2];
+inline Tracks& BBF1 = ROUTE.track[3];
+inline Tracks& BBF2 = ROUTE.track[4];
+inline Tracks& BBF3 = ROUTE.track[5];
+inline Tracks& BBF4 = ROUTE.track[6];
+inline Tracks& BBF5 = ROUTE.track[7];
