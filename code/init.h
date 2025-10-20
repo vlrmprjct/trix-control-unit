@@ -74,9 +74,8 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
     // SET PWM FREQUENCY ##########################################################################
     Utils::setPrescalerTimers(0x01);
 
-    // INIT STATE / READ FROM EEPROM ##############################################################
-    // Eeprom::initState();
-    EEPROM.get(EEPROM_ROUTE, ROUTE);
+    // LOAD STATE / READ FROM EEPROM ##############################################################
+    Eeprom::load();
 
     // CLEAR EEPROM ###############################################################################
     // Eeprom::clear();

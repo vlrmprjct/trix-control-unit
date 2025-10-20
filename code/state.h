@@ -24,3 +24,8 @@ inline Tracks& BBF2 = ROUTE.track[4];
 inline Tracks& BBF3 = ROUTE.track[5];
 inline Tracks& BBF4 = ROUTE.track[6];
 inline Tracks& BBF5 = ROUTE.track[7];
+
+struct RouteMeta {
+    unsigned long magic;
+    unsigned short version;
+};

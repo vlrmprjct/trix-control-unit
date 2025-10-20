@@ -1,9 +1,15 @@
 #pragma once
 
+// EEPROM SETUP ###################################################################################
+// EEPROM VERSION
+constexpr unsigned long ROUTE_MAGIC    = 0xDEADBEEF;
+constexpr unsigned short ROUTE_VERSION = 2;
+
 // EEPROM ADDRESS CONSTANTS
 constexpr int EEPROM_ROUTE  = 0;
-constexpr int EEPROM_ACTIVE = 500;
 constexpr int EEPROM_RELAY  = 1000;
+constexpr int EEPROM_META   = 1500;
+
 
 // CONTROL CONFIG SETUP ###########################################################################
 // DASHBOARD BUTTON MODULE COUNT

@@ -140,7 +140,7 @@ void loop() {
             RelayControl::setRelay(7, true); // Schalte Zone A an
         }
 
-        EEPROM.put(EEPROM_ROUTE, ROUTE);
+        Eeprom::save();
     });
 
     ButtonControl::pushButton(BTN_HBF2, []() {
@@ -164,7 +164,7 @@ void loop() {
             RelayControl::setRelay(5, true); // Schalte Zone A an
         }
 
-        EEPROM.put(EEPROM_ROUTE, ROUTE);
+        Eeprom::save();
     });
 
     ButtonControl::pushButton(BTN_BBF1, []() {
@@ -173,7 +173,7 @@ void loop() {
         }
         BBF1.powered = !BBF1.powered;
         RelayControl::setRelay(2, BBF1.powered);
-        EEPROM.put(EEPROM_ROUTE, ROUTE);
+        Eeprom::save();
     });
 
     ButtonControl::pushButton(BTN_BBF2, []() {
@@ -182,7 +182,7 @@ void loop() {
         }
         BBF2.powered = !BBF2.powered;
         RelayControl::setRelay(3, BBF2.powered);
-        EEPROM.put(EEPROM_ROUTE, ROUTE);
+        Eeprom::save();
     });
 
     ButtonControl::pushButton(BTN_BBF3, []() {
@@ -191,7 +191,7 @@ void loop() {
         }
         BBF3.powered = !BBF3.powered;
         RelayControl::setRelay(4, BBF3.powered);
-        EEPROM.put(EEPROM_ROUTE, ROUTE);
+        Eeprom::save();
     });
 
     ButtonControl::pushButton(SW_HBF1, []() {
@@ -199,7 +199,7 @@ void loop() {
         ServoControl::switchTurnout(servo, W2, true);
         HBF1.selected = true;
         HBF2.selected = false;
-        EEPROM.put(EEPROM_ROUTE, ROUTE);
+        Eeprom::save();
     });
 
     ButtonControl::pushButton(SW_HBF2, []() {
@@ -207,7 +207,7 @@ void loop() {
         ServoControl::switchTurnout(servo, W2, false);
         HBF1.selected = false;
         HBF2.selected = true;
-        EEPROM.put(EEPROM_ROUTE, ROUTE);
+        Eeprom::save();
     });
 
     ButtonControl::pushButton(SW_BBF1, []() {
@@ -218,7 +218,7 @@ void loop() {
         BBF1.selected = true;
         BBF2.selected = false;
         BBF3.selected = false;
-        EEPROM.put(EEPROM_ROUTE, ROUTE);
+        Eeprom::save();
     });
 
     ButtonControl::pushButton(SW_BBF2, []() {
@@ -229,7 +229,7 @@ void loop() {
         BBF1.selected = false;
         BBF2.selected = true;
         BBF3.selected = false;
-        EEPROM.put(EEPROM_ROUTE, ROUTE);
+        Eeprom::save();
     });
 
     ButtonControl::pushButton(SW_BBF3, []() {
@@ -239,7 +239,7 @@ void loop() {
         BBF1.selected = false;
         BBF2.selected = false;
         BBF3.selected = true;
-        EEPROM.put(EEPROM_ROUTE, ROUTE);
+        Eeprom::save();
     });
 
     // DISPLAY COMMON STATES ######################################################################
