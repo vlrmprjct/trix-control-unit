@@ -126,20 +126,22 @@ void loop() {
         // Umschalten des Zustands (toggle)
         HBF1.powered = !HBF1.powered;
 
-        if (HBF1.powered) {
-            // === ABFAHRENDER ZUG ===
-            // Zone C aktivieren, HBF1 einschalten
-            RelayControl::setRelay(7, false); // Trenne Zone A
-            RelayControl::setRelay(8, true); // Schalte HBF1 ein
+        // if (HBF1.powered) {
+        //     // === ABFAHRENDER ZUG ===
+        //     // Zone C aktivieren, HBF1 einschalten
+        //     RelayControl::setRelay(7, false); // Trenne Zone A
+        //     RelayControl::setRelay(8, true); // Schalte HBF1 ein
 
-            hbfStart = true;
-            hbfMax = abs(HBF1.max) * (-1);
-        } else {
-            // === ANKOMMENDER ZUG ===
-            // Zone A wieder verbinden
-            RelayControl::setRelay(7, true); // Schalte Zone A an
-        }
+        //     hbfStart = true;
+        //     hbfMax = abs(HBF1.max) * (-1);
+        // } else {
+        //     // === ANKOMMENDER ZUG ===
+        //     // Zone A wieder verbinden
+        //     RelayControl::setRelay(7, true); // Schalte Zone A an
+        // }
 
+        RelayControl::setRelay(7, false);
+        RelayControl::setRelay(8, HBF1.powered);
         Eeprom::save();
     });
 
@@ -150,20 +152,22 @@ void loop() {
         // Umschalten des Zustands (toggle)
         HBF2.powered = !HBF2.powered;
 
-        if (HBF2.powered) {
-            // === ABFAHRENDER ZUG ===
-            // Zone C aktivieren, HBF2 einschalten
-            RelayControl::setRelay(5, false); // Trenne Zone A
-            RelayControl::setRelay(6, true); // Schalte HBF2 ein
+        // if (HBF2.powered) {
+        //     // === ABFAHRENDER ZUG ===
+        //     // Zone C aktivieren, HBF2 einschalten
+        //     RelayControl::setRelay(5, false); // Trenne Zone A
+        //     RelayControl::setRelay(6, true); // Schalte HBF2 ein
 
-            hbfStart = true;
-            hbfMax = abs(HBF2.max) * (-1);
-        } else {
-            // === ANKOMMENDER ZUG ===
-            // Zone A wieder verbinden
-            RelayControl::setRelay(5, true); // Schalte Zone A an
-        }
+        //     hbfStart = true;
+        //     hbfMax = abs(HBF2.max) * (-1);
+        // } else {
+        //     // === ANKOMMENDER ZUG ===
+        //     // Zone A wieder verbinden
+        //     RelayControl::setRelay(5, true); // Schalte Zone A an
+        // }
 
+        RelayControl::setRelay(5, false);
+        RelayControl::setRelay(6, HBF2.powered); // Schalte HBF2 ein
         Eeprom::save();
     });
 
@@ -197,6 +201,7 @@ void loop() {
     ButtonControl::pushButton(SW_HBF1, []() {
         ServoControl::switchTurnout(servo, W1, false);
         ServoControl::switchTurnout(servo, W2, true);
+
         HBF1.selected = true;
         HBF2.selected = false;
         Eeprom::save();
@@ -205,6 +210,7 @@ void loop() {
     ButtonControl::pushButton(SW_HBF2, []() {
         ServoControl::switchTurnout(servo, W1, true);
         ServoControl::switchTurnout(servo, W2, false);
+
         HBF1.selected = false;
         HBF2.selected = true;
         Eeprom::save();
@@ -213,32 +219,70 @@ void loop() {
     ButtonControl::pushButton(SW_BBF1, []() {
         ServoControl::switchTurnout(servo, W3, true);
         ServoControl::switchTurnout(servo, W4, false);
-        ServoControl::switchTurnout(servo, W5, false);
-        ServoControl::switchTurnout(servo, W7, true);
+        ServoControl::switchTurnout(servo, W5, false, -5);
+        ServoControl::switchTurnout(servo, W7, true, -10);
         BBF1.selected = true;
         BBF2.selected = false;
         BBF3.selected = false;
+        BBF4.selected = false;
+        BBF5.selected = false;
         Eeprom::save();
     });
 
     ButtonControl::pushButton(SW_BBF2, []() {
         ServoControl::switchTurnout(servo, W3, true);
-        ServoControl::switchTurnout(servo, W4, true);
-        ServoControl::switchTurnout(servo, W5, true);
+        ServoControl::switchTurnout(servo, W4, true, 15);
+        ServoControl::switchTurnout(servo, W5, true, 0);
         ServoControl::switchTurnout(servo, W7, true);
         BBF1.selected = false;
         BBF2.selected = true;
         BBF3.selected = false;
+        BBF4.selected = false;
+        BBF5.selected = false;
         Eeprom::save();
     });
 
     ButtonControl::pushButton(SW_BBF3, []() {
         ServoControl::switchTurnout(servo, W3, false);
-        ServoControl::switchTurnout(servo, W6, true);
-        ServoControl::switchTurnout(servo, W7, false);
+        ServoControl::switchTurnout(servo, W6, true, 15);
+        ServoControl::switchTurnout(servo, W7, false, -15);
+        ServoControl::switchTurnout(servo, W9, true);
         BBF1.selected = false;
         BBF2.selected = false;
         BBF3.selected = true;
+        BBF4.selected = false;
+        BBF5.selected = false;
+        Eeprom::save();
+    });
+
+    ButtonControl::pushButton(SW_BBF4, []() {
+        ServoControl::switchTurnout(servo, W3, false);
+        ServoControl::switchTurnout(servo, W6, false, -10);
+        ServoControl::switchTurnout(servo, W7, false);
+        ServoControl::switchTurnout(servo, W8, true);
+        ServoControl::switchTurnout(servo, W9, false, -10);
+        ServoControl::switchTurnout(servo, W10, false);
+        BBF1.selected = false;
+        BBF2.selected = false;
+        BBF3.selected = false;
+        BBF4.selected = true;
+        BBF5.selected = false;
+        Eeprom::save();
+    });
+
+    ButtonControl::pushButton(SW_BBF5, []() {
+        ServoControl::switchTurnout(servo, W3, false);
+        ServoControl::switchTurnout(servo, W6, false, -10);
+        ServoControl::switchTurnout(servo, W7, false);
+        ServoControl::switchTurnout(servo, W8, false);
+        ServoControl::switchTurnout(servo, W9, false, -10);
+        ServoControl::switchTurnout(servo, W10, true);
+        ServoControl::switchTurnout(servo, W11, false);
+        BBF1.selected = false;
+        BBF2.selected = false;
+        BBF3.selected = false;
+        BBF4.selected = false;
+        BBF5.selected = true;
         Eeprom::save();
     });
 
