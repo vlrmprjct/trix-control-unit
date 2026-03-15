@@ -4,19 +4,31 @@
 namespace LCDControl {
 
     void print(LiquidCrystal& lcd, int startChar, int endChar, int row, String value, const char* direction) {
-        static String lastValue1 = "";
-        static String lastValue2 = "";
-
-        String* lastValue = nullptr;
-        if (startChar <= 7) {
-            lastValue = &lastValue1;
-        } else {
-            lastValue = &lastValue2;
+        // Cache mit fester Größe (8 Slots) - generisch für beliebige Positionen
+        const int CACHE_SIZE = 8;
+        static String cacheValue[CACHE_SIZE];
+        static int cacheKey[CACHE_SIZE];
+        static bool cacheInit = false;
+        
+        if (!cacheInit) {
+            for (int i = 0; i < CACHE_SIZE; i++) {
+                cacheKey[i] = -1;
+                cacheValue[i] = "";
+            }
+            cacheInit = true;
         }
 
-        if (value == *lastValue)
+        // Eindeutiger Key aus Position: row * 100 + startChar
+        int posKey = row * 100 + startChar;
+        int cacheSlot = posKey % CACHE_SIZE;
+        
+        // Cache-Check
+        if (cacheKey[cacheSlot] == posKey && cacheValue[cacheSlot] == value) {
             return;
-        *lastValue = value;
+        }
+        
+        cacheKey[cacheSlot] = posKey;
+        cacheValue[cacheSlot] = value;
 
         int length = endChar - startChar + 1;
 

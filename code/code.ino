@@ -299,10 +299,10 @@ void loop() {
                 || (HBF2.selected && i == 1)
             ? ">"
             : " ";
-        LCDControl::print(lcd, 0, 5, i, label + "HBF " + String(i + 1));
+        LCDControl::print(lcd, 0, 4, i, label + "HBF" + String(i + 1));
 
         bool power = (i == 0 && HBF1.powered) || (i == 1 && HBF2.powered);
-        LCDControl::print(lcd, 6, 7, i, power ? "*" : " ");
+        LCDControl::print(lcd, 5, 5, i, power ? "*" : " ");
     }
 
     for (int i = 0; i < 3; ++i) {
@@ -311,9 +311,20 @@ void loop() {
                 || (BBF3.selected && i == 2)
             ? ">"
             : " ";
-        LCDControl::print(lcd, 13, 18, i, label + "BBF " + String(i + 1));
+        LCDControl::print(lcd, 7, 11, i, label + "BBF" + String(i + 1));
 
         bool power = (i == 0 && BBF1.powered) || (i == 1 && BBF2.powered) || (i == 2 && BBF3.powered);
+        LCDControl::print(lcd, 12, 12, i, power ? "*" : " ");
+    }
+
+    for (int i = 0; i < 2; ++i) {
+        String label = (BBF4.selected && i == 0)
+                || (BBF5.selected && i == 1)
+            ? ">"
+            : " ";
+        LCDControl::print(lcd, 14, 18, i, label + "BBF" + String(i + 4));
+
+        bool power = (i == 0 && BBF4.powered) || (i == 1 && BBF5.powered);
         LCDControl::print(lcd, 19, 19, i, power ? "*" : " ");
     }
 
