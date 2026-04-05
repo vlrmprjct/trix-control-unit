@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 namespace ReedControl {
-    int read();
+    long read();
     void push(int buttonNr, void (*callback)());
     void updateStates();
     void setStates();

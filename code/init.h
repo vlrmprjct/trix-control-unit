@@ -68,6 +68,7 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
 
     // INIT REED CTRL #############################################################################
     pinMode(REED_DATA, INPUT);
+    pinMode(REED2_DATA, INPUT);
     pinMode(REED_CLOCK, OUTPUT);
     pinMode(REED_LATCH, OUTPUT);
 

@@ -1,23 +1,21 @@
 #include "../../config.h"
 #include <Arduino.h>
 
-static int previousReedStates = 0;
-static int currentReedStates = 0;
+static long previousReedStates = 0;
+static long currentReedStates = 0;
 
 namespace ReedControl {
 
-    int read() {
-        int states = 0;
+    long read() {
+        long states = 0;
 
         digitalWrite(REED_LATCH, LOW);
         delayMicroseconds(5);
         digitalWrite(REED_LATCH, HIGH);
 
-        for (int i = 0; i < REED_COUNT; i++) {
-            int bit = digitalRead(REED_DATA);
-            if (bit == HIGH) {
-                states |= (1 << i);
-            }
+        for (int i = 0; i < 16; i++) {
+            if (digitalRead(REED_DATA)  == HIGH) states |= (1L << i);
+            if (digitalRead(REED2_DATA) == HIGH) states |= (1L << (i + 16));
             digitalWrite(REED_CLOCK, HIGH);
             delayMicroseconds(5);
             digitalWrite(REED_CLOCK, LOW);
@@ -33,7 +31,8 @@ namespace ReedControl {
     }
 
     void push(int reedNr, void (*callback)()) {
-        int mask = (1 << (reedNr - 1));
+        if (reedNr < 1) return;
+        long mask = (1L << (reedNr - 1));
 
         bool wasPressed = previousReedStates & mask;
         bool isPressed = currentReedStates & mask;
