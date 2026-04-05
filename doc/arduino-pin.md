@@ -1,135 +1,136 @@
-# Arduino Mega Pinbelegung - Trix Control Unit
+# Arduino Mega Pin Assignment – Trix Control Unit
 
-## Übersicht
+## Overview
 
-Diese Datei dokumentiert die komplette Pin-Belegung des Arduino Mega für die Modellbahn-Steuerung.
+This file documents the complete pin assignment of the Arduino Mega for the model railway controller.
 
 ---
 
 ## Dashboard Control Unit
 
 ### LCD Dot Matrix Display
-| Pin-Nummer | Funktion | Beschreibung |
-|------------|----------|--------------|
-| 34 | LCD_RS | Register Select (gemeinsam für LCD1, LCD2, LCD3) |
-| 36 | LCD_EN | Enable (gemeinsam für LCD1, LCD2, LCD3) |
-| 38 | LCD1_D4 | Datenleitung 4 |
-| 40 | LCD1_D5 | Datenleitung 5 |
-| 42 | LCD1_D6 | Datenleitung 6 |
-| 44 | LCD1_D7 | Datenleitung 7 |
-| 27 | LCD_RST | Reset-Leitung |
+| Pin Number | Function | Description |
+|------------|----------|-------------|
+| 34 | LCD_RS | Register Select (shared for LCD1, LCD2, LCD3) |
+| 36 | LCD_EN | Enable (shared for LCD1, LCD2, LCD3) |
+| 38 | LCD1_D4 | Data line 4 |
+| 40 | LCD1_D5 | Data line 5 |
+| 42 | LCD1_D6 | Data line 6 |
+| 44 | LCD1_D7 | Data line 7 |
+| 27 | LCD_RST | Reset line |
 
-**Kabelfarben:**
-- *(keine Angaben in Dokumentation)*
+**Wire colors:**
+- *(not documented)*
 
 ---
 
 ### Button Control (74HC165 Shift Register)
-| Pin-Nummer | Funktion | Beschreibung | Kabelfarbe | Modus |
-|------------|----------|--------------|------------|-------|
-| 22 | BTN_DATA | Dateneingang vom Shift Register | LILA (Purple) | INPUT |
-| 23 | BTN_CLOCK | Taktleitung | GELB (Yellow) | OUTPUT |
-| 24 | BTN_LATCH | Latch-Leitung | GRÜN (Green) | OUTPUT |
+| Pin Number | Function | Description | Wire Color | Mode |
+|------------|----------|-------------|------------|------|
+| 22 | BTN_DATA | Data input from shift register | LILA (Purple) | INPUT |
+| 23 | BTN_CLOCK | Clock line | GELB (Yellow) | OUTPUT |
+| 24 | BTN_LATCH | Latch line | GRÜN (Green) | OUTPUT |
 
-**Anschluss:** 16 Dashboard-Buttons über 74HC165 Shift Register
+**Connection:** 16 dashboard buttons via 74HC165 shift register
 
 ---
 
-## Track Unit (Gleissteuerung)
+## Track Unit
 
-### Motor Control - Digital Potentiometer (MCP4261XX)
-| Pin-Nummer | Funktion | Beschreibung | Kabelfarbe | Modus |
-|------------|----------|--------------|------------|-------|
+### Motor Control – Digital Potentiometer (MCP4261XX)
+| Pin Number | Function | Description | Wire Color | Mode |
+|------------|----------|-------------|------------|------|
 | 33 | DIGIPOT_MOSI | SPI Data Out | GELB (Yellow) | OUTPUT |
 | 32 | DIGIPOT_SCK | SPI Clock | ORANGE | OUTPUT |
 | 31 | DIGIPOT_CS | Chip Select | LILA (Purple) | OUTPUT |
 
-**Anschluss:** Stromversorgungssteuerung über digitales Potentiometer
+**Connection:** Power control via digital potentiometer
 
 ---
 
 ### Reed Switch Control (74HC165 Shift Register)
-| Pin-Nummer | Funktion | Beschreibung | Kabelfarbe | Modus |
-|------------|----------|--------------|------------|-------|
-| 41 | REED_DATA | Dateneingang | LILA (Purple) | INPUT |
-| 43 | REED_CLOCK | Taktleitung | GELB (Yellow) | OUTPUT |
-| 45 | REED_LATCH | Latch-Leitung | ORANGE | OUTPUT |
+| Pin Number | Function | Description | Wire Color | Mode |
+|------------|----------|-------------|------------|------|
+| 41 | REED_DATA | Data input – REED1-Board (IC1+IC2) | LILA (Purple) | INPUT |
+| 46 | REED2_DATA | Data input – REED2-Board (IC3+IC4) | LILA (Purple) | INPUT |
+| 43 | REED_CLOCK | Clock line (shared) | GELB (Yellow) | OUTPUT |
+| 45 | REED_LATCH | Latch line (shared) | ORANGE | OUTPUT |
 
-**Anschluss:** 16 Reed-Sensoren zur Gleisbelegungserkennung
-
----
-
-### Encoder Zone A (Links montiert)
-| Pin-Nummer | Funktion | Beschreibung | Kabelfarbe | Modus |
-|------------|----------|--------------|------------|-------|
-| 18 | ENC_ZONE_A_CLK | Clock-Signal | GRÜN (Green) | INPUT_PULLUP + **INTERRUPT** |
-| 28 | ENC_ZONE_A_DT | Data-Signal | GELB (Yellow) | INPUT_PULLUP |
-
-**Anschluss:** Drehencoder für Geschwindigkeitssteuerung Zone A
-**Wertebereich:** 70 - 255
+**Connection:** 32 reed sensors across 2 boards, CLK and LATCH shared
 
 ---
 
-### Encoder Zone B (Rechts montiert)
-| Pin-Nummer | Funktion | Beschreibung | Kabelfarbe | Modus |
-|------------|----------|--------------|------------|-------|
-| 19 | ENC_ZONE_B_CLK | Clock-Signal | GRÜN (Green) | INPUT_PULLUP + **INTERRUPT** |
-| 29 | ENC_ZONE_B_DT | Data-Signal | GELB (Yellow) | INPUT_PULLUP |
+### Encoder Zone A (mounted left)
+| Pin Number | Function | Description | Wire Color | Mode |
+|------------|----------|-------------|------------|------|
+| 18 | ENC_ZONE_A_CLK | Clock signal | GRÜN (Green) | INPUT_PULLUP + **INTERRUPT** |
+| 28 | ENC_ZONE_A_DT | Data signal | GELB (Yellow) | INPUT_PULLUP |
 
-**Anschluss:** Drehencoder für Geschwindigkeitssteuerung Zone B
-**Wertebereich:** 70 - 255
+**Connection:** Rotary encoder for speed control Zone A
+**Value range:** 70 - 255
 
 ---
 
-### Servo Module (I²C) - Weichensteuerung
-| Pin-Nummer | Funktion | Beschreibung | Kabelfarbe | Bus |
-|------------|----------|--------------|------------|-----|
-| 20 | SERVO_SDA | I²C Datenleitung | LILA (Purple) | I²C |
-| 21 | SERVO_SCL | I²C Taktleitung | GELB (Yellow) | I²C |
-| 5V | SERVO_VOLTAGE_INTERNAL | Interne 5V Versorgung | BRAUN (Brown) | - |
-| 5V | SERVO_VOLTAGE_EXTERNAL | Externe 5V Versorgung | ROT (Red) | - |
+### Encoder Zone B (mounted right)
+| Pin Number | Function | Description | Wire Color | Mode |
+|------------|----------|-------------|------------|------|
+| 19 | ENC_ZONE_B_CLK | Clock signal | GRÜN (Green) | INPUT_PULLUP + **INTERRUPT** |
+| 29 | ENC_ZONE_B_DT | Data signal | GELB (Yellow) | INPUT_PULLUP |
 
-**Anschluss:** Adafruit PWM Servo Driver (PCA9685) über I²C
-**Verwendung:** Steuerung von Modellbahn-Weichen
+**Connection:** Rotary encoder for speed control Zone B
+**Value range:** 70 - 255
+
+---
+
+### Servo Module (I²C) – Turnout Control
+| Pin Number | Function | Description | Wire Color | Bus |
+|------------|----------|-------------|------------|-----|
+| 20 | SERVO_SDA | I²C data line | LILA (Purple) | I²C |
+| 21 | SERVO_SCL | I²C clock line | GELB (Yellow) | I²C |
+| 5V | SERVO_VOLTAGE_INTERNAL | Internal 5V supply | BRAUN (Brown) | - |
+| 5V | SERVO_VOLTAGE_EXTERNAL | External 5V supply | ROT (Red) | - |
+
+**Connection:** Adafruit PWM Servo Driver (PCA9685) via I²C
+**Usage:** Control of model railway turnouts
 
 ---
 
 ### Relay Control (74HC595 Shift Register)
-| Pin-Nummer | Funktion | Beschreibung | Kabelfarbe | Modus |
-|------------|----------|--------------|------------|-------|
-| 39 | RELAY_LATCH | Latch-Leitung | GELB (Yellow) | OUTPUT |
-| 37 | RELAY_DATA | Datenausgang | ORANGE | OUTPUT |
-| 35 | RELAY_CLOCK | Taktleitung | LILA (Purple) | OUTPUT |
+| Pin Number | Function | Description | Wire Color | Mode |
+|------------|----------|-------------|------------|------|
+| 39 | RELAY_LATCH | Latch line | GELB (Yellow) | OUTPUT |
+| 37 | RELAY_DATA | Data output | ORANGE | OUTPUT |
+| 35 | RELAY_CLOCK | Clock line | LILA (Purple) | OUTPUT |
 
-**Anschluss:** 24 Relais über 74HC595 Shift Register
-**Verwendung:** Schaltung von Gleisabschnitten, Weichen, etc.
+**Connection:** 24 relays via 74HC595 shift register
+**Usage:** Switching of track sections, turnouts, etc.
 
 ---
 
-## Pin-Übersicht nach Nummern
+## Pin Overview by Number
 
-### Digitale Pins (0-53)
+### Digital Pins (0–53)
 
-| Pin | Funktion | Modul | Bemerkung |
-|-----|----------|-------|-----------|
-| 0 | RX0 | - | Nicht verwendet (Serial) |
-| 1 | TX0 | - | Nicht verwendet (Serial) |
-| 2 | - | - | Nicht verwendet (INT4) |
-| 3 | - | - | Nicht verwendet (PWM, INT5) |
-| 4 | - | - | Nicht verwendet (PWM) |
-| 5 | - | - | Nicht verwendet (PWM) |
-| 6 | - | - | Nicht verwendet (PWM) |
-| 7 | - | - | Nicht verwendet (PWM) |
-| 8 | - | - | Nicht verwendet (PWM) |
-| 9 | - | - | Nicht verwendet (PWM) |
-| 10 | - | - | Nicht verwendet (PWM) |
-| 11 | - | - | Nicht verwendet (PWM) |
-| 12 | - | - | Nicht verwendet (PWM) |
-| 13 | - | - | Nicht verwendet (PWM, LED_BUILTIN) |
-| 14 | TX3 | - | Nicht verwendet (Serial3) |
-| 15 | RX3 | - | Nicht verwendet (Serial3) |
-| 16 | TX2 | - | Nicht verwendet (Serial2) |
-| 17 | RX2 | - | Nicht verwendet (Serial2) |
+| Pin | Function | Module | Note |
+|-----|----------|--------|------|
+| 0 | RX0 | - | Not used (Serial) |
+| 1 | TX0 | - | Not used (Serial) |
+| 2 | - | - | Not used (INT4) |
+| 3 | - | - | Not used (PWM, INT5) |
+| 4 | - | - | Not used (PWM) |
+| 5 | - | - | Not used (PWM) |
+| 6 | - | - | Not used (PWM) |
+| 7 | - | - | Not used (PWM) |
+| 8 | - | - | Not used (PWM) |
+| 9 | - | - | Not used (PWM) |
+| 10 | - | - | Not used (PWM) |
+| 11 | - | - | Not used (PWM) |
+| 12 | - | - | Not used (PWM) |
+| 13 | - | - | Not used (PWM, LED_BUILTIN) |
+| 14 | TX3 | - | Not used (Serial3) |
+| 15 | RX3 | - | Not used (Serial3) |
+| 16 | TX2 | - | Not used (Serial2) |
+| 17 | RX2 | - | Not used (Serial2) |
 | 18 | ENC_ZONE_A_CLK | Encoder Zone A | **INT5 - INTERRUPT** |
 | 19 | ENC_ZONE_B_CLK | Encoder Zone B | **INT4 - INTERRUPT** |
 | 20 | SERVO_SDA | Servo Module | **I²C SDA** |
@@ -137,12 +138,12 @@ Diese Datei dokumentiert die komplette Pin-Belegung des Arduino Mega für die Mo
 | 22 | BTN_DATA | Button Control | INPUT |
 | 23 | BTN_CLOCK | Button Control | OUTPUT |
 | 24 | BTN_LATCH | Button Control | OUTPUT |
-| 25 | - | - | Nicht verwendet |
-| 26 | - | - | Nicht verwendet |
+| 25 | - | - | Not used |
+| 26 | - | - | Not used |
 | 27 | LCD_RST | LCD Display | INPUT (Reset) |
 | 28 | ENC_ZONE_A_DT | Encoder Zone A | INPUT_PULLUP |
 | 29 | ENC_ZONE_B_DT | Encoder Zone B | INPUT_PULLUP |
-| 30 | - | - | Nicht verwendet |
+| 30 | - | - | Not used |
 | 31 | DIGIPOT_CS | Motor Control | OUTPUT (SPI CS) |
 | 32 | DIGIPOT_SCK | Motor Control | OUTPUT (SPI SCK) |
 | 33 | DIGIPOT_MOSI | Motor Control | OUTPUT (SPI MOSI) |
@@ -150,59 +151,59 @@ Diese Datei dokumentiert die komplette Pin-Belegung des Arduino Mega für die Mo
 | 35 | RELAY_CLOCK | Relay Control | OUTPUT |
 | 36 | LCD_EN | LCD Display | Enable |
 | 37 | RELAY_DATA | Relay Control | OUTPUT |
-| 38 | LCD1_D4 | LCD Display | Datenleitung 4 |
+| 38 | LCD1_D4 | LCD Display | Data line 4 |
 | 39 | RELAY_LATCH | Relay Control | OUTPUT |
-| 40 | LCD1_D5 | LCD Display | Datenleitung 5 |
+| 40 | LCD1_D5 | LCD Display | Data line 5 |
 | 41 | REED_DATA | Reed Control | INPUT |
-| 42 | LCD1_D6 | LCD Display | Datenleitung 6 |
+| 42 | LCD1_D6 | LCD Display | Data line 6 |
 | 43 | REED_CLOCK | Reed Control | OUTPUT |
-| 44 | LCD1_D7 | LCD Display | Datenleitung 7 |
+| 44 | LCD1_D7 | LCD Display | Data line 7 |
 | 45 | REED_LATCH | Reed Control | OUTPUT |
-| 46 | - | - | Nicht verwendet (PWM) |
-| 47 | - | - | Nicht verwendet (PWM) |
-| 48 | - | - | Nicht verwendet (PWM) |
-| 49 | - | - | Nicht verwendet (PWM) |
-| 50 | MISO | - | Nicht verwendet (Hardware SPI) |
-| 51 | MOSI | - | Nicht verwendet (Hardware SPI) |
-| 52 | SCK | - | Nicht verwendet (Hardware SPI) |
-| 53 | SS | - | Nicht verwendet (Hardware SPI) |
+| 46 | REED2_DATA | Reed Control | INPUT |
+| 47 | - | - | Not used (PWM) |
+| 48 | - | - | Not used (PWM) |
+| 49 | - | - | Not used (PWM) |
+| 50 | MISO | - | Not used (Hardware SPI) |
+| 51 | MOSI | - | Not used (Hardware SPI) |
+| 52 | SCK | - | Not used (Hardware SPI) |
+| 53 | SS | - | Not used (Hardware SPI) |
 
-### Analoge Pins (A0-A15)
+### Analog Pins (A0–A15)
 
-| Pin | Funktion | Modul | Bemerkung |
-|-----|----------|-------|-----------|
-| A0 | - | - | Nicht verwendet |
-| A1 | - | - | Nicht verwendet |
-| A2 | - | - | Nicht verwendet |
-| A3 | - | - | Nicht verwendet |
-| A4 | - | - | Nicht verwendet |
-| A5 | - | - | Nicht verwendet |
-| A6 | - | - | Nicht verwendet |
-| A7 | - | - | Nicht verwendet |
-| A8 | - | - | Nicht verwendet |
-| A9 | - | - | Nicht verwendet |
-| A10 | - | - | Nicht verwendet |
-| A11 | - | - | Nicht verwendet |
-| A12 | - | - | Nicht verwendet |
-| A13 | - | - | Nicht verwendet |
-| A14 | - | - | Nicht verwendet |
-| A15 | - | - | Nicht verwendet |
+| Pin | Function | Module | Note |
+|-----|----------|--------|------|
+| A0 | - | - | Not used |
+| A1 | - | - | Not used |
+| A2 | - | - | Not used |
+| A3 | - | - | Not used |
+| A4 | - | - | Not used |
+| A5 | - | - | Not used |
+| A6 | - | - | Not used |
+| A7 | - | - | Not used |
+| A8 | - | - | Not used |
+| A9 | - | - | Not used |
+| A10 | - | - | Not used |
+| A11 | - | - | Not used |
+| A12 | - | - | Not used |
+| A13 | - | - | Not used |
+| A14 | - | - | Not used |
+| A15 | - | - | Not used |
 
-### Power & Spezial-Pins
+### Power & Special Pins
 
-| Pin | Funktion | Beschreibung |
-|-----|----------|--------------|
-| GND | Ground | Masse (mehrere Pins) |
-| 5V | 5V Power | 5V Spannungsversorgung (mehrere Pins) |
-| 3.3V | 3.3V Power | 3.3V Spannungsversorgung (max. 50mA) |
-| VIN | Input Voltage | Externe Spannungsversorgung (7-12V empfohlen) |
-| IOREF | I/O Reference | Referenzspannung für Shield-Kompatibilität |
-| AREF | Analog Reference | Referenzspannung für analoge Eingänge |
-| RESET | Reset | Reset-Pin (LOW = Reset)
+| Pin | Function | Description |
+|-----|----------|-------------|
+| GND | Ground | Ground (multiple pins) |
+| 5V | 5V Power | 5V power supply (multiple pins) |
+| 3.3V | 3.3V Power | 3.3V power supply (max. 50mA) |
+| VIN | Input Voltage | External power supply (7-12V recommended) |
+| IOREF | I/O Reference | Reference voltage for shield compatibility |
+| AREF | Analog Reference | Reference voltage for analog inputs |
+| RESET | Reset | Reset pin (LOW = reset) |
 
 ---
 
-## Verwendete Kommunikationsprotokolle
+## Communication Protocols Used
 
 ### SPI (Serial Peripheral Interface)
 - **Motor Control (MCP4261XX):** Pins 31, 32, 33
@@ -219,39 +220,11 @@ Diese Datei dokumentiert die komplette Pin-Belegung des Arduino Mega für die Mo
 
 ---
 
-## Interrupt-Pins
+## Interrupt Pins
 
-Der Arduino Mega unterstützt externe Interrupts auf folgenden verwendeten Pins:
+The Arduino Mega supports external interrupts on the following used pins:
 
-| Pin | Interrupt-Nr. | Verwendung |
-|-----|---------------|------------|
+| Pin | Int. No. | Usage |
+|-----|----------|-------|
 | 18 | Interrupt 5 | Encoder Zone A CLK |
 | 19 | Interrupt 4 | Encoder Zone B CLK |
-
----
-
-## Modulzusammenfassung
-
-| Modul | Anzahl | Steuerung über |
-|-------|--------|----------------|
-| Dashboard Buttons | 16 | 74HC165 Shift Register |
-| Reed Switches | 16 | 74HC165 Shift Register |
-| Relays | 24 | 74HC595 Shift Register |
-| Encoder | 2 | Direkt (mit Interrupts) |
-| LCD Displays | 1-3 | Parallel 4-Bit Mode |
-| Servos | Variable | I²C PWM Driver |
-| Motor PSU | 1 | SPI Digital Potentiometer |
-
----
-
-## Hinweise
-
-- **Interrupt-Pins 18 & 19** werden für Encoder-Signale verwendet und ermöglichen präzise Drehrichtungserkennung
-- Alle **Shift Register** verwenden separate Clock/Latch/Data-Leitungen für saubere Signaltrennung
-- **I²C-Bus** (Pins 20, 21) kann bei Bedarf für weitere Module erweitert werden
-- **5V Logikpegel** werden durchgehend verwendet
-
----
-
-*Generiert am: 08.03.2026*
-*Projekt: Trix Control Unit - Modellbahn-Steuerung*

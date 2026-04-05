@@ -13,16 +13,16 @@ constexpr int EEPROM_META   = 1500;
 
 // CONTROL CONFIG SETUP ###########################################################################
 // DASHBOARD BUTTON MODULE COUNT
-const int BTN_COUNT = 16;
+const int BTN_COUNT = 24;
 
 // REED SWITCHES MODULE COUNT
-const int REED_COUNT = 16;
+const int REED_COUNT = 32;
 
 // RELAY MODULE COUNT
 const int RELAY_COUNT = 24;
 
 // ENCODER DEFAULTS
-const int ENC_MIN = 70;
+const int ENC_MIN = 40;
 const int ENC_MAX = 255;
 
 
@@ -50,9 +50,10 @@ const int DIGIPOT_SCK  = 32; // ORANGE
 const int DIGIPOT_CS   = 31; // PURPLE
 
 // TRACK REED CTRL 74HC165
-const int REED_DATA  = 41;  // PURPLE
-const int REED_CLOCK = 43;  // YELLOW
-const int REED_LATCH = 45;  // ORANGE
+const int REED_DATA  = 41;  // PURPLE  | REED1-Board QH
+const int REED2_DATA = 47;  // PURPLE  | REED2-Board QH
+const int REED_CLOCK = 43;  // YELLOW  | SHARED
+const int REED_LATCH = 45;  // ORANGE  | SHARED
 
 // ENCODER ZONE A // MOUNTED LEFT
 const int ENC_ZONE_A_CLK = 18; // GREEN  | INTERRUPT

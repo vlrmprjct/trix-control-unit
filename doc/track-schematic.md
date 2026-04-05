@@ -1,10 +1,11 @@
-
-Anticlockwise
-╡   Abstellgleis
-╦   Weiche
-■   Reed Switch
-‡   Trennung  Fahrbereich Zone A / Zone B
 ```
+MAIN DIRECTION Counter clockwise
+
+╡   Siding
+╦   Turnout
+■   Reed Switch
+‡   Separation  Zone A / Zone B
+
                                             <---- MAIN DIRECTION
 
     ╔═════════W7═╦═══W5═╦════════════════════════════ BBF1 ════════════════════╦═W4════╦═W3════════════╗

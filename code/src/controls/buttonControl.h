@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 namespace ButtonControl {
-    int readButtons();
+    long readButtons();
     void pushButton(int buttonNr, void (*callback)());
     void updateStates();
     void setStates();
