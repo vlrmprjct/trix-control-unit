@@ -8,6 +8,7 @@
 #include "src/controls/reedControl.h"
 #include "src/controls/relayControl.h"
 #include "src/controls/servoControl.h"
+#include "src/utils/debug.h"
 #include "src/utils/eeprom.h"
 #include "src/utils/utils.h"
 #include "state.h"
@@ -29,6 +30,8 @@ int dist_rd2_rd3 = 33.0; // Distance between reed sensors 2 and 3 in cm
 
 void setup() {
     init(servo, lcd);
+    Debug::enabled = true;
+    Debug::eepromEnabled = true;
 }
 
 void loop() {
@@ -48,72 +51,68 @@ void loop() {
     // TRACK REED #################################################################################
     ReedControl::updateStates();
 
-    ReedControl::push(3, []() {
-        // HBF2 LEFT
-        Utils::speedStart = millis();
-        if (!HBF2.powered) {
-            hbfBrake = HBF2.brake;
-        }
-    });
+    // ReedControl::push(RD_HBF1_L, []() {
+    //     Utils::speedStart = millis();
+    //     if (!HBF1.powered) {
+    //         hbfBrake = HBF1.brake;
+    //     }
+    // });
 
-    ReedControl::push(4, []() {
-        // HBF2 CENTER
-        Utils::speedEnd = millis();
-        Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, 31.0);
-        if (!HBF2.powered) {
-            hbfStop = true;
-            hbfMin = HBF2.min;
-        }
-    });
+    // ReedControl::push(RD_HBF1_C, []() {
+    //     Utils::speedEnd = millis();
+    //     Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, dist_rd1_rd2);
+    //     if (!HBF1.powered) {
+    //         hbfStop = true;
+    //         hbfMin = HBF1.min;
+    //     }
+    // });
 
-    ReedControl::push(5, []() {
-        // HBF2 RIGHT
-        hbfStop = false;
-        if (!HBF2.powered) {
-            RelayControl::setRelay(5, true);
-            RelayControl::setRelay(6, false);
-        }
-    });
-
-    ReedControl::push(2, []() {
-        // BBF1 RIGHT
-    });
-
-    ReedControl::push(1, []() {
-        // BBF1 CENTER
-    });
-
-    ReedControl::push(6, []() {
-        Utils::speedStart = millis();
+    ReedControl::push(RD_HBF1_R, []() {
         if (!HBF1.powered) {
-            hbfBrake = HBF1.brake;
-        }
-    });
-
-    ReedControl::push(7, []() {
-        Utils::speedEnd = millis();
-        Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, dist_rd1_rd2);
-        if (!HBF1.powered) {
-            hbfStop = true;
-            hbfMin = HBF1.min;
-        }
-    });
-
-    ReedControl::push(8, []() {
-        hbfStop = false;
-        if (!HBF1.powered) {
-            // SWITCH FROM ZONE C TO A @ HBF1
+            // SWITCH FROM ZONE A TO C @ HBF1
             RelayControl::setRelay(7, true);
             // TURN OFF HBF1
             RelayControl::setRelay(8, false);
+            HBF1.occupied = true;
+            Eeprom::save();
         }
     });
 
-    ReedControl::push(14, []() {
-        // SWITCH FROM ZONE C TO A @ HBF1
-        RelayControl::setRelay(5, true);
-        RelayControl::setRelay(7, true);
+    ReedControl::push(RD_HBF2_R, []() {
+        if (!HBF2.powered) {
+            // SWITCH FROM ZONE A TO C @ HBF2
+            RelayControl::setRelay(5, true);
+            // TURN OFF HBF2
+            RelayControl::setRelay(6, false);
+            HBF2.occupied = true;
+            Eeprom::save();
+        }
     });
+
+    ReedControl::push(RD_BBF1_L, []() {
+        if (!BBF1.powered) {
+            RelayControl::setRelay(2, false);
+        }
+    });
+
+    ReedControl::push(RD_BBF2_L, []() {
+        if (!BBF2.powered) {
+            RelayControl::setRelay(3, false);
+        }
+    });
+
+    ReedControl::push(RD_BBF3_L, []() {
+        if (!BBF3.powered) {
+            RelayControl::setRelay(4, false);
+        }
+    });
+
+    ReedControl::push(RD_50, []() {
+        // FORCE SWITCH FROM ZONE C TO A @ HBFx
+        RelayControl::setRelay(5, false);
+        RelayControl::setRelay(7, false);
+    });
+
 
     // TRACK CONTROL ##############################################################################
     ButtonControl::updateStates();
@@ -122,26 +121,11 @@ void loop() {
         if (!HBF1.selected) {
             return;
         }
-
-        // Umschalten des Zustands (toggle)
         HBF1.powered = !HBF1.powered;
-
-        // if (HBF1.powered) {
-        //     // === ABFAHRENDER ZUG ===
-        //     // Zone C aktivieren, HBF1 einschalten
-        //     RelayControl::setRelay(7, false); // Trenne Zone A
-        //     RelayControl::setRelay(8, true); // Schalte HBF1 ein
-
-        //     hbfStart = true;
-        //     hbfMax = abs(HBF1.max) * (-1);
-        // } else {
-        //     // === ANKOMMENDER ZUG ===
-        //     // Zone A wieder verbinden
-        //     RelayControl::setRelay(7, true); // Schalte Zone A an
-        // }
-
-        RelayControl::setRelay(7, false);
-        RelayControl::setRelay(8, HBF1.powered);
+        if (HBF1.powered) {
+            HBF1.occupied = false;
+            RelayControl::setRelay(8, true);
+        }
         Eeprom::save();
     });
 
@@ -149,25 +133,11 @@ void loop() {
         if (!HBF2.selected) {
             return;
         }
-        // Umschalten des Zustands (toggle)
         HBF2.powered = !HBF2.powered;
-
-        // if (HBF2.powered) {
-        //     // === ABFAHRENDER ZUG ===
-        //     // Zone C aktivieren, HBF2 einschalten
-        //     RelayControl::setRelay(5, false); // Trenne Zone A
-        //     RelayControl::setRelay(6, true); // Schalte HBF2 ein
-
-        //     hbfStart = true;
-        //     hbfMax = abs(HBF2.max) * (-1);
-        // } else {
-        //     // === ANKOMMENDER ZUG ===
-        //     // Zone A wieder verbinden
-        //     RelayControl::setRelay(5, true); // Schalte Zone A an
-        // }
-
-        RelayControl::setRelay(5, false);
-        RelayControl::setRelay(6, HBF2.powered); // Schalte HBF2 ein
+        if (HBF2.powered) {
+            HBF2.occupied = false;
+            RelayControl::setRelay(6, true);
+        }
         Eeprom::save();
     });
 
@@ -176,7 +146,9 @@ void loop() {
             return;
         }
         BBF1.powered = !BBF1.powered;
-        RelayControl::setRelay(2, BBF1.powered);
+        if (BBF1.powered) {
+            RelayControl::setRelay(2, true);
+        }
         Eeprom::save();
     });
 
@@ -186,6 +158,9 @@ void loop() {
         }
         BBF2.powered = !BBF2.powered;
         RelayControl::setRelay(3, BBF2.powered);
+        if (BBF2.powered) {
+            RelayControl::setRelay(3, true);
+        }
         Eeprom::save();
     });
 
@@ -194,10 +169,14 @@ void loop() {
             return;
         }
         BBF3.powered = !BBF3.powered;
-        RelayControl::setRelay(4, BBF3.powered);
+        if (BBF3.powered) {
+            RelayControl::setRelay(4, true);
+        }
         Eeprom::save();
     });
 
+
+    // TURNOUT CONTROL ############################################################################
     ButtonControl::pushButton(SW_HBF1, []() {
         ServoControl::switchTurnout(servo, W1, false);
         ServoControl::switchTurnout(servo, W2, true);
@@ -215,6 +194,7 @@ void loop() {
         HBF2.selected = true;
         Eeprom::save();
     });
+
 
     ButtonControl::pushButton(SW_BBF1, []() {
         ServoControl::switchTurnout(servo, W3, true);
@@ -260,7 +240,7 @@ void loop() {
         ServoControl::switchTurnout(servo, W6, false, -10);
         ServoControl::switchTurnout(servo, W7, false);
         ServoControl::switchTurnout(servo, W8, true);
-        ServoControl::switchTurnout(servo, W9, false, -10);
+        ServoControl::switchTurnout(servo, W9, false, -20);
         ServoControl::switchTurnout(servo, W10, false);
         BBF1.selected = false;
         BBF2.selected = false;
@@ -275,9 +255,9 @@ void loop() {
         ServoControl::switchTurnout(servo, W6, false, -10);
         ServoControl::switchTurnout(servo, W7, false);
         ServoControl::switchTurnout(servo, W8, false);
-        ServoControl::switchTurnout(servo, W9, false, -10);
+        ServoControl::switchTurnout(servo, W9, false, -20);
         ServoControl::switchTurnout(servo, W10, true);
-        ServoControl::switchTurnout(servo, W11, false);
+        ServoControl::switchTurnout(servo, W11, false, -20);
         BBF1.selected = false;
         BBF2.selected = false;
         BBF3.selected = false;
@@ -369,6 +349,10 @@ void loop() {
 
     ButtonControl::setStates();
     ReedControl::setStates();
+
+    // DEBUG ####################################################################################
+    Debug::printState();
+    Debug::printEeprom();
 
     delay(25);
 }

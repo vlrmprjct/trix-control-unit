@@ -43,27 +43,23 @@ enum ReedControls {
     RD_HBF1_L  =  8,
     RD_HBF1_C  =  7,
     RD_HBF1_R  =  6,
-
     RD_HBF2_L  =  5,
     RD_HBF2_C  =  4,
     RD_HBF2_R  =  3,
-
     RD_BBF1_R  =  2,
-    RD_BBF1_L  =  1,
-
-
+    RD_BBF1_L  =  1, // ?? KEINE REAKTION, KABEL ?
     RD_BBF2_R  = 16,
     RD_BBF2_L  = 15,
-
     RD_BBF3_R  = 14,
     RD_BBF3_L  = 13,
-
     RD_BBF4_R  = 12,
     RD_BBF4_L  = 11,
-
     RD_BBF5_R  = 10,
     RD_BBF5_L  =  9,
-
-    RD_ZONE_C  = 17,   // REED2-Board, Pin 1 (H)
+    RD_10      = 29, // !! NC
+    RD_20      = 26,
+    RD_30      = 25,
+    RD_40      = 27,
+    RD_50      = 28,
 };
 
