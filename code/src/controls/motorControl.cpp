@@ -102,4 +102,44 @@ namespace MotorControl {
 
         return (int)x;
     }
+
+    /**
+     * @brief Applies a soft-start (ease-in) ramp to a motor zone output.
+     * @param zone The motor zone index (e.g. ZONE_A = 0, ZONE_B = 1).
+     * @param target The target output value (0-255), typically abs(ENC_ZONE_x).
+     * @param reset When true, resets the internal output to 0 (use on powered rising edge).
+     * @param interval Time in ms between each ramp step (default 30ms).
+     * @return The current ramped output value to pass to setValue().
+     */
+    int applySoftStart(byte zone, int target, bool reset, unsigned long interval) {
+        static int currentOutput[2] = {0, 0};
+        static unsigned long lastUpdate[2] = {0, 0};
+        static bool active[2] = {false, false};
+
+        if (reset) {
+            currentOutput[zone] = 0;
+            active[zone] = true;
+            lastUpdate[zone] = millis();
+        }
+
+        // Not in soft-start phase: pass through directly
+        if (!active[zone]) {
+            return target;
+        }
+
+        unsigned long now = millis();
+        if (now - lastUpdate[zone] >= interval) {
+            lastUpdate[zone] = now;
+            // Ease-in: larger steps when far from target, smaller steps when close
+            int step = max(1, (target - currentOutput[zone]) / 12);
+            currentOutput[zone] = min(currentOutput[zone] + step, target);
+        }
+
+        // Ramp complete: deactivate soft-start
+        if (currentOutput[zone] >= target) {
+            active[zone] = false;
+        }
+
+        return currentOutput[zone];
+    }
 }

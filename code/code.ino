@@ -28,6 +28,10 @@ int hbfBrake = 110;
 int dist_rd1_rd2 = 31.5; // Distance between reed sensors 1 and 2 in cm
 int dist_rd2_rd3 = 33.0; // Distance between reed sensors 2 and 3 in cm
 
+
+bool departingA = false;
+bool departingB = false;
+
 void setup() {
     init(servo, lcd);
     Debug::enabled = true;
@@ -118,11 +122,11 @@ void loop() {
     ButtonControl::updateStates();
 
     ButtonControl::pushButton(BTN_HBF1, []() {
-        if (!HBF1.selected) {
-            return;
-        }
+        if (!HBF1.selected) return;
         HBF1.powered = !HBF1.powered;
         if (HBF1.powered) {
+            departingA |= HBF1.occupied;
+            if (HBF1.occupied) MotorControl::setValue(ZONE_A, 0);
             HBF1.occupied = false;
             RelayControl::setRelay(8, true);
         }
@@ -130,11 +134,11 @@ void loop() {
     });
 
     ButtonControl::pushButton(BTN_HBF2, []() {
-        if (!HBF2.selected) {
-            return;
-        }
+        if (!HBF2.selected) return;
         HBF2.powered = !HBF2.powered;
         if (HBF2.powered) {
+            departingA |= HBF2.occupied;
+            if (HBF2.occupied) MotorControl::setValue(ZONE_A, 0);
             HBF2.occupied = false;
             RelayControl::setRelay(6, true);
         }
@@ -142,34 +146,35 @@ void loop() {
     });
 
     ButtonControl::pushButton(BTN_BBF1, []() {
-        if (!BBF1.selected) {
-            return;
-        }
+        if (!BBF1.selected) return;
         BBF1.powered = !BBF1.powered;
         if (BBF1.powered) {
+            departingB |= BBF1.occupied;
+            if (BBF1.occupied) MotorControl::setValue(ZONE_B, 0);
             RelayControl::setRelay(2, true);
         }
         Eeprom::save();
     });
 
     ButtonControl::pushButton(BTN_BBF2, []() {
-        if (!BBF2.selected) {
-            return;
-        }
+        if (!BBF2.selected) return;
         BBF2.powered = !BBF2.powered;
-        RelayControl::setRelay(3, BBF2.powered);
         if (BBF2.powered) {
+            departingB |= BBF2.occupied;
+            if (BBF2.occupied) MotorControl::setValue(ZONE_B, 0);
             RelayControl::setRelay(3, true);
+        } else {
+            RelayControl::setRelay(3, false);
         }
         Eeprom::save();
     });
 
     ButtonControl::pushButton(BTN_BBF3, []() {
-        if (!BBF3.selected) {
-            return;
-        }
+        if (!BBF3.selected) return;
         BBF3.powered = !BBF3.powered;
         if (BBF3.powered) {
+            departingB |= BBF3.occupied;
+            if (BBF3.occupied) MotorControl::setValue(ZONE_B, 0);
             RelayControl::setRelay(4, true);
         }
         Eeprom::save();
@@ -342,10 +347,12 @@ void loop() {
     // }
 
     // MOTOR CONTROL ##############################################################################
-    // CIRCUIT HBF - ZONE A
-    MotorControl::setValue(ZONE_A, abs(ENC_ZONE_A));
+    // CIRCUIT HBF - ZONE A (soft-start only when train departs from occupied station)
+    MotorControl::setValue(ZONE_A, MotorControl::applySoftStart(ZONE_A, abs(ENC_ZONE_A), departingA));
     // CIRCUIT BBF - ZONE B
-    MotorControl::setValue(ZONE_B, abs(ENC_ZONE_B));
+    MotorControl::setValue(ZONE_B, MotorControl::applySoftStart(ZONE_B, abs(ENC_ZONE_B), departingB));
+    departingA = false;
+    departingB = false;
 
     ButtonControl::setStates();
     ReedControl::setStates();
