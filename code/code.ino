@@ -20,22 +20,15 @@
 Adafruit_PWMServoDriver servo = Adafruit_PWMServoDriver();
 LiquidCrystal lcd(LCD_RS, LCD_EN, LCD1_D4, LCD1_D5, LCD1_D6, LCD1_D7);
 
-bool hbfStop = false;
-bool hbfStart = false;
-int hbfMin = 60;
-int hbfMax = 80;
-int hbfBrake = 110;
-int dist_rd1_rd2 = 31.5; // Distance between reed sensors 1 and 2 in cm
-int dist_rd2_rd3 = 33.0; // Distance between reed sensors 2 and 3 in cm
-
 
 bool departingA = false;
 bool departingB = false;
+bool softStopA = false;
 
 void setup() {
     init(servo, lcd);
-    Debug::enabled = true;
-    Debug::eepromEnabled = true;
+    Debug::enabled = false;
+    Debug::eepromEnabled = false;
 }
 
 void loop() {
@@ -52,24 +45,18 @@ void loop() {
     // SYNC DIRECTION
     EncoderControl::syncDirections(EncoderControl::encoderZoneA, EncoderControl::encoderZoneB);
 
+
     // TRACK REED #################################################################################
     ReedControl::updateStates();
 
-    // ReedControl::push(RD_HBF1_L, []() {
-    //     Utils::speedStart = millis();
-    //     if (!HBF1.powered) {
-    //         hbfBrake = HBF1.brake;
-    //     }
-    // });
+    ReedControl::push(RD_HBF1_C, []() {
+        RelayControl::toggleRelay(9);
+        if (!HBF1.powered) softStopA = true;
+    });
 
-    // ReedControl::push(RD_HBF1_C, []() {
-    //     Utils::speedEnd = millis();
-    //     Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, dist_rd1_rd2);
-    //     if (!HBF1.powered) {
-    //         hbfStop = true;
-    //         hbfMin = HBF1.min;
-    //     }
-    // });
+    ReedControl::push(RD_HBF2_C, []() {
+        if (!HBF2.powered) softStopA = true;
+    });
 
     ReedControl::push(RD_HBF1_R, []() {
         if (!HBF1.powered) {
@@ -149,8 +136,8 @@ void loop() {
         if (!BBF1.selected) return;
         BBF1.powered = !BBF1.powered;
         if (BBF1.powered) {
-            departingB |= BBF1.occupied;
-            if (BBF1.occupied) MotorControl::setValue(ZONE_B, 0);
+            departingB = true;
+            MotorControl::setValue(ZONE_A, 0);
             RelayControl::setRelay(2, true);
         }
         Eeprom::save();
@@ -160,8 +147,8 @@ void loop() {
         if (!BBF2.selected) return;
         BBF2.powered = !BBF2.powered;
         if (BBF2.powered) {
-            departingB |= BBF2.occupied;
-            if (BBF2.occupied) MotorControl::setValue(ZONE_B, 0);
+            departingB = true;
+            MotorControl::setValue(ZONE_A, 0);
             RelayControl::setRelay(3, true);
         } else {
             RelayControl::setRelay(3, false);
@@ -173,8 +160,8 @@ void loop() {
         if (!BBF3.selected) return;
         BBF3.powered = !BBF3.powered;
         if (BBF3.powered) {
-            departingB |= BBF3.occupied;
-            if (BBF3.occupied) MotorControl::setValue(ZONE_B, 0);
+            departingB = true;
+            MotorControl::setValue(ZONE_A, 0);
             RelayControl::setRelay(4, true);
         }
         Eeprom::save();
@@ -185,7 +172,6 @@ void loop() {
     ButtonControl::pushButton(SW_HBF1, []() {
         ServoControl::switchTurnout(servo, W1, false);
         ServoControl::switchTurnout(servo, W2, true);
-
         HBF1.selected = true;
         HBF2.selected = false;
         Eeprom::save();
@@ -194,7 +180,6 @@ void loop() {
     ButtonControl::pushButton(SW_HBF2, []() {
         ServoControl::switchTurnout(servo, W1, true);
         ServoControl::switchTurnout(servo, W2, false);
-
         HBF1.selected = false;
         HBF2.selected = true;
         Eeprom::save();
@@ -331,26 +316,15 @@ void loop() {
         // DO SOMETHING ON SECONDARY ENCODER BUTTON
     });
 
-    // MAIN SPEED CONTROL #########################################################################
-    // if (hbfStart) {
-    //     MotorControl::rampValue(ENC_ZONE_B, hbfMax, 2, 150);
-    //     if (ENC_ZONE_B == hbfMax)
-    //         hbfStart = false;
-    // }
-
-    // if (!HBF1.powered && hbfStop) {
-    //     if (startTimer == 0)
-    //         startTimer = millis();
-    //     ENC_ZONE_B = (-1) * MotorControl::rampDynamicValue(millis() - startTimer, 0, dist_rd2_rd3, abs(hbfBrake), abs(hbfMin), Utils::currentSpeed);
-    // } else {
-    //     startTimer = 0;
-    // }
-
     // MOTOR CONTROL ##############################################################################
-    // CIRCUIT HBF - ZONE A (soft-start only when train departs from occupied station)
-    MotorControl::setValue(ZONE_A, MotorControl::applySoftStart(ZONE_A, abs(ENC_ZONE_A), departingA));
-    // CIRCUIT BBF - ZONE B
-    MotorControl::setValue(ZONE_B, MotorControl::applySoftStart(ZONE_B, abs(ENC_ZONE_B), departingB));
+    // ZONE B: HBFx // HARDWARE RIGHT ENCODER
+    // ZONE B: HBF ARRIVING TRAINS // NORMAL PASSTROUGH OR BRAKING RAMP AFTER REED xBF_C
+    MotorControl::setValue(ZONE_B, MotorControl::rampDown(ZONE_B, abs(ENC_ZONE_B), softStopA, departingA));
+    // ZONE A: BBFx // HARDWARE LEFT ENCODER
+    // ZONE A:  DEPARTING HBF TRAINS + BBF // ALWAYS SOFT-START FORM 0
+    MotorControl::setValue(ZONE_A, MotorControl::rampUp(ZONE_A, abs(ENC_ZONE_A), departingA || departingB));
+
+    softStopA = false;
     departingA = false;
     departingB = false;
 

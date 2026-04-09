@@ -25,6 +25,10 @@ const int RELAY_COUNT = 24;
 const int ENC_MIN = 40;
 const int ENC_MAX = 255;
 
+// HBF BRAKING CONFIG
+const int HBF_BRAKE_MIN   = 55;
+const unsigned long HBF_BRAKE_DELAY = 2500;
+
 
 // DASHBOARD CONTROL UNIT / WIRE / PIN CONFIG #####################################################
 // LCD DOT MATRIX

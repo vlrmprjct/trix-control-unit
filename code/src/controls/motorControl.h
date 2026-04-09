@@ -1,10 +1,9 @@
 #pragma once
+#include "../../config.h"
 
 namespace MotorControl {
-    int mapSpeedCurve(int raw);
     void softSPIWrite(byte dataOut);
     void setValue(byte potNum, int value);
-    void rampValue(volatile int& value, int target = 80, int step = 2, unsigned long interval = 250);
-    int rampDynamicValue(unsigned long elapsedTime, float spPosition, float epPosition, int initialValue, int endValue, float initialSpeed);
-    int applySoftStart(byte zone, int target, bool reset, unsigned long interval = 30);
+    int rampUp(byte zone, int target, bool reset, unsigned long interval = 30);
+    int rampDown(byte zone, int inputValue, bool trigger, bool cancel, int minValue = HBF_BRAKE_MIN, unsigned long brakeDelay = HBF_BRAKE_DELAY, unsigned long interval = 30);
 }
