@@ -20,11 +20,6 @@
 Adafruit_PWMServoDriver servo = Adafruit_PWMServoDriver();
 LiquidCrystal lcd(LCD_RS, LCD_EN, LCD1_D4, LCD1_D5, LCD1_D6, LCD1_D7);
 
-
-bool departingA = false;
-bool departingB = false;
-bool softStopA = false;
-
 void setup() {
     init(servo, lcd);
     Debug::enabled = false;
@@ -45,17 +40,12 @@ void loop() {
     // SYNC DIRECTION
     EncoderControl::syncDirections(EncoderControl::encoderZoneA, EncoderControl::encoderZoneB);
 
-
     // TRACK REED #################################################################################
     ReedControl::updateStates();
 
     ReedControl::push(RD_HBF1_C, []() {
         RelayControl::toggleRelay(9);
-        if (!HBF1.powered) softStopA = true;
-    });
-
-    ReedControl::push(RD_HBF2_C, []() {
-        if (!HBF2.powered) softStopA = true;
+        if (!HBF1.powered) MotorControl::triggerRampDown(ZONE_B);
     });
 
     ReedControl::push(RD_HBF1_R, []() {
@@ -67,6 +57,10 @@ void loop() {
             HBF1.occupied = true;
             Eeprom::save();
         }
+    });
+
+    ReedControl::push(RD_HBF2_C, []() {
+        if (!HBF2.powered) MotorControl::triggerRampDown(ZONE_B);
     });
 
     ReedControl::push(RD_HBF2_R, []() {
@@ -99,11 +93,10 @@ void loop() {
     });
 
     ReedControl::push(RD_50, []() {
-        // FORCE SWITCH FROM ZONE C TO A @ HBFx
+        // FORCE SWITCH FROM ZONE A TO B @ HBFx
         RelayControl::setRelay(5, false);
         RelayControl::setRelay(7, false);
     });
-
 
     // TRACK CONTROL ##############################################################################
     ButtonControl::updateStates();
@@ -112,8 +105,9 @@ void loop() {
         if (!HBF1.selected) return;
         HBF1.powered = !HBF1.powered;
         if (HBF1.powered) {
-            departingA |= HBF1.occupied;
             if (HBF1.occupied) MotorControl::setValue(ZONE_A, 0);
+            MotorControl::cancelRampDown(ZONE_B);
+            MotorControl::triggerRampUp(ZONE_A);
             HBF1.occupied = false;
             RelayControl::setRelay(8, true);
         }
@@ -124,8 +118,9 @@ void loop() {
         if (!HBF2.selected) return;
         HBF2.powered = !HBF2.powered;
         if (HBF2.powered) {
-            departingA |= HBF2.occupied;
             if (HBF2.occupied) MotorControl::setValue(ZONE_A, 0);
+            MotorControl::cancelRampDown(ZONE_B);
+            MotorControl::triggerRampUp(ZONE_A);
             HBF2.occupied = false;
             RelayControl::setRelay(6, true);
         }
@@ -136,8 +131,7 @@ void loop() {
         if (!BBF1.selected) return;
         BBF1.powered = !BBF1.powered;
         if (BBF1.powered) {
-            departingB = true;
-            MotorControl::setValue(ZONE_A, 0);
+            MotorControl::triggerRampUp(ZONE_A);
             RelayControl::setRelay(2, true);
         }
         Eeprom::save();
@@ -147,8 +141,7 @@ void loop() {
         if (!BBF2.selected) return;
         BBF2.powered = !BBF2.powered;
         if (BBF2.powered) {
-            departingB = true;
-            MotorControl::setValue(ZONE_A, 0);
+            MotorControl::triggerRampUp(ZONE_A);
             RelayControl::setRelay(3, true);
         } else {
             RelayControl::setRelay(3, false);
@@ -160,13 +153,11 @@ void loop() {
         if (!BBF3.selected) return;
         BBF3.powered = !BBF3.powered;
         if (BBF3.powered) {
-            departingB = true;
-            MotorControl::setValue(ZONE_A, 0);
+            MotorControl::triggerRampUp(ZONE_A);
             RelayControl::setRelay(4, true);
         }
         Eeprom::save();
     });
-
 
     // TURNOUT CONTROL ############################################################################
     ButtonControl::pushButton(SW_HBF1, []() {
@@ -263,7 +254,7 @@ void loop() {
 
     // LCDControl::print(lcd, 9, 19, 2, "v:" + String(Utils::scaleSpeed(Utils::currentSpeed)) + "km/h");
 
-    // DISPLAY HBF STATE ##########################################################################
+    // DISPLAY HBF/BBF STATE #######################################################################
     for (int i = 0; i < 2; ++i) {
         String label = (HBF1.selected && i == 0)
                 || (HBF2.selected && i == 1)
@@ -319,14 +310,10 @@ void loop() {
     // MOTOR CONTROL ##############################################################################
     // ZONE B: HBFx // HARDWARE RIGHT ENCODER
     // ZONE B: HBF ARRIVING TRAINS // NORMAL PASSTROUGH OR BRAKING RAMP AFTER REED xBF_C
-    MotorControl::setValue(ZONE_B, MotorControl::rampDown(ZONE_B, abs(ENC_ZONE_B), softStopA, departingA));
+    MotorControl::setValue(ZONE_B, MotorControl::rampDown(ZONE_B, abs(ENC_ZONE_B)));
     // ZONE A: BBFx // HARDWARE LEFT ENCODER
-    // ZONE A:  DEPARTING HBF TRAINS + BBF // ALWAYS SOFT-START FORM 0
-    MotorControl::setValue(ZONE_A, MotorControl::rampUp(ZONE_A, abs(ENC_ZONE_A), departingA || departingB));
-
-    softStopA = false;
-    departingA = false;
-    departingB = false;
+    // ZONE A: DEPARTING HBF TRAINS + BBF // ALWAYS SOFT-START FROM 0
+    MotorControl::setValue(ZONE_A, MotorControl::rampUp(ZONE_A, abs(ENC_ZONE_A)));
 
     ButtonControl::setStates();
     ReedControl::setStates();

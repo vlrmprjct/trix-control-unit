@@ -20,12 +20,21 @@ namespace MotorControl {
         digitalWrite(DIGIPOT_CS, HIGH);
     }
 
-    int rampUp(byte zone, int target, bool reset, unsigned long interval) {
+    static bool rampUpPending[2]   = {false, false};
+    static bool rampDownPending[2] = {false, false};
+    static bool rampDownCancel[2]  = {false, false};
+
+    void triggerRampUp(byte zone)   { rampUpPending[zone]   = true; }
+    void triggerRampDown(byte zone) { rampDownPending[zone] = true; }
+    void cancelRampDown(byte zone)  { rampDownCancel[zone]  = true; }
+
+    int rampUp(byte zone, int target, unsigned long interval) {
         static int currentOutput[2] = {0, 0};
         static unsigned long lastUpdate[2] = {0, 0};
         static bool active[2] = {false, false};
 
-        if (reset) {
+        if (rampUpPending[zone]) {
+            rampUpPending[zone] = false;
             currentOutput[zone] = 0;
             active[zone] = true;
             lastUpdate[zone] = millis();
@@ -52,23 +61,24 @@ namespace MotorControl {
         return currentOutput[zone];
     }
 
-    int rampDown(byte zone, int inputValue, bool trigger, bool cancel, int minValue, unsigned long brakeDelay, unsigned long interval) {
+    int rampDown(byte zone, int inputValue, int minValue, unsigned long brakeDelay, unsigned long interval) {
         static int currentOutput[2] = {0, 0};
         static unsigned long lastUpdate[2] = {0, 0};
         static unsigned long triggerTime[2] = {0, 0};
         static bool active[2] = {false, false};
 
-        // Track input continuously when not active to avoid ISR timing issues at trigger moment
         if (!active[zone] && inputValue > 0) {
             currentOutput[zone] = inputValue;
         }
 
-        if (cancel) {
+        if (rampDownCancel[zone]) {
+            rampDownCancel[zone] = false;
             active[zone] = false;
             return inputValue;
         }
 
-        if (trigger && !active[zone]) {
+        if (rampDownPending[zone] && !active[zone]) {
+            rampDownPending[zone] = false;
             active[zone] = true;
             triggerTime[zone] = millis();
             lastUpdate[zone] = millis();
