@@ -45,12 +45,11 @@ void loop() {
 
     ReedControl::push(RD_HBF1_C, []() {
         RelayControl::toggleRelay(9);
-        if (!HBF1.powered) MotorControl::triggerRampDown(ZONE_B);
     });
 
     ReedControl::push(RD_HBF1_R, []() {
         if (!HBF1.powered) {
-            // SWITCH FROM ZONE A TO C @ HBF1
+            // SWITCH FROM ZONE A TO B @ HBF1
             RelayControl::setRelay(7, true);
             // TURN OFF HBF1
             RelayControl::setRelay(8, false);
@@ -60,12 +59,11 @@ void loop() {
     });
 
     ReedControl::push(RD_HBF2_C, []() {
-        if (!HBF2.powered) MotorControl::triggerRampDown(ZONE_B);
     });
 
     ReedControl::push(RD_HBF2_R, []() {
         if (!HBF2.powered) {
-            // SWITCH FROM ZONE A TO C @ HBF2
+            // SWITCH FROM ZONE A TO B @ HBF2
             RelayControl::setRelay(5, true);
             // TURN OFF HBF2
             RelayControl::setRelay(6, false);
@@ -106,8 +104,6 @@ void loop() {
         HBF1.powered = !HBF1.powered;
         if (HBF1.powered) {
             if (HBF1.occupied) MotorControl::setValue(ZONE_A, 0);
-            MotorControl::cancelRampDown(ZONE_B);
-            MotorControl::triggerRampUp(ZONE_A);
             HBF1.occupied = false;
             RelayControl::setRelay(8, true);
         }
@@ -119,8 +115,6 @@ void loop() {
         HBF2.powered = !HBF2.powered;
         if (HBF2.powered) {
             if (HBF2.occupied) MotorControl::setValue(ZONE_A, 0);
-            MotorControl::cancelRampDown(ZONE_B);
-            MotorControl::triggerRampUp(ZONE_A);
             HBF2.occupied = false;
             RelayControl::setRelay(6, true);
         }
@@ -131,7 +125,6 @@ void loop() {
         if (!BBF1.selected) return;
         BBF1.powered = !BBF1.powered;
         if (BBF1.powered) {
-            MotorControl::triggerRampUp(ZONE_A);
             RelayControl::setRelay(2, true);
         }
         Eeprom::save();
@@ -141,7 +134,6 @@ void loop() {
         if (!BBF2.selected) return;
         BBF2.powered = !BBF2.powered;
         if (BBF2.powered) {
-            MotorControl::triggerRampUp(ZONE_A);
             RelayControl::setRelay(3, true);
         } else {
             RelayControl::setRelay(3, false);
@@ -153,7 +145,6 @@ void loop() {
         if (!BBF3.selected) return;
         BBF3.powered = !BBF3.powered;
         if (BBF3.powered) {
-            MotorControl::triggerRampUp(ZONE_A);
             RelayControl::setRelay(4, true);
         }
         Eeprom::save();
@@ -310,10 +301,10 @@ void loop() {
     // MOTOR CONTROL ##############################################################################
     // ZONE B: HBFx // HARDWARE RIGHT ENCODER
     // ZONE B: HBF ARRIVING TRAINS // NORMAL PASSTROUGH OR BRAKING RAMP AFTER REED xBF_C
-    MotorControl::setValue(ZONE_B, MotorControl::rampDown(ZONE_B, abs(ENC_ZONE_B)));
+    MotorControl::setValue(ZONE_B, abs(ENC_ZONE_B));
     // ZONE A: BBFx // HARDWARE LEFT ENCODER
     // ZONE A: DEPARTING HBF TRAINS + BBF // ALWAYS SOFT-START FROM 0
-    MotorControl::setValue(ZONE_A, MotorControl::rampUp(ZONE_A, abs(ENC_ZONE_A)));
+    MotorControl::setValue(ZONE_A, abs(ENC_ZONE_A));
 
     ButtonControl::setStates();
     ReedControl::setStates();
