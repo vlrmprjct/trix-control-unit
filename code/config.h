@@ -26,8 +26,9 @@ const int ENC_MIN = 40;
 const int ENC_MAX = 255;
 
 // HBF BRAKING CONFIG
-const int HBF_BRAKE_MIN   = 55;
+const int HBF_BRAKE_MIN             = 65;
 const unsigned long HBF_BRAKE_DELAY = 2500;
+const unsigned long HBF_START_DELAY = 3000;
 
 
 // DASHBOARD CONTROL UNIT / WIRE / PIN CONFIG #####################################################

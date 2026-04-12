@@ -78,6 +78,16 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
     // LOAD STATE / READ FROM EEPROM ##############################################################
     Eeprom::load();
 
+    // RESET POWERED FLAGS (hardware is off after boot, software state must match)
+    HBF1.powered = false;
+    HBF2.powered = false;
+    BBF1.powered = false;
+    BBF2.powered = false;
+    BBF3.powered = false;
+    BBF4.powered = false;
+    BBF5.powered = false;
+    Eeprom::save();
+
     // CLEAR EEPROM ###############################################################################
     // Eeprom::clear();
 

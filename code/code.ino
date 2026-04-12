@@ -54,6 +54,7 @@ void loop() {
             RelayControl::setRelay(7, true);
             // TURN OFF HBF1
             RelayControl::setRelay(8, false);
+            MotorControl::cancelRampDown(ZONE_B);
             HBF1.occupied = true;
             Eeprom::save();
         }
@@ -69,6 +70,7 @@ void loop() {
             RelayControl::setRelay(5, true);
             // TURN OFF HBF2
             RelayControl::setRelay(6, false);
+            MotorControl::cancelRampDown(ZONE_B);
             HBF2.occupied = true;
             Eeprom::save();
         }
@@ -102,26 +104,28 @@ void loop() {
     ButtonControl::updateStates();
 
     ButtonControl::pushButton(BTN_HBF1, []() {
-        if (!HBF1.selected) return;
         HBF1.powered = !HBF1.powered;
         if (HBF1.powered) {
-            if (HBF1.occupied) MotorControl::setValue(ZONE_A, 0);
             MotorControl::cancelRampDown(ZONE_B);
-            MotorControl::triggerRampUp(ZONE_A);
-            HBF1.occupied = false;
+            if (HBF1.occupied) {
+                MotorControl::setValue(ZONE_A, 0);
+                MotorControl::triggerRampUp(ZONE_A);
+                HBF1.occupied = false;
+            }
             RelayControl::setRelay(8, true);
         }
         Eeprom::save();
     });
 
     ButtonControl::pushButton(BTN_HBF2, []() {
-        if (!HBF2.selected) return;
         HBF2.powered = !HBF2.powered;
         if (HBF2.powered) {
-            if (HBF2.occupied) MotorControl::setValue(ZONE_A, 0);
             MotorControl::cancelRampDown(ZONE_B);
-            MotorControl::triggerRampUp(ZONE_A);
-            HBF2.occupied = false;
+            if (HBF2.occupied) {
+                MotorControl::setValue(ZONE_A, 0);
+                MotorControl::triggerRampUp(ZONE_A);
+                HBF2.occupied = false;
+            }
             RelayControl::setRelay(6, true);
         }
         Eeprom::save();
