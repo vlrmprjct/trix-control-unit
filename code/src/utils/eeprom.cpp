@@ -6,7 +6,7 @@
 namespace Eeprom {
 
     void reset() {
-        for (int i = 1; i <= 7; ++i) {
+        for (int i = 1; i <= 9; ++i) {
             ROUTE.track[i].occupied = false;
             ROUTE.track[i].selected = false;
             ROUTE.track[i].powered  = false;

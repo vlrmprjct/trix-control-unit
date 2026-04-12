@@ -3,7 +3,7 @@
 // EEPROM SETUP ###################################################################################
 // EEPROM VERSION
 constexpr unsigned long ROUTE_MAGIC    = 0xDEADBEEF;
-constexpr unsigned short ROUTE_VERSION = 5;
+constexpr unsigned short ROUTE_VERSION = 6;
 
 // EEPROM ADDRESS CONSTANTS
 constexpr int EEPROM_ROUTE  = 0;

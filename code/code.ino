@@ -49,12 +49,20 @@ void loop() {
 
     ReedControl::push(RD_HBF1_R, []() {
         if (!HBF1.powered) {
+            // ARRIVING TRAIN - PARK IN HBF1
             // SWITCH FROM ZONE A TO B @ HBF1
             RelayControl::setRelay(7, true);
             // TURN OFF HBF1
             RelayControl::setRelay(8, false);
             HBF1.occupied = true;
             Eeprom::save();
+        } else {
+            // PASSING THROUGH - RELEASE BLOCK IF AT LEAST ONE HBF TRACK IS FREE
+            if (!(HBF1.occupied && HBF2.occupied)) {
+                RelayControl::setRelay(10, true);
+                BLOCKB.occupied = false;
+                Eeprom::save();
+            }
         }
     });
 
@@ -63,12 +71,20 @@ void loop() {
 
     ReedControl::push(RD_HBF2_R, []() {
         if (!HBF2.powered) {
+            // ARRIVING TRAIN - PARK IN HBF2
             // SWITCH FROM ZONE A TO B @ HBF2
             RelayControl::setRelay(5, true);
             // TURN OFF HBF2
             RelayControl::setRelay(6, false);
             HBF2.occupied = true;
             Eeprom::save();
+        } else {
+            // PASSING THROUGH - RELEASE BLOCK IF AT LEAST ONE HBF TRACK IS FREE
+            if (!(HBF1.occupied && HBF2.occupied)) {
+                RelayControl::setRelay(10, true);
+                BLOCKB.occupied = false;
+                Eeprom::save();
+            }
         }
     });
 
@@ -90,6 +106,13 @@ void loop() {
         }
     });
 
+    ReedControl::push(RD_30, []() {
+        // BLOCK ZONE B ENTRY
+        BLOCKB.occupied = true;
+        RelayControl::setRelay(10, false);
+        Eeprom::save();
+    });
+
     ReedControl::push(RD_50, []() {
         // FORCE SWITCH FROM ZONE A TO B @ HBFx
         RelayControl::setRelay(5, false);
@@ -106,6 +129,11 @@ void loop() {
             if (HBF1.occupied) MotorControl::setValue(ZONE_A, 0);
             HBF1.occupied = false;
             RelayControl::setRelay(8, true);
+            // RELEASE BLOCK IF AT LEAST ONE HBF TRACK IS FREE
+            if (!(HBF1.occupied && HBF2.occupied)) {
+                RelayControl::setRelay(10, true);
+                BLOCKB.occupied = false;
+            }
         }
         Eeprom::save();
     });
@@ -117,6 +145,11 @@ void loop() {
             if (HBF2.occupied) MotorControl::setValue(ZONE_A, 0);
             HBF2.occupied = false;
             RelayControl::setRelay(6, true);
+            // RELEASE BLOCK IF AT LEAST ONE HBF TRACK IS FREE
+            if (!(HBF1.occupied && HBF2.occupied)) {
+                RelayControl::setRelay(10, true);
+                BLOCKB.occupied = false;
+            }
         }
         Eeprom::save();
     });
@@ -147,6 +180,11 @@ void loop() {
         if (BBF3.powered) {
             RelayControl::setRelay(4, true);
         }
+        Eeprom::save();
+    });
+
+    ButtonControl::pushButton(BTN_BLOCKA_OVERRIDE, []() {
+        RelayControl::toggleRelay(10);
         Eeprom::save();
     });
 

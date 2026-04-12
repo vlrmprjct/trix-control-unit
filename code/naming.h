@@ -25,6 +25,10 @@ enum BBFControls {
     BTN_BBF5 = 23,
 };
 
+enum CommonControls {
+    BTN_BLOCKA_OVERRIDE = 6,
+};
+
 enum TurnoutControls {
     W1 =   0,
     W2 =   1,
