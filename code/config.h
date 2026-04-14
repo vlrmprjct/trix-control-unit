@@ -44,9 +44,12 @@ const int BTN_LATCH  = 24;  // GREEN
 
 
 // TRACK UNIT / WIRE / PIN CONFIG #################################################################
-// MOTOR CTRL PSU MCP4261XX
-const int DIGIPOT_MOSI  = 33; // YELLOW
-const int DIGIPOT_SCK   = 32; // ORANGE
+
+// MOTOR CTRL PSU MCP4261XX (HARDWARE SPI)
+// HARDWARE SPI PINS (ARDUINO MEGA):
+// MOSI = PIN 51 (USED, DATA TO CHIPS)
+// SCK  = PIN 52 (USED, CLOCK)
+// MISO = PIN 50 (NOT USED, NO READBACK NEEDED)
 const int DIGIPOT_CS    = 31; // PURPLE  | CHIP 1 (ZONE_A, ZONE_B)
 const int DIGIPOT2_CS   = 30; // PURPLE  | CHIP 2 (ZONE_C, ZONE_D)
 

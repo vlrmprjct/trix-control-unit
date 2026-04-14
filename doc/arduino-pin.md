@@ -40,11 +40,12 @@ This file documents the complete pin assignment of the Arduino Mega for the mode
 ### Motor Control – Digital Potentiometer (MCP4261XX)
 | Pin Number | Function | Description | Wire Color | Mode |
 |------------|----------|-------------|------------|------|
-| 33 | DIGIPOT_MOSI | SPI Data Out | GELB (Yellow) | OUTPUT |
-| 32 | DIGIPOT_SCK | SPI Clock | ORANGE | OUTPUT |
-| 31 | DIGIPOT_CS | Chip Select | LILA (Purple) | OUTPUT |
+| 51 | MOSI | Hardware SPI Data Out | GELB (Yellow) | OUTPUT |
+| 52 | SCK | Hardware SPI Clock | ORANGE | OUTPUT |
+| 31 | DIGIPOT_CS | Chip Select 1 (ZONE_A, ZONE_B) | LILA (Purple) | OUTPUT |
+| 30 | DIGIPOT2_CS | Chip Select 2 (ZONE_C, ZONE_D) | LILA (Purple) | OUTPUT |
 
-**Connection:** Power control via digital potentiometer
+**Connection:** 2x MCP4261XX dual potentiometers for 4-zone motor control via Hardware SPI
 
 ---
 
@@ -143,10 +144,10 @@ This file documents the complete pin assignment of the Arduino Mega for the mode
 | 27 | LCD_RST | LCD Display | INPUT (Reset) |
 | 28 | ENC_ZONE_A_DT | Encoder Zone A | INPUT_PULLUP |
 | 29 | ENC_ZONE_B_DT | Encoder Zone B | INPUT_PULLUP |
-| 30 | - | - | Not used |
-| 31 | DIGIPOT_CS | Motor Control | OUTPUT (SPI CS) |
-| 32 | DIGIPOT_SCK | Motor Control | OUTPUT (SPI SCK) |
-| 33 | DIGIPOT_MOSI | Motor Control | OUTPUT (SPI MOSI) |
+| 30 | DIGIPOT2_CS | Motor Control | OUTPUT (SPI CS2) |
+| 31 | DIGIPOT_CS | Motor Control | OUTPUT (SPI CS1) |
+| 32 | - | - | Not used |
+| 33 | - | - | Not used |
 | 34 | LCD_RS | LCD Display | Register Select |
 | 35 | RELAY_CLOCK | Relay Control | OUTPUT |
 | 36 | LCD_EN | LCD Display | Enable |
@@ -164,8 +165,8 @@ This file documents the complete pin assignment of the Arduino Mega for the mode
 | 48 | - | - | Not used (PWM) |
 | 49 | - | - | Not used (PWM) |
 | 50 | MISO | - | Not used (Hardware SPI) |
-| 51 | MOSI | - | Not used (Hardware SPI) |
-| 52 | SCK | - | Not used (Hardware SPI) |
+| 51 | MOSI | Motor Control | OUTPUT (Hardware SPI) |
+| 52 | SCK | Motor Control | OUTPUT (Hardware SPI) |
 | 53 | SS | - | Not used (Hardware SPI) |
 
 ### Analog Pins (A0–A15)
@@ -206,8 +207,8 @@ This file documents the complete pin assignment of the Arduino Mega for the mode
 ## Communication Protocols Used
 
 ### SPI (Serial Peripheral Interface)
-- **Motor Control (MCP4261XX):** Pins 31, 32, 33
-  - Custom Software-SPI Implementation
+- **Motor Control (MCP4261XX):** Pins 30, 31, 51, 52
+  - Hardware SPI (MOSI=51, SCK=52, CS1=31, CS2=30)
 
 ### I²C (Inter-Integrated Circuit)
 - **Servo Control (PCA9685):** Pins 20, 21

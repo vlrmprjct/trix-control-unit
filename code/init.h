@@ -18,6 +18,9 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
     Serial.begin(9600);
 
     // INIT I2C BUS ###############################################################################
+    Wire.begin();
+
+    // INIT SPI BUS ###############################################################################
     SPI.begin();
 
     // INIT LCD DOT MATRIX ########################################################################
@@ -40,14 +43,11 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
     ENC_ZONE_B_CLK_STATE = digitalRead(ENC_ZONE_B_CLK);
     attachInterrupt(digitalPinToInterrupt(ENC_ZONE_B_CLK), EncoderControl::processZoneB, CHANGE);
 
-    // INIT MOTOR MODULE ##########################################################################
-    pinMode(DIGIPOT_MOSI, OUTPUT);
-    pinMode(DIGIPOT_SCK, OUTPUT);
+    // INIT MOTOR MODULE (Hardware SPI) ##########################################################
     pinMode(DIGIPOT_CS, OUTPUT);
     pinMode(DIGIPOT2_CS, OUTPUT);
     digitalWrite(DIGIPOT_CS, HIGH);
     digitalWrite(DIGIPOT2_CS, HIGH);
-    digitalWrite(DIGIPOT_SCK, LOW);
     MotorControl::setValue(ZONE_A, 0);
     MotorControl::setValue(ZONE_B, 0);
     MotorControl::setValue(ZONE_C, 0);

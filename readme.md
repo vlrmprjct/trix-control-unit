@@ -4,8 +4,8 @@ This Arduino project is a **hybrid between analog train operation and digital co
 
 ## Features
 
-- **Motor control** for main track and stations (HBF1, HBF2)
-- **Smooth braking** when passing reed contacts
+- **Motor control** for 4 independent zones (ZONE_A, ZONE_B, ZONE_C, ZONE_D)
+- **Block section control** with automatic train separation
 - **Speed measurement** (cm/s and km/h, scaled for 1:160)
 - **Turnout control** via buttons and servos
 - **Status display** on a 20x4 LCD
@@ -15,7 +15,7 @@ This Arduino project is a **hybrid between analog train operation and digital co
 ## Hardware Requirements
 
 - Arduino-Mega compatible board
-- Motor drivers, DRV8871, for the trains
+- MCP4261XX digital potentiometers (2x dual-pot chips for 4 zones)
 - Servos for the turnouts
 - Reed switches for track monitoring
 - 20x4 LCD (HD44780 compatible)
@@ -40,15 +40,14 @@ All relevant pins are documented in `config.h` and can be adjusted there.
 - `src/utils/` – Utility functions (e.g., speed, timer)
 - `naming.h` – Descriptive names for IDs and turnouts, buttons, reed
 
-## Example: Smooth Braking
-
-When passing reed 7, braking is initiated. The train continues at minimum speed until reed 8 is reached, then stops.
-
 ## Versioning
 
 The firmware version is displayed on the LCD at startup. Versioning follows [SemVer](https://semver.org/).
 
 ## Notes
 
-- The minimum driving speed is limited by the motor characteristics.
-- The speed is converted to scale, but may be higher than prototype speed due to technical constraints.
+- Up to 3 trains can run simultaneously on separate zones (ZONE_A, B, C)
+- ZONE_D is reserved for future expansion
+- Hardware SPI is used for motor control (MCP4261XX digital potentiometers)
+- The minimum driving speed is limited by the motor characteristics
+- The speed is converted to scale, but may be higher than prototype speed due to technical constraints

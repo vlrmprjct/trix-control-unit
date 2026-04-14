@@ -1,15 +1,8 @@
 #include "../../config.h"
 #include <Arduino.h>
+#include <SPI.h>
 
 namespace MotorControl {
-
-    void softSPIWrite(byte dataOut) {
-        for (int i = 7; i >= 0; i--) {
-            digitalWrite(DIGIPOT_MOSI, (dataOut & (1 << i)) ? HIGH : LOW);
-            digitalWrite(DIGIPOT_SCK, HIGH);
-            digitalWrite(DIGIPOT_SCK, LOW);
-        }
-    }
 
     void setValue(byte zone, int value) {
         value = constrain(value, 0, 255);
@@ -29,10 +22,13 @@ namespace MotorControl {
         }
 
         byte command = (potNum & 0x01) << 4;
+
+        SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0));
         digitalWrite(csPin, LOW);
-        MotorControl::softSPIWrite(command);
-        MotorControl::softSPIWrite((byte)value);
+        SPI.transfer(command);
+        SPI.transfer((byte)value);
         digitalWrite(csPin, HIGH);
+        SPI.endTransaction();
     }
 }
 
