@@ -44,10 +44,14 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
     pinMode(DIGIPOT_MOSI, OUTPUT);
     pinMode(DIGIPOT_SCK, OUTPUT);
     pinMode(DIGIPOT_CS, OUTPUT);
+    pinMode(DIGIPOT2_CS, OUTPUT);
     digitalWrite(DIGIPOT_CS, HIGH);
+    digitalWrite(DIGIPOT2_CS, HIGH);
     digitalWrite(DIGIPOT_SCK, LOW);
     MotorControl::setValue(ZONE_A, 0);
     MotorControl::setValue(ZONE_B, 0);
+    MotorControl::setValue(ZONE_C, 0);
+    MotorControl::setValue(ZONE_D, 0);
 
     // INIT TURNOUTS SERVO MODULE #################################################################
     servo.begin();

@@ -11,13 +11,28 @@ namespace MotorControl {
         }
     }
 
-    void setValue(byte potNum, int value) {
+    void setValue(byte zone, int value) {
         value = constrain(value, 0, 255);
+
+        // Determine chip and pot number from zone
+        int csPin;
+        byte potNum;
+
+        if (zone == 0 || zone == 1) {
+            // ZONE_A (0) or ZONE_B (1) -> Chip 1
+            csPin = DIGIPOT_CS;
+            potNum = zone; // 0 or 1
+        } else {
+            // ZONE_C (2) or ZONE_D (3) -> Chip 2
+            csPin = DIGIPOT2_CS;
+            potNum = zone - 2; // 0 or 1
+        }
+
         byte command = (potNum & 0x01) << 4;
-        digitalWrite(DIGIPOT_CS, LOW);
+        digitalWrite(csPin, LOW);
         MotorControl::softSPIWrite(command);
         MotorControl::softSPIWrite((byte)value);
-        digitalWrite(DIGIPOT_CS, HIGH);
+        digitalWrite(csPin, HIGH);
     }
 }
 

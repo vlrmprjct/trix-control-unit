@@ -3,6 +3,8 @@
 enum MotorControls {
     ZONE_A = 0,
     ZONE_B = 1,
+    ZONE_C = 2,
+    ZONE_D = 3,
 };
 
 enum HBFControls {

@@ -337,12 +337,15 @@ void loop() {
     });
 
     // MOTOR CONTROL ##############################################################################
-    // ZONE B: HBFx // HARDWARE RIGHT ENCODER
-    // ZONE B: HBF ARRIVING TRAINS // NORMAL PASSTROUGH OR BRAKING RAMP AFTER REED xBF_C
-    MotorControl::setValue(ZONE_B, abs(ENC_ZONE_B));
     // ZONE A: BBFx // HARDWARE LEFT ENCODER
     // ZONE A: DEPARTING HBF TRAINS + BBF // ALWAYS SOFT-START FROM 0
     MotorControl::setValue(ZONE_A, abs(ENC_ZONE_A));
+    // ZONE B: HBFx // HARDWARE RIGHT ENCODER
+    // ZONE B: HBF ARRIVING TRAINS // NORMAL PASSTROUGH OR BRAKING RAMP AFTER REED xBF_C
+    MotorControl::setValue(ZONE_B, abs(ENC_ZONE_B));
+
+    // MotorControl::setValue(ZONE_C, abs(ENC_ZONE_C));
+    // MotorControl::setValue(ZONE_D, abs(ENC_ZONE_D));
 
     ButtonControl::setStates();
     ReedControl::setStates();

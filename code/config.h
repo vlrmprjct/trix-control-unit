@@ -45,9 +45,10 @@ const int BTN_LATCH  = 24;  // GREEN
 
 // TRACK UNIT / WIRE / PIN CONFIG #################################################################
 // MOTOR CTRL PSU MCP4261XX
-const int DIGIPOT_MOSI = 33; // YELLOW
-const int DIGIPOT_SCK  = 32; // ORANGE
-const int DIGIPOT_CS   = 31; // PURPLE
+const int DIGIPOT_MOSI  = 33; // YELLOW
+const int DIGIPOT_SCK   = 32; // ORANGE
+const int DIGIPOT_CS    = 31; // PURPLE  | CHIP 1 (ZONE_A, ZONE_B)
+const int DIGIPOT2_CS   = 30; // PURPLE  | CHIP 2 (ZONE_C, ZONE_D)
 
 // TRACK REED CTRL 74HC165
 const int REED_DATA  = 41;  // PURPLE  | REED1-Board QH

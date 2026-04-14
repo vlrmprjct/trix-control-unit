@@ -3,5 +3,5 @@
 
 namespace MotorControl {
     void softSPIWrite(byte dataOut);
-    void setValue(byte potNum, int value);
+    void setValue(byte zone, int value);
 }
