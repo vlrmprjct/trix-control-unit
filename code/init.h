@@ -26,7 +26,6 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
     // INIT LCD DOT MATRIX ########################################################################
     lcd.begin(20, 4);
     LCDControl::print(lcd, 0, 10, 0, "BOOTING ...");
-    delay(2000);
 
     // RESET LCD DOT MATRIX IN CASE OF WEIRD CHARACTERS ###########################################
     pinMode(LCD_RST, INPUT);
@@ -44,9 +43,9 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
     attachInterrupt(digitalPinToInterrupt(ENC_ZONE_B_CLK), EncoderControl::processZoneB, CHANGE);
 
     // INIT MOTOR MODULE (Hardware SPI) ##########################################################
-    pinMode(DIGIPOT_CS, OUTPUT);
+    pinMode(DIGIPOT1_CS, OUTPUT);
     pinMode(DIGIPOT2_CS, OUTPUT);
-    digitalWrite(DIGIPOT_CS, HIGH);
+    digitalWrite(DIGIPOT1_CS, HIGH);
     digitalWrite(DIGIPOT2_CS, HIGH);
     MotorControl::setValue(ZONE_A, 0);
     MotorControl::setValue(ZONE_B, 0);
@@ -56,14 +55,12 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
     // INIT TURNOUTS SERVO MODULE #################################################################
     servo.begin();
     servo.setPWMFreq(60);
-    delay(500);
 
     // INIT RELAYS ################################################################################
     pinMode(RELAY_LATCH, OUTPUT);
     pinMode(RELAY_CLOCK, OUTPUT);
     pinMode(RELAY_DATA, OUTPUT);
     RelayControl::initRelays();
-    delay(500);
 
     // INIT BUTTON CTRL ###########################################################################
     pinMode(BTN_DATA, INPUT);
@@ -82,8 +79,9 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
     // LOAD STATE / READ FROM EEPROM ##############################################################
     Eeprom::load();
 
+    delay(2000);
+
     // CLEAR EEPROM ###############################################################################
     // Eeprom::clear();
-
     lcd.clear();
 }

@@ -13,7 +13,7 @@ namespace MotorControl {
 
         if (zone == 0 || zone == 1) {
             // ZONE_A (0) or ZONE_B (1) -> Chip 1
-            csPin = DIGIPOT_CS;
+            csPin = DIGIPOT1_CS;
             potNum = zone; // 0 or 1
         } else {
             // ZONE_C (2) or ZONE_D (3) -> Chip 2

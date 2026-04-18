@@ -42,7 +42,7 @@ This file documents the complete pin assignment of the Arduino Mega for the mode
 |------------|----------|-------------|------------|------|
 | 51 | MOSI | Hardware SPI Data Out | GELB (Yellow) | OUTPUT |
 | 52 | SCK | Hardware SPI Clock | ORANGE | OUTPUT |
-| 31 | DIGIPOT_CS | Chip Select 1 (ZONE_A, ZONE_B) | LILA (Purple) | OUTPUT |
+| 31 | DIGIPOT1_CS | Chip Select 1 (ZONE_A, ZONE_B) | LILA (Purple) | OUTPUT |
 | 30 | DIGIPOT2_CS | Chip Select 2 (ZONE_C, ZONE_D) | LILA (Purple) | OUTPUT |
 
 **Connection:** 2x MCP4261XX dual potentiometers for 4-zone motor control via Hardware SPI
@@ -145,7 +145,7 @@ This file documents the complete pin assignment of the Arduino Mega for the mode
 | 28 | ENC_ZONE_A_DT | Encoder Zone A | INPUT_PULLUP |
 | 29 | ENC_ZONE_B_DT | Encoder Zone B | INPUT_PULLUP |
 | 30 | DIGIPOT2_CS | Motor Control | OUTPUT (SPI CS2) |
-| 31 | DIGIPOT_CS | Motor Control | OUTPUT (SPI CS1) |
+| 31 | DIGIPOT1_CS | Motor Control | OUTPUT (SPI CS1) |
 | 32 | - | - | Not used |
 | 33 | - | - | Not used |
 | 34 | LCD_RS | LCD Display | Register Select |
