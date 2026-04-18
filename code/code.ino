@@ -44,7 +44,6 @@ void loop() {
     ReedControl::updateStates();
 
     ReedControl::push(RD_HBF1_C, []() {
-        RelayControl::toggleRelay(9);
     });
 
     ReedControl::push(RD_HBF1_R, []() {
@@ -106,9 +105,18 @@ void loop() {
         }
     });
 
+    ReedControl::push(RD_10, []() {
+        // BLOCK ZONE C ENTRY
+        BLOCKC.occupied = true;
+        RelayControl::setRelay(9, false);
+        Eeprom::save();
+    });
+
     ReedControl::push(RD_30, []() {
-        // BLOCK ZONE B ENTRY
+        // BLOCK ZONE B ENTRY + RELEASE ZONE C
         BLOCKB.occupied = true;
+        BLOCKC.occupied = false;
+        RelayControl::setRelay(9, true);
         RelayControl::setRelay(10, false);
         Eeprom::save();
     });
@@ -344,7 +352,11 @@ void loop() {
     // ZONE B: HBF ARRIVING TRAINS // NORMAL PASSTROUGH OR BRAKING RAMP AFTER REED xBF_C
     MotorControl::setValue(ZONE_B, abs(ENC_ZONE_B));
 
-    // MotorControl::setValue(ZONE_C, abs(ENC_ZONE_C));
+    // ZONE C: OUTER ROUTE // HARDWARE LEFT ENCODER
+    // ZONE C: DEPARTING BBF TRAINS, CURRENTLY CONNECTED TO ZONE A ENCODER
+    MotorControl::setValue(ZONE_C, abs(ENC_ZONE_A));
+
+    // ZONE D: NOT CONNECTED YET
     // MotorControl::setValue(ZONE_D, abs(ENC_ZONE_D));
 
     ButtonControl::setStates();

@@ -93,6 +93,9 @@ namespace Debug {
         printRow("BBF3", ROUTE.track[5]);
         printRow("BBF4", ROUTE.track[6]);
         printRow("BBF5", ROUTE.track[7]);
+        printRow("BLKA", ROUTE.track[8]);
+        printRow("BLKB", ROUTE.track[9]);
+        printRow("BLKC", ROUTE.track[10]);
         printSeparator();
     }
 
@@ -172,8 +175,8 @@ namespace Debug {
         printEepromSeparator();
         Serial.println(F("| Track| selected | powered | occupied | min | max | brake |"));
         printEepromSeparator();
-        const char* labels[] = {"HBF1","HBF2","BBF1","BBF2","BBF3","BBF4","BBF5"};
-        for (int i = 1; i <= 7; i++) {
+        const char* labels[] = {"HBF1","HBF2","BBF1","BBF2","BBF3","BBF4","BBF5","BLKA","BLKB","BLKC"};
+        for (int i = 1; i <= 10; i++) {
             printEepromRow(labels[i-1], ROUTE.track[i], current.route.track[i]);
         }
         printEepromSeparator();

@@ -12,7 +12,7 @@ struct Tracks {
 };
 
 struct Routes {
-    Tracks track[10];
+    Tracks track[11];
 };
 
 inline Routes ROUTE;
@@ -26,6 +26,7 @@ inline Tracks& BBF4   = ROUTE.track[6];
 inline Tracks& BBF5   = ROUTE.track[7];
 inline Tracks& BLOCKA  = ROUTE.track[8];
 inline Tracks& BLOCKB  = ROUTE.track[9];
+inline Tracks& BLOCKC  = ROUTE.track[10];
 
 struct RouteMeta {
     unsigned long magic;

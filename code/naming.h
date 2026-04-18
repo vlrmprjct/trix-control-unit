@@ -53,7 +53,7 @@ enum ReedControls {
     RD_HBF2_C  =  4,
     RD_HBF2_R  =  3,
     RD_BBF1_R  =  2,
-    RD_BBF1_L  =  1, // ?? KEINE REAKTION, KABEL ?
+    RD_BBF1_L  =  1,
     RD_BBF2_R  = 16,
     RD_BBF2_L  = 15,
     RD_BBF3_R  = 14,
@@ -62,7 +62,7 @@ enum ReedControls {
     RD_BBF4_L  = 11,
     RD_BBF5_R  = 10,
     RD_BBF5_L  =  9,
-    RD_10      = 29, // !! NC
+    RD_10      = 29,
     RD_20      = 26,
     RD_30      = 25,
     RD_40      = 27,
