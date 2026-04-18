@@ -110,6 +110,15 @@ void loop() {
         BLOCKC.occupied = true;
         RelayControl::setRelay(9, false);
         Eeprom::save();
+        // START SPEED MEASURE
+        Utils::speedStart = millis();
+    });
+
+    ReedControl::push(RD_20, []() {
+        // END SPEED MEASURE
+        // DISTANCE BETWEEN RD_10 AND RD_20 = 112CM
+        Utils::speedEnd = millis();
+        Utils::currentSpeed = Utils::speedMeasure(Utils::speedStart, Utils::speedEnd, 112.0);
     });
 
     ReedControl::push(RD_30, []() {
@@ -284,13 +293,6 @@ void loop() {
         Eeprom::save();
     });
 
-    // DISPLAY COMMON STATES ######################################################################
-    // Utils::currentSpeed != 0.0
-    //     ? LCDControl::print(lcd, 9, 19, 3, "v:" + String(Utils::currentSpeed, 2) + "cm/s")
-    //     : LCDControl::print(lcd, 9, 19, 3, "v:--.--cm/s");
-
-    // LCDControl::print(lcd, 9, 19, 2, "v:" + String(Utils::scaleSpeed(Utils::currentSpeed)) + "km/h");
-
     // DISPLAY HBF/BBF STATE #######################################################################
     for (int i = 0; i < 2; ++i) {
         String label = (HBF1.selected && i == 0)
@@ -328,11 +330,13 @@ void loop() {
 
     int percent = map(abs(ENC_ZONE_A), 0, 255, 0, 100);
 
+    // DISPLAY ENCODER VALUES (ZONE A/C LEFT, ZONE B RIGHT)
     LCDControl::print(lcd, 0, 3, 3, String((int)ENC_ZONE_A), "RTL");
     LCDControl::print(lcd, 15, 18, 3, String((int)ENC_ZONE_B), "RTL");
 
-    // LCDControl::print(lcd, 18, 19, 3, "0%");
-    // LCDControl::print(lcd, 16, 18, 3, String((int)percent), "RTL");
+    // DISPLAY SPEED KM/H SCALED SPEED
+    int speedKmh = (int)Utils::scaleSpeed(Utils::currentSpeed);
+    LCDControl::print(lcd, 7, 13, 3, Utils::currentSpeed > 0.0 ? String(speedKmh) + "km/h" : "---km/h");
 
     // # PRIMARY ENCODER BUTTON ###################################################################
     ButtonControl::pushButton(4, []() {
