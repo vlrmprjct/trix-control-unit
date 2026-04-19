@@ -308,8 +308,6 @@ void loop() {
         LCDControl::print(lcd, 19, 19, i, power ? "*" : " ");
     }
 
-    int percent = map(abs(ENC_ZONE_A), 0, 255, 0, 100);
-
     // DISPLAY ENCODER VALUES (ZONE A/C LEFT, ZONE B RIGHT)
     LCDControl::print(lcd, 0, 3, 3, String((int)ENC_ZONE_A), "RTL");
     LCDControl::print(lcd, 15, 18, 3, String((int)ENC_ZONE_B), "RTL");
