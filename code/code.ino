@@ -2,6 +2,7 @@
 #include "init.h"
 #include "naming.h"
 #include "src/controls/buttonControl.h"
+#include "src/operation/blockControl.h"
 #include "src/controls/encoderControl.h"
 #include "src/controls/lcdControl.h"
 #include "src/controls/motorControl.h"
@@ -88,21 +89,15 @@ void loop() {
     });
 
     ReedControl::push(RD_BBF1_L, []() {
-        if (!BBF1.powered) {
-            RelayControl::setRelay(2, false);
-        }
+        BlockControl::stopBBF(BBF1, 2);
     });
 
     ReedControl::push(RD_BBF2_L, []() {
-        if (!BBF2.powered) {
-            RelayControl::setRelay(3, false);
-        }
+        BlockControl::stopBBF(BBF2, 3);
     });
 
     ReedControl::push(RD_BBF3_L, []() {
-        if (!BBF3.powered) {
-            RelayControl::setRelay(4, false);
-        }
+        BlockControl::stopBBF(BBF3, 4);
     });
 
     ReedControl::push(RD_10, []() {
@@ -127,6 +122,8 @@ void loop() {
         BLOCKC.occupied = false;
         RelayControl::setRelay(9, true);
         RelayControl::setRelay(10, false);
+        // RELEASE WAITING BBF (selected + powered + occupied)
+        BlockControl::releasePendingBBF();
         Eeprom::save();
     });
 
@@ -172,32 +169,15 @@ void loop() {
     });
 
     ButtonControl::pushButton(BTN_BBF1, []() {
-        if (!BBF1.selected) return;
-        BBF1.powered = !BBF1.powered;
-        if (BBF1.powered) {
-            RelayControl::setRelay(2, true);
-        }
-        Eeprom::save();
+        BlockControl::toggleBBF(BBF1, 2);
     });
 
     ButtonControl::pushButton(BTN_BBF2, []() {
-        if (!BBF2.selected) return;
-        BBF2.powered = !BBF2.powered;
-        if (BBF2.powered) {
-            RelayControl::setRelay(3, true);
-        } else {
-            RelayControl::setRelay(3, false);
-        }
-        Eeprom::save();
+        BlockControl::toggleBBF(BBF2, 3);
     });
 
     ButtonControl::pushButton(BTN_BBF3, []() {
-        if (!BBF3.selected) return;
-        BBF3.powered = !BBF3.powered;
-        if (BBF3.powered) {
-            RelayControl::setRelay(4, true);
-        }
-        Eeprom::save();
+        BlockControl::toggleBBF(BBF3, 4);
     });
 
     ButtonControl::pushButton(BTN_BLOCKA_OVERRIDE, []() {
