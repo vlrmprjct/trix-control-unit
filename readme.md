@@ -1,6 +1,18 @@
-# Model Railway Controller
+# Model Train Control Unit
 
-This Arduino project is a **hybrid between analog train operation and digital control**. It controls a model railway with multiple stations, turnouts, motors, and an LCD display. It supports speed measurement, block section management, turnout control, and the display of operational data.
+![Model Train Control Unit](doc/repohead.jpg)
+
+This Arduino project is a **hybrid between analog train operation and digital control**. It controls a model train layout with multiple stations, turnouts, motors, and an LCD display. It supports speed measurement, block section management, turnout control, and the display of operational data.
+
+## Track Layout
+
+N-scale (1:160) layout with 2 main station tracks (HBF1, HBF2) and 5 staging yard tracks (BBF1–BBF5). Trains run counter-clockwise through 3 electrically isolated zones:
+
+- **Zone A** – Departure from HBF and BBF area
+- **Zone B** – Arrival into HBF
+- **Zone C** – Outer loop between BBF and HBF
+
+11 turnouts (W1–W11) route trains between tracks. See [doc/track-schematic.md](doc/track-schematic.md) for the full track diagram.
 
 ## Features
 
@@ -76,3 +88,13 @@ The firmware version (`FIRMWARE_VERSION` in `src/core/config.h`) is displayed on
 - Soft SPI is used for motor control (MCP4261XX digital potentiometers)
 - The minimum driving speed is limited by the motor characteristics
 - The speed is converted to scale, but may be higher than prototype speed due to technical constraints
+
+## Documentation
+
+- [Track Schematic](doc/track-schematic.md) – Full track layout diagram
+- [Arduino Pin Assignment](doc/arduino-pin.md) – Complete pin mapping
+- [Button Shift Register](doc/button-shiftregister.md) – Shift register wiring for buttons
+
+## License
+
+This project is licensed under the [MIT License](license).

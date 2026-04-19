@@ -2,7 +2,7 @@
 
 ## Overview
 
-This file documents the complete pin assignment of the Arduino Mega for the model railway controller.
+This file documents the complete pin assignment of the Arduino Mega for the model train control unit.
 
 ---
 
@@ -92,7 +92,7 @@ This file documents the complete pin assignment of the Arduino Mega for the mode
 | 5V | SERVO_VOLTAGE_EXTERNAL | External 5V supply | ROT (Red) | - |
 
 **Connection:** Adafruit PWM Servo Driver (PCA9685) via I²C
-**Usage:** Control of model railway turnouts
+**Usage:** Control of model train turnouts
 
 ---
 
