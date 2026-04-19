@@ -1,6 +1,7 @@
-#include "config.h"
-#include "init.h"
-#include "naming.h"
+#include "src/core/config.h"
+#include "src/core/init.h"
+#include "src/core/naming.h"
+#include "src/core/state.h"
 #include "src/controls/buttonControl.h"
 #include "src/operation/blockControl.h"
 #include "src/display/trackDisplay.h"
@@ -13,7 +14,6 @@
 #include "src/utils/debug.h"
 #include "src/utils/eeprom.h"
 #include "src/utils/utils.h"
-#include "state.h"
 
 #include <Adafruit_PWMServoDriver.h>
 #include <EEPROM.h>

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 namespace RelayControl {
     void initRelays();
     void setRelays(uint32_t value);

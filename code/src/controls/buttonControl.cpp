@@ -1,4 +1,4 @@
-#include "../../config.h"
+#include "../core/config.h"
 #include <Arduino.h>
 
 static long previousButtonStates = 0;

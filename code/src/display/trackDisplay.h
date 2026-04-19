@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../state.h"
+#include "../core/state.h"
 
 // LCD SLOT: TRACK REFERENCE + DISPLAY POSITION
 struct LCDSlot {

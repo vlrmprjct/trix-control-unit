@@ -1,6 +1,6 @@
 #include "debug.h"
-#include "../../config.h"
-#include "../../state.h"
+#include "../core/config.h"
+#include "../core/state.h"
 #include <Arduino.h>
 #include <EEPROM.h>
 #include <string.h>
