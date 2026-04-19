@@ -26,6 +26,7 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
     // INIT LCD DOT MATRIX ########################################################################
     lcd.begin(20, 4);
     LCDControl::print(lcd, 0, 10, 0, "BOOTING ...");
+    LCDControl::print(lcd, 0, 19, 1, FIRMWARE_VERSION);
 
     // RESET LCD DOT MATRIX IN CASE OF WEIRD CHARACTERS ###########################################
     pinMode(LCD_RST, INPUT);

@@ -1,5 +1,8 @@
 #pragma once
 
+// FIRMWARE VERSION ################################################################################
+#define FIRMWARE_VERSION "v1.0.0"
+
 // EEPROM SETUP ###################################################################################
 // EEPROM VERSION
 constexpr unsigned long ROUTE_MAGIC    = 0xDEADBEEF;
