@@ -3,6 +3,7 @@
 #include "naming.h"
 #include "src/controls/buttonControl.h"
 #include "src/operation/blockControl.h"
+#include "src/display/trackDisplay.h"
 #include "src/controls/encoderControl.h"
 #include "src/controls/lcdControl.h"
 #include "src/controls/motorControl.h"
@@ -274,38 +275,9 @@ void loop() {
     });
 
     // DISPLAY HBF/BBF STATE #######################################################################
-    for (int i = 0; i < 2; ++i) {
-        String label = (HBF1.selected && i == 0)
-                || (HBF2.selected && i == 1)
-            ? ">"
-            : " ";
-        LCDControl::print(lcd, 0, 4, i, label + "HBF" + String(i + 1));
-
-        bool power = (i == 0 && HBF1.powered) || (i == 1 && HBF2.powered);
-        LCDControl::print(lcd, 5, 5, i, power ? "*" : " ");
-    }
-
-    for (int i = 0; i < 3; ++i) {
-        String label = (BBF1.selected && i == 0)
-                || (BBF2.selected && i == 1)
-                || (BBF3.selected && i == 2)
-            ? ">"
-            : " ";
-        LCDControl::print(lcd, 7, 11, i, label + "BBF" + String(i + 1));
-
-        bool power = (i == 0 && BBF1.powered) || (i == 1 && BBF2.powered) || (i == 2 && BBF3.powered);
-        LCDControl::print(lcd, 12, 12, i, power ? "*" : " ");
-    }
-
-    for (int i = 0; i < 2; ++i) {
-        String label = (BBF4.selected && i == 0)
-                || (BBF5.selected && i == 1)
-            ? ">"
-            : " ";
-        LCDControl::print(lcd, 14, 18, i, label + "BBF" + String(i + 4));
-
-        bool power = (i == 0 && BBF4.powered) || (i == 1 && BBF5.powered);
-        LCDControl::print(lcd, 19, 19, i, power ? "*" : " ");
+    for (const auto& s : lcdSlots) {
+        LCDControl::print(lcd, s.colStart, s.colEnd, s.row, String(s.track->selected ? ">" : " ") + s.name);
+        LCDControl::print(lcd, s.powerCol, s.powerCol, s.row, s.track->powered ? "*" : " ");
     }
 
     // DISPLAY ENCODER VALUES (ZONE A/C LEFT, ZONE B RIGHT)
