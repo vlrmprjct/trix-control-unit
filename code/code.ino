@@ -4,6 +4,7 @@
 #include "src/core/state.h"
 #include "src/controls/buttonControl.h"
 #include "src/operation/blockControl.h"
+#include "src/operation/webState.h"
 #include "src/display/trackDisplay.h"
 #include "src/controls/encoderControl.h"
 #include "src/controls/lcdControl.h"
@@ -19,6 +20,10 @@
 #include <EEPROM.h>
 #include <LiquidCrystal.h>
 
+#include <SimpleWebSerial.h>
+
+SimpleWebSerial WebSerial;
+
 Adafruit_PWMServoDriver servo = Adafruit_PWMServoDriver();
 LiquidCrystal lcd(LCD_RS, LCD_EN, LCD1_D4, LCD1_D5, LCD1_D6, LCD1_D7);
 
@@ -29,6 +34,9 @@ void setup() {
 }
 
 void loop() {
+
+    WebSerial.check();
+    WebState::send(WebSerial);
 
     // LCD RESET ##################################################################################
     LCDControl::resetLCD(LCD_RST, lcd);

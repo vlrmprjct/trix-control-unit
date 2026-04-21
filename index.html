@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trix Control Unit</title>
+    <style>
+        :root { color-scheme: dark;}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace; background: #0c0c0c; color: #e0dbd2; display: flex; flex-direction: column; align-items: center; padding: 0; padding-top: 3.5rem; }
+        .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 1.5rem; background: #141414; border-bottom: 1px solid #2a2824; }
+        .topbar h1 { font-size: 1.1rem; color: #d4a847; margin: 0; letter-spacing: 0.12em; }
+        .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; justify-content: center; width: 100%; padding: 1rem 1.2rem; }
+        .panel { background: #161616; border: 1px solid #2a2824; border-radius: 6px; padding: 1.2rem; }
+        .panel.wide { grid-column: 1 / -1; }
+        .panel h2 { font-size: 0.8rem; color: #d4a847; margin-bottom: 0.8rem; border-bottom: 1px solid #2a2824; padding-bottom: 0.4rem; letter-spacing: 0.08em; text-transform: uppercase; }
+        .row { display: flex; justify-content: space-between; align-items: center; padding: 0.3rem 0; }
+        .row .label { color: #8a8578; font-size: 0.8rem; }
+        .row .value { font-size: 1.4rem; font-weight: bold; color: #e0dbd2; min-width: 50px; text-align: right; }
+        .row .sub { font-size: 0.7rem; color: #5a5650; text-align: right; }
+        .bar { height: 4px; background: #2a2824; border-radius: 2px; margin-top: 0.3rem; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 2px; transition: width 0.15s ease; width: 0%; }
+        .bar-fill.a { background: #d4a847; }
+        .bar-fill.b { background: #c47a3a; }
+        .dir { font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 3px; color: #0c0c0c; font-weight: bold; }
+        .dir.cw { background: #6b9e5a; }
+        .dir.ccw { background: #c45040; }
+        .dir.stop { background: #3a3832; color: #6a6560; }
+        button { font-family: inherit; font-size: 0.8rem; padding: 0.5rem 1.2rem; border: 1px solid #3a3832; border-radius: 4px; cursor: pointer; background: #1e1e1c; color: #8a8578; transition: all 0.2s; letter-spacing: 0.05em; }
+        button:hover { background: #2a2824; border-color: #d4a847; color: #d4a847; }
+        button.active { border-color: #6b9e5a; color: #6b9e5a; background: #1a2318; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        th { text-align: left; color: #d4a847; padding: 0.25rem 0.3rem; border-bottom: 1px solid #2a2824; font-weight: normal; letter-spacing: 0.05em; }
+        td { padding: 0.25rem 0.3rem; color: #8a8578; }
+        td.r { text-align: right; }
+        .dot { display: inline-block; width: 18px; height: 18px; border-radius: 3px; }
+        .dot.on { background: #6b9e5a; }
+        .dot.off { background: #2a2824; }
+        .dot.occ { background: #c45040; }
+        .relay-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
+        .relay-cell { text-align: center; font-size: 0.65rem; padding: 3px 0; border-radius: 3px; }
+        .relay-cell.on { background: #6b9e5a; color: #0c0c0c; }
+        .relay-cell.off { background: #2a2824; color: #5a5650; }
+        .footer { font-size: 0.7rem; color: #3a3832; margin-top: 0.5rem; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>TRIX CONTROL UNIT</h1>
+        <button id="connectBtn">Connect</button>
+    </div>
+
+    <div class="panels">
+
+        <div class="panel">
+            <h2>ENCODER</h2>
+            <div class="row">
+                <span class="label">ZONE A</span>
+                <span>
+                    <span class="dir stop" id="dirA">STOP</span>
+                    <span class="value" id="encA">--</span>
+                </span>
+            </div>
+            <div class="row"><span class="sub" id="rawA">raw: --</span></div>
+            <div class="bar"><div class="bar-fill a" id="barA"></div></div>
+
+            <div class="row" style="margin-top: 0.6rem;">
+                <span class="label">ZONE B</span>
+                <span>
+                    <span class="dir stop" id="dirB">STOP</span>
+                    <span class="value" id="encB">--</span>
+                </span>
+            </div>
+            <div class="row"><span class="sub" id="rawB">raw: --</span></div>
+            <div class="bar"><div class="bar-fill b" id="barB"></div></div>
+        </div>
+
+        <div class="panel">
+            <h2>SPEED</h2>
+            <div class="row">
+                <span class="label">SCALED</span>
+                <span class="value" id="speedKmh">-- km/h</span>
+            </div>
+            <div class="row">
+                <span class="label">RAW</span>
+                <span class="sub" id="speedRaw">-- cm/s</span>
+            </div>
+            <h2 style="margin-top: 1rem;">SYSTEM</h2>
+            <div class="row">
+                <span class="label">UPTIME</span>
+                <span class="sub" id="uptime">--</span>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>TRACKS</h2>
+            <table>
+                <thead>
+                    <tr><th>TRACK</th><th>SEL</th><th>PWR</th><th>OCC</th></tr>
+                </thead>
+                <tbody id="trackTable"></tbody>
+            </table>
+        </div>
+
+        <div class="panel">
+            <h2>RELAYS</h2>
+            <div class="relay-grid" id="relayGrid"></div>
+        </div>
+
+        <div class="panel wide">
+            <h2>LOG</h2>
+            <pre id="log" style="font-size: 0.7rem; color: #888; max-height: 140px; overflow-y: auto; white-space: pre-wrap;"></pre>
+        </div>
+
+    </div>
+
+    <div class="footer" id="firmware"></div>
+
+    <script>
+        const $ = id => document.getElementById(id);
+        const encA = $('encA'), barA = $('barA'), rawA = $('rawA'), dirAEl = $('dirA');
+        const encB = $('encB'), barB = $('barB'), rawB = $('rawB'), dirBEl = $('dirB');
+        const speedKmh = $('speedKmh'), speedRaw = $('speedRaw');
+        const uptimeEl = $('uptime');
+        const trackTable = $('trackTable');
+        const relayGrid = $('relayGrid');
+        const logEl = $('log');
+        const statusEl = $('status');
+        const connectBtn = $('connectBtn');
+        const firmwareEl = $('firmware');
+
+        let port = null;
+        let reader = null;
+
+        function log(msg) {
+            const ts = new Date().toLocaleTimeString();
+            logEl.textContent = `[${ts}] ${msg}\n` + logEl.textContent;
+            if (logEl.textContent.length > 2000) logEl.textContent = logEl.textContent.slice(0, 2000);
+        }
+
+        function setBar(bar, val) {
+            bar.style.width = Math.min(Math.abs(val) / 255 * 100, 100) + '%';
+        }
+
+        function setDir(el, dir) {
+            el.className = 'dir ' + (dir > 0 ? 'cw' : dir < 0 ? 'ccw' : 'stop');
+            el.textContent = dir > 0 ? 'CW' : dir < 0 ? 'CCW' : 'STOP';
+        }
+
+        function dot(state) {
+            return '<span class="dot ' + (state ? 'on' : 'off') + '"></span>';
+        }
+
+        function dotOcc(state) {
+            return '<span class="dot ' + (state ? 'occ' : 'on') + '"></span>';
+        }
+
+        function fmtUptime(s) {
+            const h = Math.floor(s / 3600);
+            const m = Math.floor((s % 3600) / 60);
+            const sec = s % 60;
+            return (h > 0 ? h + 'h ' : '') + m + 'm ' + sec + 's';
+        }
+
+        // ACCUMULATED STATE FROM CHUNKED EVENTS
+        const state = { tracks: {}, relays: [] };
+
+        function updateCommon(d) {
+            encA.textContent = d.encA;
+            encB.textContent = d.encB;
+            setBar(barA, d.encA);
+            setBar(barB, d.encB);
+            rawA.textContent = 'raw: ' + d.rawA;
+            rawB.textContent = 'raw: ' + d.rawB;
+            setDir(dirAEl, d.dirA);
+            setDir(dirBEl, d.dirB);
+            speedKmh.textContent = d.spdKmh > 0 ? d.spdKmh + ' km/h' : '-- km/h';
+            speedRaw.textContent = d.spdRaw > 0 ? d.spdRaw.toFixed(1) + ' cm/s' : '-- cm/s';
+            if (d.uptime !== undefined) uptimeEl.textContent = fmtUptime(d.uptime);
+            if (d.firmware) firmwareEl.textContent = d.firmware;
+        }
+
+        function updateTracks(d) {
+            Object.assign(state.tracks, d);
+            let html = '';
+            for (const [name, t] of Object.entries(state.tracks)) {
+                html += '<tr>'
+                    + '<td>' + name + '</td>'
+                    + '<td>' + dot(t.s) + '</td>'
+                    + '<td>' + dot(t.p) + '</td>'
+                    + '<td>' + dotOcc(t.o) + '</td>'
+                    + '</tr>';
+            }
+            trackTable.innerHTML = html;
+        }
+
+        function updateRelays(d) {
+            let html = '';
+            for (let i = 0; i < d.length; i++) {
+                html += '<div class="relay-cell ' + (d[i] ? 'on' : 'off') + '">'
+                    + (i + 1) + '</div>';
+            }
+            relayGrid.innerHTML = html;
+        }
+
+        function handleData(parsed) {
+            if (!Array.isArray(parsed) || parsed.length < 2) { log(JSON.stringify(parsed)); return; }
+            const [evt, d] = parsed;
+            switch (evt) {
+                case 'common': updateCommon(d); break;
+                case 'hbf':    updateTracks(d); break;
+                case 'bbf':    updateTracks(d); break;
+                case 'block':  updateTracks(d); break;
+                case 'relay':  updateRelays(d); break;
+                default: log(evt + ': ' + JSON.stringify(d));
+            }
+        }
+
+        connectBtn.onclick = async () => {
+            if (port) { log('ALREADY CONNECTED'); return; }
+            if (!('serial' in navigator)) { log('WEB SERIAL NOT SUPPORTED'); return; }
+
+            try {
+                port = await navigator.serial.requestPort();
+                await port.open({ baudRate: 9600, bufferSize: 16384 });
+            } catch (e) {
+                log('OPEN ERROR: ' + e.message);
+                port = null;
+                return;
+            }
+
+            connectBtn.textContent = 'Connected';
+            connectBtn.classList.add('active');
+            log('SERIAL CONNECTED');
+
+            const decoder = new TextDecoder();
+            let buf = '';
+
+            const read = async () => {
+                while (port && port.readable) {
+                    const r = port.readable.getReader();
+                    try {
+                        while (true) {
+                            const { value, done } = await r.read();
+                            if (done) break;
+                            buf += decoder.decode(value, { stream: true });
+                            const lines = buf.split('\n');
+                            buf = lines.pop();
+                            for (const raw of lines) {
+                                const line = raw.trim();
+                                if (!line) continue;
+                                console.log('[RAW]', line);
+                                try {
+                                    const parsed = JSON.parse(line);
+                                    const evt = Array.isArray(parsed) ? parsed[0] : '?';
+                                    log('< ' + evt + ' ' + JSON.stringify(parsed[1]));
+                                    handleData(parsed);
+                                } catch (pe) {
+                                    log(line);
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        log('READ ERROR: ' + e.message);
+                    } finally {
+                        try { r.releaseLock(); } catch {}
+                    }
+                }
+            };
+            read();
+        };
+    </script>
+</body>
