@@ -31,6 +31,14 @@ void setup() {
     init(servo, lcd);
     Debug::enabled = false;
     Debug::eepromEnabled = false;
+
+    // WEB SERIAL COMMANDS
+    WebSerial.on("setSpeed", [](JSONVar data) {
+        int zone  = (int)data["zone"];
+        int value = constrain((int)data["value"], 0, 255);
+        if (zone == 0) ENC_ZONE_A = value;
+        if (zone == 1) ENC_ZONE_B = value;
+    });
 }
 
 void loop() {

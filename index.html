@@ -41,6 +41,10 @@
         .relay-cell { text-align: center; font-size: 0.65rem; padding: 3px 0; border-radius: 3px; }
         .relay-cell.on { background: #6b9e5a; color: #0c0c0c; }
         .relay-cell.off { background: #2a2824; color: #5a5650; }
+        .slider-row { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.5rem; }
+        .slider-row .label { color: #8a8578; font-size: 0.75rem; min-width: 3rem; }
+        .slider-row input[type=range] { flex: 1; accent-color: #d4a847; height: 4px; cursor: pointer; }
+        .slider-row .val { font-size: 0.8rem; color: #e0dbd2; min-width: 2.5rem; text-align: right; font-weight: bold; }
         .footer { font-size: 0.7rem; color: #3a3832; margin-top: 0.5rem; text-align: center; }
     </style>
 </head>
@@ -84,6 +88,17 @@
             <div class="row">
                 <span class="label">RAW</span>
                 <span class="sub" id="speedRaw">-- cm/s</span>
+            </div>
+            <h2 style="margin-top: 1rem;">SET SPEED</h2>
+            <div class="slider-row">
+                <span class="label">A</span>
+                <input type="range" id="sliderA" min="0" max="255" value="0">
+                <span class="val" id="sliderValA">0</span>
+            </div>
+            <div class="slider-row">
+                <span class="label">B</span>
+                <input type="range" id="sliderB" min="0" max="255" value="0">
+                <span class="val" id="sliderValB">0</span>
             </div>
             <h2 style="margin-top: 1rem;">SYSTEM</h2>
             <div class="row">
@@ -131,6 +146,16 @@
 
         let port = null;
         let reader = null;
+
+        // SEND DATA TO ARDUINO (SimpleWebSerial format)
+        async function sendToArduino(event, data) {
+            if (!port?.writable) return;
+            const writer = port.writable.getWriter();
+            const payload = JSON.stringify([event, data]) + '\n';
+            await writer.write(new TextEncoder().encode(payload));
+            writer.releaseLock();
+            log('> ' + event + ' ' + JSON.stringify(data));
+        }
 
         function log(msg) {
             const ts = new Date().toLocaleTimeString();
@@ -268,6 +293,19 @@
                 }
             };
             read();
+        };
+
+        // SPEED SLIDERS
+        const sliderA = $('sliderA'), sliderValA = $('sliderValA');
+        const sliderB = $('sliderB'), sliderValB = $('sliderValB');
+
+        sliderA.oninput = () => {
+            sliderValA.textContent = sliderA.value;
+            sendToArduino('setSpeed', { zone: 0, value: parseInt(sliderA.value) });
+        };
+        sliderB.oninput = () => {
+            sliderValB.textContent = sliderB.value;
+            sendToArduino('setSpeed', { zone: 1, value: parseInt(sliderB.value) });
         };
     </script>
 </body>
