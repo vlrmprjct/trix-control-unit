@@ -1,0 +1,197 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 360" width="900" height="360" font-family="monospace" font-size="11">
+
+  <rect width="900" height="360" fill="#111"/>
+
+  <style>
+    .trk  { stroke: #444; stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .lbl  { fill: #ccc; font-size: 10px; font-family: monospace; text-anchor: middle; dominant-baseline: central; }
+    .grp  { fill: #7ec8e3; font-size: 12px; font-family: monospace; font-weight: bold; }
+    .reed { fill: #e8a030; stroke: none; }
+    .sep  { stroke: #333; stroke-width: 1; stroke-dasharray: 6,4; }
+    .dim  { fill: #555; font-size: 9px; font-family: monospace; text-anchor: middle; }
+    .wlbl { fill: #5a8ea8; font-size: 8px; font-family: monospace; text-anchor: middle; }
+    .wdot { fill: #5a8ea8; stroke: none; }
+  </style>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!--  BBF — Bahnbetriebsfeld                                    -->
+  <!--  Tracks: BBF1 y=40, BBF2 y=60, BBF3 y=80, BBF4 y=100,     -->
+  <!--          BBF5 y=120. Entry/Exit on BBF1 line (y=40).        -->
+  <!--  Turnouts: 30° branch, 20px spacing, dx≈35                 -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+
+  <text x="30" y="22" class="grp">BBF</text>
+
+  <!-- BLOCK C — Zufahrt (auf BBF1-Linie y=40) -->
+  <line x1="30" y1="40" x2="160" y2="40" class="trk" id="track-blockc"/>
+  <text x="95" y="30" class="lbl">BLOCK C</text>
+  <rect x="38" y="37" width="5" height="5" rx="1" class="reed"/>
+  <rect x="148" y="37" width="5" height="5" rx="1" class="reed"/>
+
+  <!-- Stammgleis → Weichenbereich -->
+  <line x1="160" y1="40" x2="195" y2="40" class="trk"/>
+
+  <!-- EINFAHRTS-WEICHEN (Kaskade von oben nach unten, je 30°) -->
+
+  <!-- W3 @ (195, 40): gerade → BBF1, Abzweig 30° ↓ → W5 -->
+  <line x1="195" y1="40" x2="290" y2="40" class="trk"/>
+  <line x1="195" y1="40" x2="230" y2="60" class="trk"/>
+  <polygon points="203,42 210,42 209,46" class="wdot"/>
+  <text x="195" y="33" class="wlbl">W3</text>
+
+  <!-- W5 @ (230, 60): gerade → BBF2, Abzweig 30° ↓ → W6 -->
+  <line x1="230" y1="60" x2="290" y2="60" class="trk"/>
+  <line x1="230" y1="60" x2="265" y2="80" class="trk"/>
+  <polygon points="238,62 245,62 244,66" class="wdot"/>
+  <text x="230" y="53" class="wlbl">W5</text>
+
+  <!-- W6 @ (265, 80): gerade → BBF3, Abzweig 30° ↓ → W8 -->
+  <line x1="265" y1="80" x2="290" y2="80" class="trk"/>
+  <line x1="265" y1="80" x2="300" y2="100" class="trk"/>
+  <polygon points="273,82 280,82 279,86" class="wdot"/>
+  <text x="265" y="73" class="wlbl">W6</text>
+
+  <!-- W8 @ (300, 100): gerade → BBF4, Abzweig 30° ↓ → BBF5 -->
+  <line x1="300" y1="100" x2="330" y2="100" class="trk"/>
+  <line x1="300" y1="100" x2="335" y2="120" class="trk"/>
+  <polygon points="308,102 315,102 314,106" class="wdot"/>
+  <text x="300" y="93" class="wlbl">W8</text>
+
+  <!-- ── BBF Gleise (parallel, horizontal) ── -->
+
+  <!-- BBF1  y=40 -->
+  <line x1="290" y1="40" x2="570" y2="40" class="trk" id="track-bbf1"/>
+  <text x="430" y="40" class="lbl">BBF1</text>
+  <rect x="300" y="37" width="5" height="5" rx="1" class="reed"/>
+  <rect x="555" y="37" width="5" height="5" rx="1" class="reed"/>
+
+  <!-- BBF2  y=60 -->
+  <line x1="290" y1="60" x2="570" y2="60" class="trk" id="track-bbf2"/>
+  <text x="430" y="60" class="lbl">BBF2</text>
+  <rect x="300" y="57" width="5" height="5" rx="1" class="reed"/>
+  <rect x="555" y="57" width="5" height="5" rx="1" class="reed"/>
+
+  <!-- BBF3  y=80 -->
+  <line x1="290" y1="80" x2="570" y2="80" class="trk" id="track-bbf3"/>
+  <text x="430" y="80" class="lbl">BBF3</text>
+  <rect x="300" y="77" width="5" height="5" rx="1" class="reed"/>
+  <rect x="555" y="77" width="5" height="5" rx="1" class="reed"/>
+
+  <!-- BBF4  y=100 -->
+  <line x1="330" y1="100" x2="570" y2="100" class="trk" id="track-bbf4"/>
+  <text x="450" y="100" class="lbl">BBF4</text>
+  <rect x="340" y="97" width="5" height="5" rx="1" class="reed"/>
+  <rect x="555" y="97" width="5" height="5" rx="1" class="reed"/>
+
+  <!-- BBF5  y=120 -->
+  <line x1="335" y1="120" x2="570" y2="120" class="trk" id="track-bbf5"/>
+  <text x="452" y="120" class="lbl">BBF5</text>
+  <rect x="345" y="117" width="5" height="5" rx="1" class="reed"/>
+  <rect x="555" y="117" width="5" height="5" rx="1" class="reed"/>
+
+  <!-- Abstellgleis an BBF5 -->
+  <line x1="570" y1="120" x2="605" y2="140" class="trk" stroke-dasharray="5,3" opacity="0.5"/>
+  <text x="618" y="144" class="dim">╡</text>
+
+  <!-- AUSFAHRTS-WEICHEN (Kaskade von unten nach oben, je 30°) -->
+
+  <!-- W11 @ (605, 100): BBF5 schließt an BBF4 an -->
+  <line x1="570" y1="100" x2="605" y2="100" class="trk"/>
+  <line x1="570" y1="120" x2="605" y2="100" class="trk"/>
+  <polygon points="597,102 590,102 591,106" class="wdot"/>
+  <text x="605" y="93" class="wlbl">W11</text>
+
+  <!-- W10 @ (640, 80): BBF4+5 schließt an BBF3 an -->
+  <line x1="570" y1="80" x2="640" y2="80" class="trk"/>
+  <line x1="605" y1="100" x2="640" y2="80" class="trk"/>
+  <polygon points="632,82 625,82 626,86" class="wdot"/>
+  <text x="640" y="73" class="wlbl">W10</text>
+
+  <!-- W9 @ (675, 60): BBF3+4+5 schließt an BBF2 an -->
+  <line x1="570" y1="60" x2="675" y2="60" class="trk"/>
+  <line x1="640" y1="80" x2="675" y2="60" class="trk"/>
+  <polygon points="667,62 660,62 661,66" class="wdot"/>
+  <text x="675" y="53" class="wlbl">W9</text>
+
+  <!-- W4 @ (710, 40): alle → BBF1 Stamm -->
+  <line x1="570" y1="40" x2="710" y2="40" class="trk"/>
+  <line x1="675" y1="60" x2="710" y2="40" class="trk"/>
+  <polygon points="702,42 695,42 696,46" class="wdot"/>
+  <text x="710" y="33" class="wlbl">W4</text>
+
+  <!-- Ausfahrt Stammgleis → rechts (auf BBF1-Linie y=40) -->
+  <line x1="710" y1="40" x2="870" y2="40" class="trk" id="track-bbf-exit"/>
+  <text x="795" y="30" class="dim">→ ZONE A / C</text>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!--  Trennlinie                                                 -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <line x1="20" y1="170" x2="880" y2="170" class="sep"/>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!--  HBF — Hauptbahnhof                                        -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+
+  <text x="30" y="195" class="grp">HBF</text>
+
+  <!-- BLOCK B — Zufahrt -->
+  <line x1="30" y1="230" x2="200" y2="230" class="trk" id="track-blockb"/>
+  <text x="115" y="220" class="lbl">BLOCK B</text>
+  <rect x="38" y="227" width="5" height="5" rx="1" class="reed"/>
+  <rect x="188" y="227" width="5" height="5" rx="1" class="reed"/>
+
+  <!-- W2 @ (220, 230): gerade → HBF1, Abzweig 30° ↓ → HBF2 -->
+  <line x1="200" y1="230" x2="220" y2="230" class="trk"/>
+  <line x1="220" y1="230" x2="290" y2="230" class="trk"/>
+  <line x1="220" y1="230" x2="255" y2="250" class="trk"/>
+  <polygon points="228,232 235,232 234,236" class="wdot"/>
+  <text x="220" y="222" class="wlbl">W2</text>
+
+  <!-- HBF1  y=230 -->
+  <line x1="290" y1="230" x2="600" y2="230" class="trk" id="track-hbf1"/>
+  <text x="445" y="230" class="lbl">HBF1</text>
+  <rect x="300" y="227" width="5" height="5" rx="1" class="reed"/>
+  <rect x="445" y="227" width="5" height="5" rx="1" class="reed"/>
+  <rect x="585" y="227" width="5" height="5" rx="1" class="reed"/>
+
+  <!-- HBF2  y=250 -->
+  <line x1="255" y1="250" x2="600" y2="250" class="trk" id="track-hbf2"/>
+  <text x="427" y="250" class="lbl">HBF2</text>
+  <rect x="270" y="247" width="5" height="5" rx="1" class="reed"/>
+  <rect x="427" y="247" width="5" height="5" rx="1" class="reed"/>
+  <rect x="585" y="247" width="5" height="5" rx="1" class="reed"/>
+
+  <!-- W1 @ (635, 230): HBF2 schließt an HBF1 an -->
+  <line x1="600" y1="230" x2="635" y2="230" class="trk"/>
+  <line x1="600" y1="250" x2="635" y2="230" class="trk"/>
+  <polygon points="627,232 620,232 621,236" class="wdot"/>
+  <text x="635" y="222" class="wlbl">W1</text>
+
+  <!-- Ausfahrt → rechts -->
+  <line x1="635" y1="230" x2="870" y2="230" class="trk" id="track-hbf-exit"/>
+  <text x="755" y="220" class="dim">→ ZONE B</text>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!--  Legende                                                    -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <line x1="20" y1="300" x2="880" y2="300" class="sep"/>
+
+  <rect x="30" y="320" width="14" height="4" rx="1" fill="#444"/>
+  <text x="62" y="323" class="dim" text-anchor="start">Gleis</text>
+
+  <rect x="110" y="319" width="5" height="5" rx="1" class="reed"/>
+  <text x="130" y="323" class="dim" text-anchor="start">Reed</text>
+
+  <polygon points="196,321 203,321 202,325" class="wdot"/>
+  <text x="218" y="323" class="dim" text-anchor="start">Weiche</text>
+
+  <rect x="290" y="318" width="30" height="8" rx="2" fill="#4caf50" opacity="0.7"/>
+  <text x="340" y="323" class="dim" text-anchor="start">frei</text>
+
+  <rect x="380" y="318" width="30" height="8" rx="2" fill="#f44336" opacity="0.7"/>
+  <text x="430" y="323" class="dim" text-anchor="start">belegt</text>
+
+  <rect x="480" y="318" width="30" height="8" rx="2" fill="#ffeb3b" opacity="0.7"/>
+  <text x="530" y="323" class="dim" text-anchor="start">selektiert</text>
+
+</svg>
