@@ -3,6 +3,7 @@
 #include "config.h"
 #include "state.h"
 #include "naming.h"
+#include "chars.h"
 #include "../controls/lcdControl.h"
 #include "../controls/relayControl.h"
 #include "../controls/encoderControl.h"
@@ -25,6 +26,11 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
 
     // INIT LCD DOT MATRIX ########################################################################
     lcd.begin(20, 4);
+
+    // CUSTOM LCD CHARACTERS
+    lcd.createChar(CHAR_OCCUPIED_ON, charOccupiedOn);
+    lcd.createChar(CHAR_OCCUPIED_OFF, charOccupiedOff);
+
     LCDControl::print(lcd, 0, 10, 0, "BOOTING ...");
     LCDControl::print(lcd, 0, 19, 1, FIRMWARE_VERSION);
 

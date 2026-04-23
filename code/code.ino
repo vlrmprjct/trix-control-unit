@@ -291,9 +291,18 @@ void loop() {
     });
 
     // DISPLAY HBF/BBF STATE #######################################################################
-    for (const auto& s : lcdSlots) {
-        LCDControl::print(lcd, s.colStart, s.colEnd, s.row, String(s.track->selected ? ">" : " ") + s.name);
-        LCDControl::print(lcd, s.powerCol, s.powerCol, s.row, s.track->powered ? "*" : " ");
+    for (const auto& slot : lcdSlots) {
+        LCDControl::print(lcd, slot.colStart, slot.colEnd, slot.row, String(slot.track->selected ? ">" : " ") + slot.name);
+        lcd.setCursor(slot.powerCol, slot.row);
+        if (slot.track->powered && slot.track->occupied) {
+            lcd.write(CHAR_OCCUPIED_ON);  // FILLED CIRCLE: POWERED + OCCUPIED
+        } else if (!slot.track->powered && slot.track->occupied) {
+            lcd.write(CHAR_OCCUPIED_OFF); // EMPTY CIRCLE: NOT POWERED + OCCUPIED
+        } else if (slot.track->powered) {
+            lcd.print('*');     // POWERED + FREE
+        } else {
+            lcd.print(' ');     // NOT POWERED + FREE
+        }
     }
 
     // DISPLAY ENCODER VALUES (ZONE A/C LEFT, ZONE B RIGHT)
