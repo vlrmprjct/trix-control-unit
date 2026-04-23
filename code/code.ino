@@ -3,7 +3,7 @@
 #include "src/core/naming.h"
 #include "src/core/state.h"
 #include "src/controls/buttonControl.h"
-#include "src/operation/blockControl.h"
+#include "src/operation/trackControl.h"
 #include "src/operation/webState.h"
 #include "src/display/trackDisplay.h"
 #include "src/controls/encoderControl.h"
@@ -65,56 +65,26 @@ void loop() {
     });
 
     ReedControl::push(RD_HBF1_R, []() {
-        if (!HBF1.powered) {
-            // ARRIVING TRAIN - PARK IN HBF1
-            // SWITCH FROM ZONE A TO B @ HBF1
-            RelayControl::setRelay(7, true);
-            // TURN OFF HBF1
-            RelayControl::setRelay(8, false);
-            HBF1.occupied = true;
-            Eeprom::save();
-        } else {
-            // PASSING THROUGH - RELEASE BLOCK IF AT LEAST ONE HBF TRACK IS FREE
-            if (!(HBF1.occupied && HBF2.occupied)) {
-                RelayControl::setRelay(10, true);
-                BLOCKB.occupied = false;
-                Eeprom::save();
-            }
-        }
+        TrackControl::stopHBF(HBF1, 7, 8);
     });
 
     ReedControl::push(RD_HBF2_C, []() {
     });
 
     ReedControl::push(RD_HBF2_R, []() {
-        if (!HBF2.powered) {
-            // ARRIVING TRAIN - PARK IN HBF2
-            // SWITCH FROM ZONE A TO B @ HBF2
-            RelayControl::setRelay(5, true);
-            // TURN OFF HBF2
-            RelayControl::setRelay(6, false);
-            HBF2.occupied = true;
-            Eeprom::save();
-        } else {
-            // PASSING THROUGH - RELEASE BLOCK IF AT LEAST ONE HBF TRACK IS FREE
-            if (!(HBF1.occupied && HBF2.occupied)) {
-                RelayControl::setRelay(10, true);
-                BLOCKB.occupied = false;
-                Eeprom::save();
-            }
-        }
+        TrackControl::stopHBF(HBF2, 5, 6);
     });
 
     ReedControl::push(RD_BBF1_L, []() {
-        BlockControl::stopBBF(BBF1, 2);
+        TrackControl::stopBBF(BBF1, 2);
     });
 
     ReedControl::push(RD_BBF2_L, []() {
-        BlockControl::stopBBF(BBF2, 3);
+        TrackControl::stopBBF(BBF2, 3);
     });
 
     ReedControl::push(RD_BBF3_L, []() {
-        BlockControl::stopBBF(BBF3, 4);
+        TrackControl::stopBBF(BBF3, 4);
     });
 
     ReedControl::push(RD_10, []() {
@@ -140,7 +110,7 @@ void loop() {
         RelayControl::setRelay(9, true);
         RelayControl::setRelay(10, false);
         // RELEASE WAITING BBF (selected + powered + occupied)
-        BlockControl::releasePendingBBF();
+        TrackControl::releasePendingBBF();
         Eeprom::save();
     });
 
@@ -154,47 +124,23 @@ void loop() {
     ButtonControl::updateStates();
 
     ButtonControl::pushButton(BTN_HBF1, []() {
-        if (!HBF1.selected) return;
-        HBF1.powered = !HBF1.powered;
-        if (HBF1.powered) {
-            if (HBF1.occupied) MotorControl::setValue(ZONE_A, 0);
-            HBF1.occupied = false;
-            RelayControl::setRelay(8, true);
-            // RELEASE BLOCK IF AT LEAST ONE HBF TRACK IS FREE
-            if (!(HBF1.occupied && HBF2.occupied)) {
-                RelayControl::setRelay(10, true);
-                BLOCKB.occupied = false;
-            }
-        }
-        Eeprom::save();
+        TrackControl::toggleHBF(HBF1, 8);
     });
 
     ButtonControl::pushButton(BTN_HBF2, []() {
-        if (!HBF2.selected) return;
-        HBF2.powered = !HBF2.powered;
-        if (HBF2.powered) {
-            if (HBF2.occupied) MotorControl::setValue(ZONE_A, 0);
-            HBF2.occupied = false;
-            RelayControl::setRelay(6, true);
-            // RELEASE BLOCK IF AT LEAST ONE HBF TRACK IS FREE
-            if (!(HBF1.occupied && HBF2.occupied)) {
-                RelayControl::setRelay(10, true);
-                BLOCKB.occupied = false;
-            }
-        }
-        Eeprom::save();
+        TrackControl::toggleHBF(HBF2, 6);
     });
 
     ButtonControl::pushButton(BTN_BBF1, []() {
-        BlockControl::toggleBBF(BBF1, 2);
+        TrackControl::toggleBBF(BBF1, 2);
     });
 
     ButtonControl::pushButton(BTN_BBF2, []() {
-        BlockControl::toggleBBF(BBF2, 3);
+        TrackControl::toggleBBF(BBF2, 3);
     });
 
     ButtonControl::pushButton(BTN_BBF3, []() {
-        BlockControl::toggleBBF(BBF3, 4);
+        TrackControl::toggleBBF(BBF3, 4);
     });
 
     ButtonControl::pushButton(BTN_BLOCKA_OVERRIDE, []() {
