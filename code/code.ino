@@ -177,6 +177,7 @@ void loop() {
     ButtonControl::pushButton(SW_HBF1, []() {
         ServoControl::switchTurnout(servo, W1, false);
         ServoControl::switchTurnout(servo, W2, true);
+        TrackControl::cancelPending(HBF2, 6);
         HBF1.selected = true;
         HBF2.selected = false;
         Eeprom::save();
@@ -185,6 +186,7 @@ void loop() {
     ButtonControl::pushButton(SW_HBF2, []() {
         ServoControl::switchTurnout(servo, W1, true);
         ServoControl::switchTurnout(servo, W2, false);
+        TrackControl::cancelPending(HBF1, 8);
         HBF1.selected = false;
         HBF2.selected = true;
         Eeprom::save();
@@ -196,6 +198,8 @@ void loop() {
         ServoControl::switchTurnout(servo, W4, false);
         ServoControl::switchTurnout(servo, W5, false, -5);
         ServoControl::switchTurnout(servo, W7, true, -10);
+        TrackControl::cancelPending(BBF2, 3);
+        TrackControl::cancelPending(BBF3, 4);
         BBF1.selected = true;
         BBF2.selected = false;
         BBF3.selected = false;
@@ -209,6 +213,8 @@ void loop() {
         ServoControl::switchTurnout(servo, W4, true, 15);
         ServoControl::switchTurnout(servo, W5, true, 0);
         ServoControl::switchTurnout(servo, W7, true);
+        TrackControl::cancelPending(BBF1, 2);
+        TrackControl::cancelPending(BBF3, 4);
         BBF1.selected = false;
         BBF2.selected = true;
         BBF3.selected = false;
@@ -222,6 +228,8 @@ void loop() {
         ServoControl::switchTurnout(servo, W6, true, 15);
         ServoControl::switchTurnout(servo, W7, false, -15);
         ServoControl::switchTurnout(servo, W9, true);
+        TrackControl::cancelPending(BBF1, 2);
+        TrackControl::cancelPending(BBF2, 3);
         BBF1.selected = false;
         BBF2.selected = false;
         BBF3.selected = true;

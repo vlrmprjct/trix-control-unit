@@ -37,12 +37,18 @@ void TrackControl::stopBBF(Tracks& track, int relay) {
 void TrackControl::toggleBBF(Tracks& track, int relay) {
     if (!track.selected) return;
 
-    // PENDING: MANUAL RELEASE IF ZONE C NOW FREE
+    // PENDING + POWERED: WAITING TO DEPART - BUTTON ABORTS OR RELEASES
     if (track.powered && track.pending) {
         if (!BLOCKC.occupied) {
+            // ZONE C FREE: RELEASE NOW
             RelayControl::setRelay(relay, true);
             track.pending = false;
             track.occupied = false;
+        } else {
+            // ZONE C BUSY: ABORT WAITING
+            RelayControl::setRelay(relay, false);
+            track.powered = false;
+            track.pending = false;
         }
         Eeprom::save();
         return;
@@ -54,10 +60,27 @@ void TrackControl::toggleBBF(Tracks& track, int relay) {
             RelayControl::setRelay(relay, true);
             track.pending = false;
             track.occupied = false;
+        } else {
+            track.pending = true; // ZONE C BUSY: WAIT FOR releasePendingBBF
         }
     } else {
         // POWERED OFF: SET PENDING SO DISPLAY SHOWS TRAIN IS COASTING TO _L REED
         track.pending = true;
+    }
+    Eeprom::save();
+}
+
+// CANCEL PENDING WHEN TURNOUT IS SWITCHED AWAY FROM THIS TRACK
+void TrackControl::cancelPending(Tracks& track, int relay) {
+    if (!track.pending) return;
+    track.pending = false;
+    if (track.powered) {
+        // WAITING TO DEPART: TURN OFF RELAY + POWER
+        RelayControl::setRelay(relay, false);
+        track.powered = false;
+    } else {
+        // STOP-REQUEST: RESTORE POWER, TRAIN KEEPS RUNNING
+        track.powered = true;
     }
     Eeprom::save();
 }

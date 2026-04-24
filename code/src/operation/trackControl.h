@@ -15,6 +15,7 @@ namespace TrackControl {
     void stopBBF(Tracks& track, int relay);
     void toggleBBF(Tracks& track, int relay);
     void releasePendingBBF();
+    void cancelPending(Tracks& track, int relay);
 
     // HBF OPERATIONS
     void stopHBF(Tracks& track, int zoneRelay, int trackRelay);
