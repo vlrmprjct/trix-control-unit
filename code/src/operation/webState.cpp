@@ -22,7 +22,7 @@ namespace WebState {
     static int prevRawB = -1;
     static float prevSpeed = -1.0;
 
-    struct TrackSnapshot { bool selected; bool powered; bool occupied; };
+    struct TrackSnapshot { bool selected; bool powered; bool occupied; bool pending; };
     static TrackSnapshot hbfSnap[2];
     static TrackSnapshot bbfSnap[5];
     static TrackSnapshot blockSnap[3];
@@ -38,6 +38,7 @@ namespace WebState {
             if (track.selected != snapshot[idx].selected) return true;
             if (track.powered  != snapshot[idx].powered)  return true;
             if (track.occupied != snapshot[idx].occupied) return true;
+            if (track.pending  != snapshot[idx].pending)  return true;
         }
         return false;
     }
@@ -45,7 +46,7 @@ namespace WebState {
     static void takeSnapshot(TrackSnapshot* snapshot, int baseIndex, int count) {
         for (int idx = 0; idx < count; idx++) {
             const Tracks& track = ROUTE.track[baseIndex + idx];
-            snapshot[idx] = { track.selected, track.powered, track.occupied };
+            snapshot[idx] = { track.selected, track.powered, track.occupied, track.pending };
         }
     }
 
@@ -54,6 +55,7 @@ namespace WebState {
         entry["s"] = snapshot.selected;
         entry["p"] = snapshot.powered;
         entry["o"] = snapshot.occupied;
+        entry["n"] = snapshot.pending;
         payload[key] = entry;
     }
 

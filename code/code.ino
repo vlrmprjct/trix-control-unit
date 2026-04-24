@@ -61,11 +61,21 @@ void loop() {
     // TRACK REED #################################################################################
     ReedControl::updateStates();
 
+    ReedControl::push(RD_HBF1_L, []() {
+        HBF1.occupied = true;
+        Eeprom::save();
+    });
+
     ReedControl::push(RD_HBF1_C, []() {
     });
 
     ReedControl::push(RD_HBF1_R, []() {
         TrackControl::stopHBF(HBF1, 7, 8);
+    });
+
+    ReedControl::push(RD_HBF2_L, []() {
+        HBF2.occupied = true;
+        Eeprom::save();
     });
 
     ReedControl::push(RD_HBF2_C, []() {
@@ -75,12 +85,27 @@ void loop() {
         TrackControl::stopHBF(HBF2, 5, 6);
     });
 
+    ReedControl::push(RD_BBF1_R, []() {
+        BBF1.occupied = true;
+        Eeprom::save();
+    });
+
     ReedControl::push(RD_BBF1_L, []() {
         TrackControl::stopBBF(BBF1, 2);
     });
 
+    ReedControl::push(RD_BBF2_R, []() {
+        BBF2.occupied = true;
+        Eeprom::save();
+    });
+
     ReedControl::push(RD_BBF2_L, []() {
         TrackControl::stopBBF(BBF2, 3);
+    });
+
+    ReedControl::push(RD_BBF3_R, []() {
+        BBF3.occupied = true;
+        Eeprom::save();
     });
 
     ReedControl::push(RD_BBF3_L, []() {
@@ -237,17 +262,25 @@ void loop() {
     });
 
     // DISPLAY HBF/BBF STATE #######################################################################
+    static bool blinkOn = false;
+    static unsigned long lastBlinkTime = 0;
+    if (millis() - lastBlinkTime >= 400) {
+        blinkOn = !blinkOn;
+        lastBlinkTime = millis();
+    }
     for (const auto& slot : lcdSlots) {
-        LCDControl::print(lcd, slot.colStart, slot.colEnd, slot.row, String(slot.track->selected ? ">" : " ") + slot.name);
+        LCDControl::print(lcd, slot.colStart, slot.colEnd, slot.row, String(slot.track->selected ? (char)CHAR_ARROW_RIGHT : ' ') + slot.name);
         lcd.setCursor(slot.powerCol, slot.row);
-        if (slot.track->powered && slot.track->occupied) {
-            lcd.write(CHAR_OCCUPIED_ON);  // FILLED CIRCLE: POWERED + OCCUPIED
-        } else if (!slot.track->powered && slot.track->occupied) {
-            lcd.write(CHAR_OCCUPIED_OFF); // EMPTY CIRCLE: NOT POWERED + OCCUPIED
+        if (slot.track->pending && slot.track->powered) {
+            lcd.write(blinkOn ? CHAR_ARROW_RIGHT : CHAR_CIRCLE_FILLED); // BLINK: WAITING TO DEPART
+        } else if (slot.track->pending && !slot.track->powered) {
+            lcd.write(blinkOn ? CHAR_CIRCLE_FILLED : CHAR_CIRCLE_EMPTY); // BLINK: COASTING TO STOP
+        } else if (slot.track->occupied) {
+            lcd.write(CHAR_CIRCLE_FILLED);  // FILLED CIRCLE: TRAIN STOPPED OR RUNNING
         } else if (slot.track->powered) {
-            lcd.print('*');     // POWERED + FREE
+            lcd.write(CHAR_CIRCLE_EMPTY);   // EMPTY CIRCLE: FREE + POWERED
         } else {
-            lcd.print(' ');     // NOT POWERED + FREE
+            lcd.print(' ');                 // FREE + NOT POWERED
         }
     }
 

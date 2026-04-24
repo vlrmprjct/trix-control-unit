@@ -10,6 +10,7 @@ namespace Eeprom {
             ROUTE.track[i].occupied = false;
             ROUTE.track[i].selected = false;
             ROUTE.track[i].powered  = false;
+            ROUTE.track[i].pending  = false;
             ROUTE.track[i].name[0]  = '\0';
             ROUTE.track[i].uid[0]   = '\0';
             ROUTE.track[i].min      = 0;

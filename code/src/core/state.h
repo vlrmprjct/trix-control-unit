@@ -4,6 +4,7 @@ struct Tracks {
     bool occupied;
     bool selected;
     bool powered;
+    bool pending;
     char name[32];
     char uid[32];
     int min;

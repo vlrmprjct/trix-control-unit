@@ -28,8 +28,9 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
     lcd.begin(20, 4);
 
     // CUSTOM LCD CHARACTERS
-    lcd.createChar(CHAR_OCCUPIED_ON, charOccupiedOn);
-    lcd.createChar(CHAR_OCCUPIED_OFF, charOccupiedOff);
+    lcd.createChar(CHAR_CIRCLE_EMPTY, charCircleEmpty);
+    lcd.createChar(CHAR_CIRCLE_FILLED, charCircleFilled);
+    lcd.createChar(CHAR_ARROW_RIGHT, charArrowRight);
 
     LCDControl::print(lcd, 0, 10, 0, "BOOTING ...");
     LCDControl::print(lcd, 0, 19, 1, FIRMWARE_VERSION);
