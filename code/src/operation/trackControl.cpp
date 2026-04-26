@@ -10,9 +10,10 @@ const BBFConfig TrackControl::bbf[] = {
     { &BBF1, 2 },
     { &BBF2, 3 },
     { &BBF3, 4 },
-    // { &BBF4, ?? },  // RELAY TBD
-    // { &BBF5, ?? },  // RELAY TBD
+    { &BBF4, 1 },
+    { &BBF5, 9 },
 };
+
 const int TrackControl::BBF_COUNT = sizeof(bbf) / sizeof(bbf[0]);
 
 // STATE TRANSITIONS

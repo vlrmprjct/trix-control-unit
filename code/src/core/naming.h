@@ -62,6 +62,7 @@ enum ReedControls {
     RD_BBF4_L  = 11,
     RD_BBF5_R  = 10,
     RD_BBF5_L  =  9,
+    RD_05      = 30,
     RD_10      = 29,
     RD_20      = 26,
     RD_30      = 25,

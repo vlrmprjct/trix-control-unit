@@ -112,6 +112,24 @@ void loop() {
         TrackControl::stopBBF(BBF3, 4);
     });
 
+    ReedControl::push(RD_BBF4_R, []() {
+        BBF4.occupied = true;
+        Eeprom::save();
+    });
+
+    ReedControl::push(RD_BBF4_L, []() {
+        TrackControl::stopBBF(BBF4, 1);
+    });
+
+    ReedControl::push(RD_BBF5_R, []() {
+        BBF5.occupied = true;
+        Eeprom::save();
+    });
+
+    ReedControl::push(RD_BBF5_L, []() {
+        TrackControl::stopBBF(BBF5, 9);
+    });
+
     ReedControl::push(RD_10, []() {
         // BLOCK ZONE C ENTRY
         BLOCKC.occupied = true;
@@ -168,6 +186,14 @@ void loop() {
         TrackControl::toggleBBF(BBF3, 4);
     });
 
+    ButtonControl::pushButton(BTN_BBF4, []() {
+        TrackControl::toggleBBF(BBF4, 1);
+    });
+
+    ButtonControl::pushButton(BTN_BBF5, []() {
+        TrackControl::toggleBBF(BBF5, 9);
+    });
+
     ButtonControl::pushButton(BTN_BLOCKA_OVERRIDE, []() {
         RelayControl::toggleRelay(10);
         Eeprom::save();
@@ -200,6 +226,8 @@ void loop() {
         ServoControl::switchTurnout(servo, W7, true, -10);
         TrackControl::cancelPending(BBF2, 3);
         TrackControl::cancelPending(BBF3, 4);
+        TrackControl::cancelPending(BBF4, 1);
+        TrackControl::cancelPending(BBF5, 9);
         BBF1.selected = true;
         BBF2.selected = false;
         BBF3.selected = false;
@@ -215,6 +243,8 @@ void loop() {
         ServoControl::switchTurnout(servo, W7, true);
         TrackControl::cancelPending(BBF1, 2);
         TrackControl::cancelPending(BBF3, 4);
+        TrackControl::cancelPending(BBF4, 1);
+        TrackControl::cancelPending(BBF5, 9);
         BBF1.selected = false;
         BBF2.selected = true;
         BBF3.selected = false;
@@ -230,6 +260,8 @@ void loop() {
         ServoControl::switchTurnout(servo, W9, true);
         TrackControl::cancelPending(BBF1, 2);
         TrackControl::cancelPending(BBF2, 3);
+        TrackControl::cancelPending(BBF4, 1);
+        TrackControl::cancelPending(BBF5, 9);
         BBF1.selected = false;
         BBF2.selected = false;
         BBF3.selected = true;
@@ -245,6 +277,10 @@ void loop() {
         ServoControl::switchTurnout(servo, W8, true);
         ServoControl::switchTurnout(servo, W9, false, -20);
         ServoControl::switchTurnout(servo, W10, false);
+        TrackControl::cancelPending(BBF1, 2);
+        TrackControl::cancelPending(BBF2, 3);
+        TrackControl::cancelPending(BBF3, 4);
+        TrackControl::cancelPending(BBF5, 9);
         BBF1.selected = false;
         BBF2.selected = false;
         BBF3.selected = false;
@@ -261,6 +297,10 @@ void loop() {
         ServoControl::switchTurnout(servo, W9, false, -20);
         ServoControl::switchTurnout(servo, W10, true);
         ServoControl::switchTurnout(servo, W11, false, -20);
+        TrackControl::cancelPending(BBF1, 2);
+        TrackControl::cancelPending(BBF2, 3);
+        TrackControl::cancelPending(BBF3, 4);
+        TrackControl::cancelPending(BBF4, 1);
         BBF1.selected = false;
         BBF2.selected = false;
         BBF3.selected = false;
