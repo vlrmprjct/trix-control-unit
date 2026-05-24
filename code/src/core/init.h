@@ -87,6 +87,10 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
     // LOAD STATE / READ FROM EEPROM ##############################################################
     Eeprom::load();
 
+    // RESET VIRTUAL BLOCKS (DYNAMIC RUNTIME STATE ONLY)
+    BLOCKB.occupied = false;
+    BLOCKC.occupied = false;
+
     delay(2000);
 
     // CLEAR EEPROM ###############################################################################

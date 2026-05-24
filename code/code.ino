@@ -1,17 +1,17 @@
-#include "src/core/config.h"
-#include "src/core/init.h"
-#include "src/core/naming.h"
-#include "src/core/state.h"
 #include "src/controls/buttonControl.h"
-#include "src/operation/trackControl.h"
-#include "src/operation/webState.h"
-#include "src/display/trackDisplay.h"
 #include "src/controls/encoderControl.h"
 #include "src/controls/lcdControl.h"
 #include "src/controls/motorControl.h"
 #include "src/controls/reedControl.h"
 #include "src/controls/relayControl.h"
 #include "src/controls/servoControl.h"
+#include "src/core/config.h"
+#include "src/core/init.h"
+#include "src/core/naming.h"
+#include "src/core/state.h"
+#include "src/display/trackDisplay.h"
+#include "src/operation/trackControl.h"
+#include "src/operation/webState.h"
 #include "src/utils/debug.h"
 #include "src/utils/eeprom.h"
 #include "src/utils/utils.h"
@@ -27,21 +27,25 @@ SimpleWebSerial WebSerial;
 Adafruit_PWMServoDriver servo = Adafruit_PWMServoDriver();
 LiquidCrystal lcd(LCD_RS, LCD_EN, LCD1_D4, LCD1_D5, LCD1_D6, LCD1_D7);
 
-void setup() {
+void setup()
+{
     init(servo, lcd);
     Debug::enabled = false;
     Debug::eepromEnabled = false;
 
     // WEB SERIAL COMMANDS
     WebSerial.on("setSpeed", [](JSONVar data) {
-        int zone  = (int)data["zone"];
+        int zone = (int)data["zone"];
         int value = constrain((int)data["value"], 0, 255);
-        if (zone == 0) ENC_ZONE_A = value;
-        if (zone == 1) ENC_ZONE_B = value;
+        if (zone == 0)
+            ENC_ZONE_A = value;
+        if (zone == 1)
+            ENC_ZONE_B = value;
     });
 }
 
-void loop() {
+void loop()
+{
 
     WebSerial.check();
     WebState::send(WebSerial);
@@ -218,10 +222,9 @@ void loop() {
         Eeprom::save();
     });
 
-
     ButtonControl::pushButton(SW_BBF1, []() {
         ServoControl::switchTurnout(servo, W3, true);
-        ServoControl::switchTurnout(servo, W4, false);
+        ServoControl::switchTurnout(servo, W4, false, -20);
         ServoControl::switchTurnout(servo, W5, false, -5);
         ServoControl::switchTurnout(servo, W7, true, -10);
         TrackControl::cancelPending(BBF2, 3);
@@ -254,7 +257,7 @@ void loop() {
     });
 
     ButtonControl::pushButton(SW_BBF3, []() {
-        ServoControl::switchTurnout(servo, W3, false);
+        ServoControl::switchTurnout(servo, W3, false, -15);
         ServoControl::switchTurnout(servo, W6, true, 15);
         ServoControl::switchTurnout(servo, W7, false, -15);
         ServoControl::switchTurnout(servo, W9, true);
@@ -271,7 +274,7 @@ void loop() {
     });
 
     ButtonControl::pushButton(SW_BBF4, []() {
-        ServoControl::switchTurnout(servo, W3, false);
+        ServoControl::switchTurnout(servo, W3, false, -15);
         ServoControl::switchTurnout(servo, W6, false, -10);
         ServoControl::switchTurnout(servo, W7, false);
         ServoControl::switchTurnout(servo, W8, true);
@@ -290,12 +293,12 @@ void loop() {
     });
 
     ButtonControl::pushButton(SW_BBF5, []() {
-        ServoControl::switchTurnout(servo, W3, false);
+        ServoControl::switchTurnout(servo, W3, false, -15);
         ServoControl::switchTurnout(servo, W6, false, -10);
         ServoControl::switchTurnout(servo, W7, false);
         ServoControl::switchTurnout(servo, W8, false);
         ServoControl::switchTurnout(servo, W9, false, -20);
-        ServoControl::switchTurnout(servo, W10, true);
+        ServoControl::switchTurnout(servo, W10, true, +20);
         ServoControl::switchTurnout(servo, W11, false, -20);
         TrackControl::cancelPending(BBF1, 2);
         TrackControl::cancelPending(BBF2, 3);
@@ -324,11 +327,11 @@ void loop() {
         } else if (slot.track->pending && !slot.track->powered) {
             lcd.write(blinkOn ? CHAR_CIRCLE_FILLED : CHAR_CIRCLE_EMPTY); // BLINK: COASTING TO STOP
         } else if (slot.track->occupied) {
-            lcd.write(CHAR_CIRCLE_FILLED);  // FILLED CIRCLE: TRAIN STOPPED OR RUNNING
+            lcd.write(CHAR_CIRCLE_FILLED); // FILLED CIRCLE: TRAIN STOPPED OR RUNNING
         } else if (slot.track->powered) {
-            lcd.write(CHAR_CIRCLE_EMPTY);   // EMPTY CIRCLE: FREE + POWERED
+            lcd.write(CHAR_CIRCLE_EMPTY); // EMPTY CIRCLE: FREE + POWERED
         } else {
-            lcd.print(' ');                 // FREE + NOT POWERED
+            lcd.print(' '); // FREE + NOT POWERED
         }
     }
 
