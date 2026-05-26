@@ -154,7 +154,6 @@ void loop()
         // BLOCK ZONE B ENTRY + RELEASE ZONE C
         BLOCKB.occupied = true;
         BLOCKC.occupied = false;
-        RelayControl::setRelay(9, true);
         RelayControl::setRelay(10, false);
         // RELEASE WAITING BBF (selected + powered + occupied)
         TrackControl::releasePendingBBF();
