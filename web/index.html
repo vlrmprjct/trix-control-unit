@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Control Unit</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="topbar">
+        <h1>CONTROL UNIT</h1>
+        <button id="connectBtn">Connect</button>
+    </div>
+
+    <div class="panels">
+
+        <div class="panel layout" id="layoutPanel">
+
+        </div>
+
+        <div class="panel encoder">
+            <h2>ENCODER</h2>
+            <div class="row">
+                <span class="label">ZONE A</span>
+                <span>
+                    <span class="dir stop" id="dirA">STOP</span>
+                    <span class="value" id="encA">--</span>
+                </span>
+            </div>
+            <div class="row"><span class="sub" id="rawA">raw: --</span></div>
+            <div class="bar"><div class="bar-fill a" id="barA"></div></div>
+
+            <div class="row row--gap">
+                <span class="label">ZONE B</span>
+                <span>
+                    <span class="dir stop" id="dirB">STOP</span>
+                    <span class="value" id="encB">--</span>
+                </span>
+            </div>
+            <div class="row"><span class="sub" id="rawB">raw: --</span></div>
+            <div class="bar"><div class="bar-fill b" id="barB"></div></div>
+        </div>
+
+        <div class="panel speed">
+            <h2>SPEED</h2>
+            <div class="row">
+                <span class="label">SCALED</span>
+                <span class="value" id="speedKmh">-- km/h</span>
+            </div>
+            <div class="row">
+                <span class="label">RAW</span>
+                <span class="sub" id="speedRaw">-- cm/s</span>
+            </div>
+            <h2 class="h2--gap">SET SPEED</h2>
+            <div class="slider-row">
+                <span class="label">A</span>
+                <input type="range" id="sliderA" min="0" max="255" value="0">
+                <span class="val" id="sliderValA">0</span>
+            </div>
+            <div class="slider-row">
+                <span class="label">B</span>
+                <input type="range" id="sliderB" min="0" max="255" value="0">
+                <span class="val" id="sliderValB">0</span>
+            </div>
+            <h2 class="h2--gap">SYSTEM</h2>
+        </div>
+
+        <div class="panel tracks">
+            <h2>TRACKS</h2>
+            <table>
+                <thead>
+                    <tr><th>TRACK</th><th>SEL</th><th>PWR</th><th>OCC</th></tr>
+                </thead>
+                <tbody id="trackTable"></tbody>
+            </table>
+        </div>
+
+        <div class="panel relays">
+            <h2>RELAYS</h2>
+            <div class="relay-grid" id="relayGrid"></div>
+        </div>
+
+        <div class="panel log">
+            <h2>LOG</h2>
+            <pre id="log" class="log"></pre>
+        </div>
+
+    </div>
+
+    <div class="footer" id="firmware"></div>
+
+    <script src="layout.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
