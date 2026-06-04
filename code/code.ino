@@ -27,6 +27,25 @@ SimpleWebSerial WebSerial;
 Adafruit_PWMServoDriver servo = Adafruit_PWMServoDriver();
 LiquidCrystal lcd(LCD_RS, LCD_EN, LCD1_D4, LCD1_D5, LCD1_D6, LCD1_D7);
 
+// AUTO-SELECT HBF TRACK: switches turnouts + updates state
+// which=1 → HBF1, which=2 → HBF2
+static void autoSelectHBF(int which) {
+    if (which == 1) {
+        ServoControl::switchTurnout(servo, W1, false);
+        ServoControl::switchTurnout(servo, W2, true, 10);
+        TrackControl::cancelPending(HBF2, 6);
+        HBF1.selected = true;
+        HBF2.selected = false;
+    } else {
+        ServoControl::switchTurnout(servo, W1, true);
+        ServoControl::switchTurnout(servo, W2, false, -10);
+        TrackControl::cancelPending(HBF1, 8);
+        HBF1.selected = false;
+        HBF2.selected = true;
+    }
+    Eeprom::save();
+}
+
 void setup()
 {
     init(servo, lcd);
@@ -75,6 +94,13 @@ void loop()
 
     ReedControl::push(RD_HBF1_R, []() {
         TrackControl::stopHBF(HBF1, 7, 8);
+        if (HBF1.occupied) {
+            // TRAIN STOPPED: switch to free HBF
+            if (!HBF2.occupied) autoSelectHBF(2);
+        } else {
+            // PASS-THROUGH: correct W2 for HBF1
+            ServoControl::switchTurnout(servo, W2, true, 10);
+        }
     });
 
     ReedControl::push(RD_HBF2_L, []() {
@@ -87,6 +113,13 @@ void loop()
 
     ReedControl::push(RD_HBF2_R, []() {
         TrackControl::stopHBF(HBF2, 5, 6);
+        if (HBF2.occupied) {
+            // TRAIN STOPPED: switch to free HBF
+            if (!HBF1.occupied) autoSelectHBF(1);
+        } else {
+            // PASS-THROUGH: correct W2 for HBF2
+            ServoControl::switchTurnout(servo, W2, false, -10);
+        }
     });
 
     ReedControl::push(RD_BBF1_R, []() {
@@ -137,7 +170,6 @@ void loop()
     ReedControl::push(RD_10, []() {
         // BLOCK ZONE C ENTRY
         BLOCKC.occupied = true;
-        RelayControl::setRelay(9, false);
         Eeprom::save();
         // START SPEED MEASURE
         Utils::speedStart = millis();
@@ -155,7 +187,7 @@ void loop()
         BLOCKB.occupied = true;
         BLOCKC.occupied = false;
         RelayControl::setRelay(10, false);
-        // RELEASE WAITING BBF (selected + powered + occupied)
+        // RELEASE WAITING BBF (selected + powered + pending)
         TrackControl::releasePendingBBF();
         Eeprom::save();
     });
@@ -164,6 +196,34 @@ void loop()
         // FORCE SWITCH FROM ZONE A TO B @ HBFx
         RelayControl::setRelay(5, false);
         RelayControl::setRelay(7, false);
+        // SELECT TARGET HBF via W1 (W2 corrected by _R):
+        // both free → random, one occupied → take the free one
+        int which = 0;
+        if      (!HBF1.occupied && !HBF2.occupied) which = random(1, 3);
+        else if (!HBF1.occupied)                   which = 1;
+        else if (!HBF2.occupied)                   which = 2;
+        if (which == 1) {
+            ServoControl::switchTurnout(servo, W1, false);
+            HBF1.selected = true;
+            HBF2.selected = false;
+            // if HBF2 was coasting: transfer pending to HBF1
+            if (HBF2.pending && !HBF2.powered) {
+                TrackControl::cancelPending(HBF2, 6);
+                HBF1.powered = false;
+                HBF1.pending = true;
+            }
+        } else if (which == 2) {
+            ServoControl::switchTurnout(servo, W1, true);
+            HBF1.selected = false;
+            HBF2.selected = true;
+            // if HBF1 was coasting: transfer pending to HBF2
+            if (HBF1.pending && !HBF1.powered) {
+                TrackControl::cancelPending(HBF1, 8);
+                HBF2.powered = false;
+                HBF2.pending = true;
+            }
+        }
+        if (which != 0) Eeprom::save();
     });
 
     // TRACK CONTROL ##############################################################################
@@ -205,7 +265,7 @@ void loop()
     // TURNOUT CONTROL ############################################################################
     ButtonControl::pushButton(SW_HBF1, []() {
         ServoControl::switchTurnout(servo, W1, false);
-        ServoControl::switchTurnout(servo, W2, true);
+        ServoControl::switchTurnout(servo, W2, true, 10);
         TrackControl::cancelPending(HBF2, 6);
         HBF1.selected = true;
         HBF2.selected = false;
@@ -214,7 +274,7 @@ void loop()
 
     ButtonControl::pushButton(SW_HBF2, []() {
         ServoControl::switchTurnout(servo, W1, true);
-        ServoControl::switchTurnout(servo, W2, false);
+        ServoControl::switchTurnout(servo, W2, false, -10);
         TrackControl::cancelPending(HBF1, 8);
         HBF1.selected = false;
         HBF2.selected = true;
@@ -224,7 +284,7 @@ void loop()
     ButtonControl::pushButton(SW_BBF1, []() {
         ServoControl::switchTurnout(servo, W3, true);
         ServoControl::switchTurnout(servo, W4, false, -20);
-        ServoControl::switchTurnout(servo, W5, false, -5);
+        ServoControl::switchTurnout(servo, W5, false, -3);
         ServoControl::switchTurnout(servo, W7, true, -10);
         TrackControl::cancelPending(BBF2, 3);
         TrackControl::cancelPending(BBF3, 4);
@@ -241,8 +301,8 @@ void loop()
     ButtonControl::pushButton(SW_BBF2, []() {
         ServoControl::switchTurnout(servo, W3, true);
         ServoControl::switchTurnout(servo, W4, true, 15);
-        ServoControl::switchTurnout(servo, W5, true, 0);
-        ServoControl::switchTurnout(servo, W7, true);
+        ServoControl::switchTurnout(servo, W5, true, 6);
+        ServoControl::switchTurnout(servo, W7, true, -10);
         TrackControl::cancelPending(BBF1, 2);
         TrackControl::cancelPending(BBF3, 4);
         TrackControl::cancelPending(BBF4, 1);
@@ -257,7 +317,7 @@ void loop()
 
     ButtonControl::pushButton(SW_BBF3, []() {
         ServoControl::switchTurnout(servo, W3, false, -15);
-        ServoControl::switchTurnout(servo, W6, true, 15);
+        ServoControl::switchTurnout(servo, W6, true, 12);
         ServoControl::switchTurnout(servo, W7, false, -15);
         ServoControl::switchTurnout(servo, W9, true);
         TrackControl::cancelPending(BBF1, 2);
@@ -276,7 +336,7 @@ void loop()
         ServoControl::switchTurnout(servo, W3, false, -15);
         ServoControl::switchTurnout(servo, W6, false, -10);
         ServoControl::switchTurnout(servo, W7, false);
-        ServoControl::switchTurnout(servo, W8, true);
+        ServoControl::switchTurnout(servo, W8, true, 10);
         ServoControl::switchTurnout(servo, W9, false, -20);
         ServoControl::switchTurnout(servo, W10, false);
         TrackControl::cancelPending(BBF1, 2);
@@ -295,7 +355,7 @@ void loop()
         ServoControl::switchTurnout(servo, W3, false, -15);
         ServoControl::switchTurnout(servo, W6, false, -10);
         ServoControl::switchTurnout(servo, W7, false);
-        ServoControl::switchTurnout(servo, W8, false);
+        ServoControl::switchTurnout(servo, W8, false, -10);
         ServoControl::switchTurnout(servo, W9, false, -20);
         ServoControl::switchTurnout(servo, W10, true, +20);
         ServoControl::switchTurnout(servo, W11, false, -20);
