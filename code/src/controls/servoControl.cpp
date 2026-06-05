@@ -1,10 +1,12 @@
 #include "../core/config.h"
+#include "../core/servocal.h"
 #include "servoControl.h"
 #include <Arduino.h>
 
 namespace ServoControl {
 
-    void switchTurnout(Adafruit_PWMServoDriver& driver, int channel, bool diverging, int offset) {
+    void switchTurnout(Adafruit_PWMServoDriver& driver, int channel, bool diverging) {
+        int offset = diverging ? SERVO_OFFSET_DIVERGING[channel] : SERVO_OFFSET_STRAIGHT[channel];
         int angle = (diverging ? ANGLE_DIVERGING : ANGLE_STRAIGHT) + offset;
         angle = constrain(angle, 0, 180);
         int pulse = map(angle, 0, 180, SERVOMIN, SERVOMAX);
