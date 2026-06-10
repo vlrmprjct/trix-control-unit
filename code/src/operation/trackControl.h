@@ -12,8 +12,8 @@ namespace TrackControl {
     extern const int BBF_COUNT;
 
     // BBF OPERATIONS
-    void stopBBF(Tracks& track, int relay);
-    void toggleBBF(Tracks& track, int relay);
+    void stopBBF(Tracks& track, int relay, bool canDepart);
+    void toggleBBF(Tracks& track, int relay, bool canDepart);
     void releasePendingBBF();
     void cancelPending(Tracks& track, int relay);
 

@@ -88,6 +88,7 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
     Eeprom::load();
 
     // RESET VIRTUAL BLOCKS (DYNAMIC RUNTIME STATE ONLY)
+    BLOCKA.occupied = false;
     BLOCKB.occupied = false;
     BLOCKC.occupied = false;
 

@@ -27,8 +27,8 @@ SimpleWebSerial WebSerial;
 Adafruit_PWMServoDriver servo = Adafruit_PWMServoDriver();
 LiquidCrystal lcd(LCD_RS, LCD_EN, LCD1_D4, LCD1_D5, LCD1_D6, LCD1_D7);
 
-// AUTO-SELECT HBF TRACK: switches turnouts + updates state
-// which=1 → HBF1, which=2 → HBF2
+// AUTO-SELECT HBF TRACK: SWITCHES TURNOUTS + UPDATES STATE
+// WHICH=1 → HBF1, WHICH=2 → HBF2
 static void autoSelectHBF(int which) {
     if (which == 1) {
         ServoControl::switchTurnout(servo, W1, false);
@@ -94,11 +94,16 @@ void loop()
 
     ReedControl::push(RD_HBF1_R, []() {
         TrackControl::stopHBF(HBF1, 7, 8);
+        // BLOCK B: RELEASE IF AT LEAST ONE HBF IS FREE
+        if (!(HBF1.occupied && HBF2.occupied)) {
+            RelayControl::setRelay(10, true);
+            BLOCKB.occupied = false;
+        }
         if (HBF1.occupied) {
-            // TRAIN STOPPED: switch to free HBF
+            // TRAIN STOPPED: SWITCH TO FREE HBF
             if (!HBF2.occupied) autoSelectHBF(2);
         } else {
-            // PASS-THROUGH: correct W2 for HBF1
+            // PASS-THROUGH: CORRECT W2 FOR HBF1
             ServoControl::switchTurnout(servo, W2, true);
         }
     });
@@ -113,11 +118,16 @@ void loop()
 
     ReedControl::push(RD_HBF2_R, []() {
         TrackControl::stopHBF(HBF2, 5, 6);
+        // BLOCK B: RELEASE IF AT LEAST ONE HBF IS FREE
+        if (!(HBF1.occupied && HBF2.occupied)) {
+            RelayControl::setRelay(10, true);
+            BLOCKB.occupied = false;
+        }
         if (HBF2.occupied) {
-            // TRAIN STOPPED: switch to free HBF
+            // TRAIN STOPPED: SWITCH TO FREE HBF
             if (!HBF1.occupied) autoSelectHBF(1);
         } else {
-            // PASS-THROUGH: correct W2 for HBF2
+            // PASS-THROUGH: CORRECT W2 FOR HBF2
             ServoControl::switchTurnout(servo, W2, false);
         }
     });
@@ -128,7 +138,7 @@ void loop()
     });
 
     ReedControl::push(RD_BBF1_L, []() {
-        TrackControl::stopBBF(BBF1, 2);
+        TrackControl::stopBBF(BBF1, 2, !BLOCKC.occupied);
     });
 
     ReedControl::push(RD_BBF2_R, []() {
@@ -137,7 +147,7 @@ void loop()
     });
 
     ReedControl::push(RD_BBF2_L, []() {
-        TrackControl::stopBBF(BBF2, 3);
+        TrackControl::stopBBF(BBF2, 3, !BLOCKC.occupied);
     });
 
     ReedControl::push(RD_BBF3_R, []() {
@@ -146,7 +156,7 @@ void loop()
     });
 
     ReedControl::push(RD_BBF3_L, []() {
-        TrackControl::stopBBF(BBF3, 4);
+        TrackControl::stopBBF(BBF3, 4, !BLOCKC.occupied);
     });
 
     ReedControl::push(RD_BBF4_R, []() {
@@ -155,7 +165,7 @@ void loop()
     });
 
     ReedControl::push(RD_BBF4_L, []() {
-        TrackControl::stopBBF(BBF4, 1);
+        TrackControl::stopBBF(BBF4, 1, !BLOCKC.occupied);
     });
 
     ReedControl::push(RD_BBF5_R, []() {
@@ -164,10 +174,12 @@ void loop()
     });
 
     ReedControl::push(RD_BBF5_L, []() {
-        TrackControl::stopBBF(BBF5, 9);
+        TrackControl::stopBBF(BBF5, 9, !BLOCKC.occupied);
     });
 
     ReedControl::push(RD_10, []() {
+        // TRAIN LEAVING ZONE A
+        BLOCKA.occupied = false;
         // BLOCK ZONE C ENTRY
         BLOCKC.occupied = true;
         Eeprom::save();
@@ -196,8 +208,8 @@ void loop()
         // FORCE SWITCH FROM ZONE A TO B @ HBFx
         RelayControl::setRelay(5, false);
         RelayControl::setRelay(7, false);
-        // SELECT TARGET HBF via W1 (W2 corrected by _R):
-        // both free → random, one occupied → take the free one
+        // SELECT TARGET HBF VIA W1 (W2 CORRECTED BY _R):
+        // BOTH FREE → RANDOM, ONE OCCUPIED → TAKE THE FREE ONE
         int which = 0;
         if      (!HBF1.occupied && !HBF2.occupied) which = random(1, 3);
         else if (!HBF1.occupied)                   which = 1;
@@ -206,7 +218,7 @@ void loop()
             ServoControl::switchTurnout(servo, W1, false);
             HBF1.selected = true;
             HBF2.selected = false;
-            // if HBF2 was coasting: transfer pending to HBF1
+            // IF HBF2 WAS COASTING: TRANSFER PENDING TO HBF1
             if (HBF2.pending && !HBF2.powered) {
                 TrackControl::cancelPending(HBF2, 6);
                 HBF1.powered = false;
@@ -216,7 +228,7 @@ void loop()
             ServoControl::switchTurnout(servo, W1, true);
             HBF1.selected = false;
             HBF2.selected = true;
-            // if HBF1 was coasting: transfer pending to HBF2
+            // IF HBF1 WAS COASTING: TRANSFER PENDING TO HBF2
             if (HBF1.pending && !HBF1.powered) {
                 TrackControl::cancelPending(HBF1, 8);
                 HBF2.powered = false;
@@ -231,30 +243,40 @@ void loop()
 
     ButtonControl::pushButton(BTN_HBF1, []() {
         TrackControl::toggleHBF(HBF1, 8);
+        // BLOCK B: RELEASE IF TRAIN JUST POWERED ON AND AT LEAST ONE HBF IS FREE
+        if (HBF1.powered && !(HBF1.occupied && HBF2.occupied)) {
+            RelayControl::setRelay(10, true);
+            BLOCKB.occupied = false;
+        }
     });
 
     ButtonControl::pushButton(BTN_HBF2, []() {
         TrackControl::toggleHBF(HBF2, 6);
+        // BLOCK B: RELEASE IF TRAIN JUST POWERED ON AND AT LEAST ONE HBF IS FREE
+        if (HBF2.powered && !(HBF1.occupied && HBF2.occupied)) {
+            RelayControl::setRelay(10, true);
+            BLOCKB.occupied = false;
+        }
     });
 
     ButtonControl::pushButton(BTN_BBF1, []() {
-        TrackControl::toggleBBF(BBF1, 2);
+        TrackControl::toggleBBF(BBF1, 2, !BLOCKC.occupied);
     });
 
     ButtonControl::pushButton(BTN_BBF2, []() {
-        TrackControl::toggleBBF(BBF2, 3);
+        TrackControl::toggleBBF(BBF2, 3, !BLOCKC.occupied);
     });
 
     ButtonControl::pushButton(BTN_BBF3, []() {
-        TrackControl::toggleBBF(BBF3, 4);
+        TrackControl::toggleBBF(BBF3, 4, !BLOCKC.occupied);
     });
 
     ButtonControl::pushButton(BTN_BBF4, []() {
-        TrackControl::toggleBBF(BBF4, 1);
+        TrackControl::toggleBBF(BBF4, 1, !BLOCKC.occupied);
     });
 
     ButtonControl::pushButton(BTN_BBF5, []() {
-        TrackControl::toggleBBF(BBF5, 9);
+        TrackControl::toggleBBF(BBF5, 9, !BLOCKC.occupied);
     });
 
     ButtonControl::pushButton(BTN_BLOCKA_OVERRIDE, []() {
@@ -382,15 +404,20 @@ void loop()
         LCDControl::print(lcd, slot.colStart, slot.colEnd, slot.row, String(slot.track->selected ? (char)CHAR_ARROW_RIGHT : ' ') + slot.name);
         lcd.setCursor(slot.powerCol, slot.row);
         if (slot.track->pending && slot.track->powered) {
-            lcd.write(blinkOn ? CHAR_ARROW_RIGHT : CHAR_CIRCLE_FILLED); // BLINK: WAITING TO DEPART
+            // BLINK: WAITING TO DEPART
+            lcd.write(blinkOn ? CHAR_ARROW_RIGHT : CHAR_CIRCLE_FILLED);
         } else if (slot.track->pending && !slot.track->powered) {
-            lcd.write(blinkOn ? CHAR_CIRCLE_FILLED : CHAR_CIRCLE_EMPTY); // BLINK: COASTING TO STOP
+            // BLINK: COASTING TO STOP
+            lcd.write(blinkOn ? CHAR_CIRCLE_FILLED : CHAR_CIRCLE_EMPTY);
         } else if (slot.track->occupied) {
-            lcd.write(CHAR_CIRCLE_FILLED); // FILLED CIRCLE: TRAIN STOPPED OR RUNNING
+            // FILLED CIRCLE: TRAIN STOPPED OR RUNNING
+            lcd.write(CHAR_CIRCLE_FILLED);
         } else if (slot.track->powered) {
-            lcd.write(CHAR_CIRCLE_EMPTY); // EMPTY CIRCLE: FREE + POWERED
+            // EMPTY CIRCLE: FREE + POWERED
+            lcd.write(CHAR_CIRCLE_EMPTY);
         } else {
-            lcd.print(' '); // FREE + NOT POWERED
+            // FREE + NOT POWERED
+            lcd.print(' ');
         }
     }
 

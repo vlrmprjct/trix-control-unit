@@ -31,53 +31,58 @@ static void setStopped(Tracks& track, int relay) {
 }
 
 static void setStopRequested(Tracks& track) {
-    track.powered = false; // RELAY STAYS ON - TRAIN COASTS TO _L REED
+    // RELAY STAYS ON - TRAIN COASTS TO _L REED
+    track.powered = false;
     track.pending = true;
 }
 
 static void setWaitingToDepart(Tracks& track) {
-    track.powered = true; // RELAY OFF - WAITING FOR ZONE C TO CLEAR
+    // RELAY OFF - WAITING FOR ZONE C TO CLEAR
+    track.powered = true;
     track.pending = true;
 }
 
 // BBF _L REED
-void TrackControl::stopBBF(Tracks& track, int relay) {
-    if (track.powered && !BLOCKC.occupied) {
+void TrackControl::stopBBF(Tracks& track, int relay, bool canDepart) {
+    if (track.powered && canDepart) {
         // PASS-THROUGH: TRAIN RUNS WITHOUT STOPPING
         track.occupied = false;
         track.pending = false;
     } else {
         RelayControl::setRelay(relay, false);
-        if (track.powered && BLOCKC.occupied) {
-            setWaitingToDepart(track); // WANTS TO GO BUT ZONE C IS BUSY
+        if (track.powered && !canDepart) {
+            // WANTS TO GO BUT ZONE C IS BUSY
+            setWaitingToDepart(track);
         } else {
-            track.pending = false;     // TRAIN ARRIVED AT STOP POSITION
+            // TRAIN ARRIVED AT STOP POSITION
+            track.pending = false;
         }
     }
     Eeprom::save();
 }
 
 // BBF BUTTON
-void TrackControl::toggleBBF(Tracks& track, int relay) {
+void TrackControl::toggleBBF(Tracks& track, int relay, bool canDepart) {
     if (!track.selected) return;
 
     if (track.powered && track.pending) {
         // STATE: WAITING TO DEPART
-        if (!BLOCKC.occupied) setRunning(track, relay); // RELEASE
-        else setStopped(track, relay);                  // ABORT WAIT
+        if (canDepart) setRunning(track, relay);
+        // ABORT WAIT
+        else setStopped(track, relay);
         Eeprom::save();
         return;
     }
 
     if (track.powered) {
-        // STATE: RUNNING
-        setStopRequested(track); // TRAIN COASTS TO _L REED
+        // STATE: RUNNING - TRAIN COASTS TO _L REED
+        setStopRequested(track);
         Eeprom::save();
         return;
     }
 
     // STATE: STOPPED OR STOP-REQUESTED
-    if (!BLOCKC.occupied) setRunning(track, relay);
+    if (canDepart) setRunning(track, relay);
     else setWaitingToDepart(track);
     Eeprom::save();
 }
@@ -86,10 +91,12 @@ void TrackControl::toggleBBF(Tracks& track, int relay) {
 void TrackControl::cancelPending(Tracks& track, int relay) {
     if (!track.pending) return;
     if (track.powered) {
-        setStopped(track, relay); // WAS WAITING TO DEPART: ABORT
+        // WAS WAITING TO DEPART: ABORT
+        setStopped(track, relay);
     } else {
+        // WAS STOP-REQUESTED: CANCEL, TRAIN KEEPS RUNNING
         track.pending = false;
-        track.powered = true;     // WAS STOP-REQUESTED: CANCEL, TRAIN KEEPS RUNNING
+        track.powered = true;
     }
     Eeprom::save();
 }
@@ -111,16 +118,11 @@ void TrackControl::stopHBF(Tracks& track, int zoneRelay, int trackRelay) {
         // ARRIVING - PARK
         RelayControl::setRelay(zoneRelay, true);
         RelayControl::setRelay(trackRelay, false);
-        track.pending = false; // TRAIN ARRIVED AT STOP POSITION
+        track.pending = false;
     } else {
         // DEPARTING
         track.occupied = false;
         track.pending = false;
-    }
-    // RELEASE BLOCK B IF AT LEAST ONE HBF IS FREE
-    if (!(HBF1.occupied && HBF2.occupied)) {
-        RelayControl::setRelay(10, true);
-        BLOCKB.occupied = false;
     }
     Eeprom::save();
 }
@@ -134,13 +136,8 @@ void TrackControl::toggleHBF(Tracks& track, int trackRelay) {
         track.occupied = false;
         track.pending = false;
         RelayControl::setRelay(trackRelay, true);
-        // RELEASE BLOCK IF AT LEAST ONE HBF TRACK IS FREE
-        if (!(HBF1.occupied && HBF2.occupied)) {
-            RelayControl::setRelay(10, true);
-            BLOCKB.occupied = false;
-        }
     } else {
-        // POWERED OFF: SET PENDING SO DISPLAY SHOWS TRAIN IS COASTING TO _R REED
+        // POWERED OFF: TRAIN COASTS TO _R REED
         track.pending = true;
     }
     Eeprom::save();
