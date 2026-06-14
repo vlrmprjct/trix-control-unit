@@ -45,6 +45,19 @@ enum TurnoutControls {
     W11 = 10,
 };
 
+enum RelayControls {
+    RELAY_BBF4       = 1,
+    RELAY_BBF1       = 2,
+    RELAY_BBF2       = 3,
+    RELAY_BBF3       = 4,
+    RELAY_HBF2_ZONE  = 5,
+    RELAY_HBF2_TRACK = 6,
+    RELAY_HBF1_ZONE  = 7,
+    RELAY_HBF1_TRACK = 8,
+    RELAY_BBF5       = 9,
+    RELAY_BLOCKB     = 10,
+};
+
 enum ReedControls {
     RD_HBF1_L  =  8,
     RD_HBF1_C  =  7,

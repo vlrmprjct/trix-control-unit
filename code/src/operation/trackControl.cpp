@@ -1,20 +1,30 @@
 #include <Arduino.h>
+#include <Adafruit_PWMServoDriver.h>
 #include "trackControl.h"
 #include "../core/config.h"
 #include "../core/naming.h"
+#include "../core/servocal.h"
 #include "../controls/relayControl.h"
 #include "../controls/motorControl.h"
+#include "../controls/servoControl.h"
 #include "../utils/eeprom.h"
 
 const BBFConfig TrackControl::bbf[] = {
-    { &BBF1, 2 },
-    { &BBF2, 3 },
-    { &BBF3, 4 },
-    { &BBF4, 1 },
-    { &BBF5, 9 },
+    { &BBF1, RELAY_BBF1 },
+    { &BBF2, RELAY_BBF2 },
+    { &BBF3, RELAY_BBF3 },
+    { &BBF4, RELAY_BBF4 },
+    { &BBF5, RELAY_BBF5 },
 };
 
 const int TrackControl::BBF_COUNT = sizeof(bbf) / sizeof(bbf[0]);
+
+const HBFConfig TrackControl::hbf[] = {
+    { &HBF1, RELAY_HBF1_ZONE, RELAY_HBF1_TRACK, true  },
+    { &HBF2, RELAY_HBF2_ZONE, RELAY_HBF2_TRACK, false },
+};
+
+const int TrackControl::HBF_COUNT = sizeof(hbf) / sizeof(hbf[0]);
 
 // STATE TRANSITIONS
 static void setRunning(Tracks& track, int relay) {
@@ -63,7 +73,7 @@ void TrackControl::stopBBF(Tracks& track, int relay, bool canDepart) {
 
 // BBF BUTTON
 void TrackControl::toggleBBF(Tracks& track, int relay, bool canDepart) {
-    if (!track.selected) return;
+    // if (!track.selected) return;
 
     if (track.powered && track.pending) {
         // STATE: WAITING TO DEPART
@@ -101,6 +111,21 @@ void TrackControl::cancelPending(Tracks& track, int relay) {
     Eeprom::save();
 }
 
+// AUTO-RELEASE WAITING HBF TRAIN WHEN ZONE A CLEARS
+// RETURNS TRUE IF A PENDING HBF WAS RELEASED
+bool TrackControl::releasePendingHBF(Adafruit_PWMServoDriver& driver) {
+    for (int idx = 0; idx < HBF_COUNT; idx++) {
+        Tracks& track = *hbf[idx].track;
+        if (track.powered && track.pending) {
+            MotorControl::setDepartingHBF(idx + 1); // 1=HBF1, 2=HBF2
+            ServoControl::switchTurnout(driver, W2, hbf[idx].w2Diverging);
+            toggleHBF(track, hbf[idx].trackRelay);
+            return true;
+        }
+    }
+    return false;
+}
+
 // AUTO-RELEASE FIRST WAITING BBF WHEN ZONE C CLEARS
 void TrackControl::releasePendingBBF() {
     for (int idx = 0; idx < BBF_COUNT; idx++) {
@@ -115,7 +140,7 @@ void TrackControl::releasePendingBBF() {
 // HBF _R REED: PARK IF NOT POWERED, FREE TRACK IF DEPARTING
 void TrackControl::stopHBF(Tracks& track, int zoneRelay, int trackRelay) {
     if (!track.powered) {
-        // ARRIVING - PARK
+        // ARRIVING AND PARK
         RelayControl::setRelay(zoneRelay, true);
         RelayControl::setRelay(trackRelay, false);
         track.pending = false;
@@ -129,12 +154,22 @@ void TrackControl::stopHBF(Tracks& track, int zoneRelay, int trackRelay) {
 
 // HBF BUTTON: TOGGLE POWER
 void TrackControl::toggleHBF(Tracks& track, int trackRelay) {
-    if (!track.selected) return;
-    track.powered = !track.powered;
-    if (track.powered) {
-        if (track.occupied) MotorControl::setValue(ZONE_A, 0);
+    // WAITING TO DEPART (HELD AT _R BY BLOCKA): RELEASE INTO ZONE A
+    if (track.powered && track.pending) {
         track.occupied = false;
         track.pending = false;
+        // PRE-ZERO BEFORE RELAY ON
+        MotorControl::setValue(ZONE_A, 0);
+        RelayControl::setRelay(trackRelay, true);
+        Eeprom::save();
+        return;
+    }
+    track.powered = !track.powered;
+    if (track.powered) {
+        track.occupied = false;
+        track.pending = false;
+        // PRE-ZERO BEFORE RELAY ON
+        MotorControl::setValue(ZONE_A, 0);
         RelayControl::setRelay(trackRelay, true);
     } else {
         // POWERED OFF: TRAIN COASTS TO _R REED

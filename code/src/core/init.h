@@ -34,6 +34,7 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
 
     LCDControl::print(lcd, 0, 10, 0, "BOOTING ...");
     LCDControl::print(lcd, 0, 19, 1, FIRMWARE_VERSION);
+    delay(2000);
 
     // RESET LCD DOT MATRIX IN CASE OF WEIRD CHARACTERS ###########################################
     pinMode(LCD_RST, INPUT);
@@ -92,7 +93,10 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
     BLOCKB.occupied = false;
     BLOCKC.occupied = false;
 
-    delay(2000);
+    // SYNC RELAY STATE TO MATCH RESET BLOCKS
+    // BLOCK B FREE ON BOOT
+    RelayControl::setRelay(RELAY_BLOCKB, true);
+    Eeprom::save();
 
     // CLEAR EEPROM ###############################################################################
     // Eeprom::clear();
