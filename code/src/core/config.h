@@ -1,7 +1,7 @@
 #pragma once
 
 // FIRMWARE VERSION ################################################################################
-#define FIRMWARE_VERSION "v1.1.0"
+#define FIRMWARE_VERSION "v1.2.0"
 
 // EEPROM SETUP ###################################################################################
 // EEPROM VERSION
