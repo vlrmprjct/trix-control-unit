@@ -71,9 +71,13 @@ void loop()
     });
 
     ReedControl::push(RD_HBF1_C, []() {
+        // ARRIVAL ONLY: START BRAKE RAMP (PASS-THROUGH + DEPARTING = POWERED)
+        if (!HBF1.powered) MotorControl::startRampDown();
     });
 
     ReedControl::push(RD_HBF1_R, []() {
+        // ALWAYS STOP BRAKE RAMP ON _R (CLEANUP FOR ALL CASES)
+        MotorControl::stopRampDown();
         if (BLOCKA.occupied && TrackControl::getDepartingSlot() != 1) {
             // ZONE A BLOCKED BY ANOTHER TRAIN: HOLD ARRIVING TRAIN AT STATION
             RelayControl::setRelay(RELAY_HBF1_ZONE, true);
@@ -115,9 +119,13 @@ void loop()
     });
 
     ReedControl::push(RD_HBF2_C, []() {
+        // ARRIVAL ONLY: START BRAKE RAMP (PASS-THROUGH + DEPARTING = POWERED)
+        if (!HBF2.powered) MotorControl::startRampDown();
     });
 
     ReedControl::push(RD_HBF2_R, []() {
+        // ALWAYS STOP BRAKE RAMP ON _R (CLEANUP FOR ALL CASES)
+        MotorControl::stopRampDown();
         if (BLOCKA.occupied && TrackControl::getDepartingSlot() != 2) {
             // ZONE A BLOCKED BY ANOTHER TRAIN: HOLD ARRIVING TRAIN AT STATION
             RelayControl::setRelay(RELAY_HBF2_ZONE, true);
@@ -518,9 +526,8 @@ void loop()
     // MOTOR CONTROL ##############################################################################
     // ZONE A: BBFx + DEPARTING HBF TRAINS // HARDWARE LEFT ENCODER
     MotorControl::setValue(ZONE_A, MotorControl::isRampActive() ? MotorControl::rampUp(ENC_ZONE_A) : abs(ENC_ZONE_A));
-    // ZONE B: HBFx // HARDWARE RIGHT ENCODER
-    // ZONE B: HBF ARRIVING TRAINS // NORMAL PASSTROUGH OR BRAKING RAMP AFTER REED xBF_C
-    MotorControl::setValue(ZONE_B, abs(ENC_ZONE_B));
+    // ZONE B: HBF ARRIVING TRAINS — BRAKE RAMP IF ACTIVE, ELSE ENCODER
+    MotorControl::setValue(ZONE_B, MotorControl::isRampDownActive() ? MotorControl::rampDown(ENC_ZONE_B) : abs(ENC_ZONE_B));
 
     // ZONE C: OUTER ROUTE // HARDWARE LEFT ENCODER
     // ZONE C: DEPARTING BBF TRAINS, CURRENTLY CONNECTED TO ZONE A ENCODER
