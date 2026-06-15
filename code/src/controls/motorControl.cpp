@@ -3,45 +3,48 @@
 #include <SPI.h>
 #include <math.h>
 
-static int hbfStart = 0;
-static int hbfStep = 0;              // TIME COUNTER: 0 → RAMP_STEPS
-static int hbfRamp = 0;              // COMPUTED OUTPUT VALUE (FOR DISPLAY + MOTOR)
-static const int RAMP_STEPS = 100;   // TOTAL ITERATIONS @ 25MS = 2.5S
-static int departingHBF = 0;         // 0=NONE, 1=HBF1, 2=HBF2 — SET WHILE TRAIN IS ON W2
+static bool rampActive = false;
+static int  rampStep   = 0;
+static int  rampValue  = 0;
+static const int RAMP_STEPS = 100;  // TOTAL ITERATIONS @ 25MS = 2.5S
+static const int RAMP_START = 30;   // MINIMUM OUTPUT AT START OF RAMP
 
 namespace MotorControl {
 
-    void setHbfStart(int val) {
-        if (val == 1) {
-            hbfStep = 0;
-            hbfRamp = 0;
-        }
-        hbfStart = val;
+    void startRamp() {
+        rampStep = 0;
+        rampValue = 0;
+        rampActive = true;
     }
 
-    int getHbfStart()            { return hbfStart; }
-    int getHbfRamp()             { return hbfRamp; }
-    void setDepartingHBF(int n)  { departingHBF = n; }
-    int  getDepartingHBF()       { return departingHBF; }
-    bool isW2InUse()             { return departingHBF != 0; }
+    void stopRamp()  {
+        rampActive = false;
+        rampValue = 0;
+        rampStep = 0;
+    }
+
+    bool isRampActive() {
+        return rampActive;
+    }
+
+    int  getRampValue() {
+        return rampValue;
+    }
 
     // LOGARITHMIC TAPER RAMP: FAST INITIAL RISE, FLATTENS TOWARD TARGET
     // CURVE: output = target * sqrt(t) — LIKE AN AUDIO LOG-POT
-    int rampUp() {
-        int encAabs = abs(ENC_ZONE_A);
-        if (hbfStart == 1) {
-            hbfStep++;
-            if (hbfStep >= RAMP_STEPS) {
-                hbfStart = 0;
-                hbfRamp = encAabs;
-                return encAabs;
-            }
-            hbfRamp = (int)(encAabs * sqrt((float)hbfStep / RAMP_STEPS));
-            return hbfRamp;
+    int rampUp(int target) {
+        int targetAbs = abs(target);
+        rampStep++;
+        if (rampStep >= RAMP_STEPS) {
+            rampActive = false;
+            rampValue = 0; rampStep = 0;
+            return targetAbs;
         }
-        hbfStep = 0;
-        hbfRamp = 0;
-        return encAabs;
+        rampValue = targetAbs > 0
+            ? max(RAMP_START, (int)(targetAbs * sqrt((float)rampStep / RAMP_STEPS)))
+            : 0;
+        return rampValue;
     }
 
     void setValue(byte zone, int value) {

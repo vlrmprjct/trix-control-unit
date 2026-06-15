@@ -21,6 +21,11 @@ namespace TrackControl {
     extern const HBFConfig hbf[];
     extern const int HBF_COUNT;
 
+    // DEPARTURE SLOT TRACKING (W2 GUARD)
+    void setDepartingSlot(int n);
+    int  getDepartingSlot();
+    bool isDeparting();
+
     // BBF OPERATIONS
     void stopBBF(Tracks& track, int relay, bool canDepart);
     void toggleBBF(Tracks& track, int relay, bool canDepart);
@@ -31,4 +36,7 @@ namespace TrackControl {
     // HBF OPERATIONS
     void stopHBF(Tracks& track, int zoneRelay, int trackRelay);
     void toggleHBF(Tracks& track, int trackRelay);
+
+    // ZONE A RELEASE: CALLED FROM RD_10 OR RD_BBFx_L WHEN HBF DEPARTURE CLEARED ZONE A
+    void releaseZoneA(Adafruit_PWMServoDriver& driver, Tracks& blockA);
 }
