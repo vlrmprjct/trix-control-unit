@@ -167,9 +167,10 @@ void loop()
     });
 
     ReedControl::push(RD_BBF1_L, []() {
+        bool stopped = !(BBF1.powered && !BLOCKC.occupied);
         TrackControl::stopBBF(BBF1, RELAY_BBF1, !BLOCKC.occupied);
         // HBF TRAIN PARKED IN BBF: RELEASE ZONE A
-        TrackControl::releaseZoneA(servo, BLOCKA);
+        if (stopped) TrackControl::releaseZoneA(servo, BLOCKA);
     });
 
     ReedControl::push(RD_BBF2_R, []() {
@@ -178,9 +179,10 @@ void loop()
     });
 
     ReedControl::push(RD_BBF2_L, []() {
+        bool stopped = !(BBF2.powered && !BLOCKC.occupied);
         TrackControl::stopBBF(BBF2, RELAY_BBF2, !BLOCKC.occupied);
         // HBF TRAIN PARKED IN BBF: RELEASE ZONE A
-        TrackControl::releaseZoneA(servo, BLOCKA);
+        if (stopped) TrackControl::releaseZoneA(servo, BLOCKA);
     });
 
     ReedControl::push(RD_BBF3_R, []() {
@@ -189,9 +191,10 @@ void loop()
     });
 
     ReedControl::push(RD_BBF3_L, []() {
+        bool stopped = !(BBF3.powered && !BLOCKC.occupied);
         TrackControl::stopBBF(BBF3, RELAY_BBF3, !BLOCKC.occupied);
         // HBF TRAIN PARKED IN BBF: RELEASE ZONE A
-        TrackControl::releaseZoneA(servo, BLOCKA);
+        if (stopped) TrackControl::releaseZoneA(servo, BLOCKA);
     });
 
     ReedControl::push(RD_BBF4_R, []() {
@@ -200,9 +203,10 @@ void loop()
     });
 
     ReedControl::push(RD_BBF4_L, []() {
+        bool stopped = !(BBF4.powered && !BLOCKC.occupied);
         TrackControl::stopBBF(BBF4, RELAY_BBF4, !BLOCKC.occupied);
         // HBF TRAIN PARKED IN BBF: RELEASE ZONE A
-        TrackControl::releaseZoneA(servo, BLOCKA);
+        if (stopped) TrackControl::releaseZoneA(servo, BLOCKA);
     });
 
     ReedControl::push(RD_BBF5_R, []() {
@@ -211,9 +215,10 @@ void loop()
     });
 
     ReedControl::push(RD_BBF5_L, []() {
+        bool stopped = !(BBF5.powered && !BLOCKC.occupied);
         TrackControl::stopBBF(BBF5, RELAY_BBF5, !BLOCKC.occupied);
         // HBF TRAIN PARKED IN BBF: RELEASE ZONE A
-        TrackControl::releaseZoneA(servo, BLOCKA);
+        if (stopped) TrackControl::releaseZoneA(servo, BLOCKA);
     });
 
     ReedControl::push(RD_10, []() {
