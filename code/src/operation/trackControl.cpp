@@ -169,7 +169,12 @@ namespace TrackControl {
         // FREE THROUGH-BBF IS DRIVABLE: SYNC THE powered FLAG TO REALITY (SECTION IS LIVE,
         // OR THE TRAIN COULDN'T ROLL IN). FLAG ONLY — NO RELAY, NO ZONE SWITCH (BBF HAS NONE).
         // → onBBFReedL SETS THE EXIT TURNOUTS (if wasPowered), AND THE STOP BUTTON REGISTERS.
-        bbf[slot - 1].track->powered = true;
+        // GUARD: DO NOT OVERWRITE A STOP-REQUEST (powered=false && pending) — RD_05 WOULD OTHERWISE
+        // FLIP A REQUESTED STOP INTO "WAITING TO DEPART" AND THE TRAIN WOULD PASS THROUGH.
+        Tracks& target = *bbf[slot - 1].track;
+        if (!(target.pending && !target.powered)) {
+            target.powered = true;
+        }
 
         // PERSIST SELECTED + powered FLAGS
         Eeprom::save();
