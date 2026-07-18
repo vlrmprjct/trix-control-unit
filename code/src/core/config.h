@@ -1,7 +1,7 @@
 #pragma once
 
 // FIRMWARE VERSION ################################################################################
-#define FIRMWARE_VERSION "v1.3.0"
+#define FIRMWARE_VERSION "v1.3.1"
 
 // EEPROM SETUP ###################################################################################
 // EEPROM VERSION
@@ -9,9 +9,10 @@ constexpr unsigned long ROUTE_MAGIC    = 0xDEADBEEF;
 constexpr unsigned short ROUTE_VERSION = 8;
 
 // EEPROM ADDRESS CONSTANTS
-constexpr int EEPROM_ROUTE  = 0;
-constexpr int EEPROM_RELAY  = 1000;
-constexpr int EEPROM_META   = 1500;
+constexpr int EEPROM_ROUTE   = 0;
+constexpr int EEPROM_RELAY   = 1000;
+constexpr int EEPROM_META    = 1500;
+constexpr int EEPROM_DIGIPOT = 1600;   // 1-BYTE MARKER: MCP4261 NV WIPER ALREADY ZEROED
 
 
 // CONTROL CONFIG SETUP ###########################################################################

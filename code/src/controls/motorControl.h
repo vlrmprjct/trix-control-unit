@@ -15,4 +15,6 @@ namespace MotorControl {
     void stopRampDown();
     bool isRampDownActive();
     int  getRampDownValue();
+    // ONE-TIME (EEPROM-GUARDED): PERSIST MCP4261 NV WIPERS = 0 SO IT POWERS UP AT 0V
+    void ensureNVWiperZeroed();
 }

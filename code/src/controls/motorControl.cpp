@@ -1,6 +1,7 @@
 #include "../core/config.h"
 #include <Arduino.h>
 #include <SPI.h>
+#include <EEPROM.h>
 #include <math.h>
 
 static bool rampActive = false;
@@ -109,6 +110,29 @@ namespace MotorControl {
         SPI.transfer((byte)value);
         digitalWrite(csPin, HIGH);
         SPI.endTransaction();
+    }
+
+    // ONE-TIME NV-WIPER PROVISIONING (EEPROM-GUARDED) ###########################################
+    static const uint8_t NV_ZEROED_MARK = 0xA5;
+
+    // WRITE ONE NON-VOLATILE WIPER REGISTER TO ZERO-SCALE (nvAddr: 0x2 = NV0, 0x3 = NV1)
+    static void writeNVWiper(int csPin, byte nvAddr) {
+        SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0));
+        digitalWrite(csPin, LOW);
+        SPI.transfer((nvAddr << 4) | 0x00);   // ADDR + WRITE-CMD(00) + D9:D8 = 0
+        SPI.transfer(0x00);                    // D7:D0 = 0 -> ZERO-SCALE
+        digitalWrite(csPin, HIGH);
+        SPI.endTransaction();
+        delay(10);                             // NV EEPROM WRITE CYCLE (~5-10ms), Vcc MUST STAY STABLE
+    }
+
+    // RUNS EXACTLY ONCE: PERSIST NV WIPERS = 0 SO THE MCP4261 POWERS UP AT 0V (NO COLD-BOOT ~6V).
+    // GUARDED BY AN EEPROM MARKER — WRITES THE CHIP ONCE, THEN RETURNS IMMEDIATELY ON EVERY BOOT.
+    void ensureNVWiperZeroed() {
+        if (EEPROM.read(EEPROM_DIGIPOT) == NV_ZEROED_MARK) return;   // ALREADY DONE
+        writeNVWiper(DIGIPOT1_CS, 0x2);  writeNVWiper(DIGIPOT1_CS, 0x3);   // CHIP 1: ZONE_A / ZONE_B
+        writeNVWiper(DIGIPOT2_CS, 0x2);  writeNVWiper(DIGIPOT2_CS, 0x3);   // CHIP 2: ZONE_C / ZONE_D
+        EEPROM.write(EEPROM_DIGIPOT, NV_ZEROED_MARK);
     }
 }
 

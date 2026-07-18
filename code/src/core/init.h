@@ -18,26 +18,23 @@
 inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
     Serial.begin(9600);
 
+    // INIT MOTOR MODULE FIRST (Hardware SPI) #####################################################
+    // ZERO ALL DIGIPOT WIPERS BEFORE ANYTHING ELSE. THE MCP4261 POWERS UP AT MID-SCALE (~50%),
+    // WHICH PUTS ~6V ON THE TRACK. MUST HAPPEN BEFORE THE LCD BOOT DELAY BELOW.
+    SPI.begin();
+    pinMode(DIGIPOT1_CS, OUTPUT);
+    pinMode(DIGIPOT2_CS, OUTPUT);
+    digitalWrite(DIGIPOT1_CS, HIGH);
+    digitalWrite(DIGIPOT2_CS, HIGH);
+    MotorControl::setValue(ZONE_A, 0);
+    MotorControl::setValue(ZONE_B, 0);
+    MotorControl::setValue(ZONE_C, 0);
+    MotorControl::setValue(ZONE_D, 0);
+    // ONE-TIME (EEPROM-GUARDED): PERSIST NV WIPERS = 0 SO FUTURE COLD BOOTS POWER UP AT 0V.
+    MotorControl::ensureNVWiperZeroed();
+
     // INIT I2C BUS ###############################################################################
     Wire.begin();
-
-    // INIT SPI BUS ###############################################################################
-    SPI.begin();
-
-    // INIT LCD DOT MATRIX ########################################################################
-    lcd.begin(20, 4);
-
-    // CUSTOM LCD CHARACTERS
-    lcd.createChar(CHAR_CIRCLE_EMPTY, charCircleEmpty);
-    lcd.createChar(CHAR_CIRCLE_FILLED, charCircleFilled);
-    lcd.createChar(CHAR_ARROW_RIGHT, charArrowRight);
-
-    LCDControl::print(lcd, 0, 10, 0, "BOOTING ...");
-    LCDControl::print(lcd, 0, 19, 1, FIRMWARE_VERSION);
-    delay(2000);
-
-    // RESET LCD DOT MATRIX IN CASE OF WEIRD CHARACTERS ###########################################
-    pinMode(LCD_RST, INPUT);
 
     // INIT ENCODER (ZONE A) ######################################################################
     pinMode(ENC_ZONE_A_CLK, INPUT_PULLUP);
@@ -50,16 +47,6 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
     pinMode(ENC_ZONE_B_DT, INPUT_PULLUP);
     ENC_ZONE_B_CLK_STATE = digitalRead(ENC_ZONE_B_CLK);
     attachInterrupt(digitalPinToInterrupt(ENC_ZONE_B_CLK), EncoderControl::processZoneB, CHANGE);
-
-    // INIT MOTOR MODULE (Hardware SPI) ##########################################################
-    pinMode(DIGIPOT1_CS, OUTPUT);
-    pinMode(DIGIPOT2_CS, OUTPUT);
-    digitalWrite(DIGIPOT1_CS, HIGH);
-    digitalWrite(DIGIPOT2_CS, HIGH);
-    MotorControl::setValue(ZONE_A, 0);
-    MotorControl::setValue(ZONE_B, 0);
-    MotorControl::setValue(ZONE_C, 0);
-    MotorControl::setValue(ZONE_D, 0);
 
     // INIT TURNOUTS SERVO MODULE #################################################################
     servo.begin();
@@ -97,6 +84,21 @@ inline void init(Adafruit_PWMServoDriver& servo, LiquidCrystal& lcd) {
     // BLOCK B FREE ON BOOT
     RelayControl::setRelay(RELAY_BLOCKB, true);
     Eeprom::save();
+
+    // INIT LCD DOT MATRIX ########################################################################
+    lcd.begin(20, 4);
+
+    // CUSTOM LCD CHARACTERS
+    lcd.createChar(CHAR_CIRCLE_EMPTY, charCircleEmpty);
+    lcd.createChar(CHAR_CIRCLE_FILLED, charCircleFilled);
+    lcd.createChar(CHAR_ARROW_RIGHT, charArrowRight);
+
+    LCDControl::print(lcd, 0, 10, 0, "BOOTING ...");
+    LCDControl::print(lcd, 0, 19, 1, FIRMWARE_VERSION);
+    delay(2000);
+
+    // RESET LCD DOT MATRIX IN CASE OF WEIRD CHARACTERS ###########################################
+    pinMode(LCD_RST, INPUT);
 
     // CLEAR EEPROM ###############################################################################
     // Eeprom::clear();
