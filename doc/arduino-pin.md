@@ -42,8 +42,8 @@ This file documents the complete pin assignment of the Arduino Mega for the mode
 |------------|----------|-------------|------------|------|
 | 51 | MOSI | Hardware SPI Data Out | GELB (Yellow) | OUTPUT |
 | 52 | SCK | Hardware SPI Clock | ORANGE | OUTPUT |
-| 31 | DIGIPOT1_CS | Chip Select 1 (ZONE_A, ZONE_B) | LILA (Purple) | OUTPUT |
-| 30 | DIGIPOT2_CS | Chip Select 2 (ZONE_C, ZONE_D) | LILA (Purple) | OUTPUT |
+| 33 | DIGIPOT1_CS | Chip Select 1 (ZONE_A, ZONE_B) | LILA (Purple) | OUTPUT |
+| 32 | DIGIPOT2_CS | Chip Select 2 (ZONE_C, ZONE_D) | LILA (Purple) | OUTPUT |
 
 **Connection:** 2x MCP4261XX dual potentiometers for 4-zone motor control via Hardware SPI
 
@@ -53,7 +53,7 @@ This file documents the complete pin assignment of the Arduino Mega for the mode
 | Pin Number | Function | Description | Wire Color | Mode |
 |------------|----------|-------------|------------|------|
 | 41 | REED_DATA | Data input – REED1-Board (IC1+IC2) | LILA (Purple) | INPUT |
-| 46 | REED2_DATA | Data input – REED2-Board (IC3+IC4) | LILA (Purple) | INPUT |
+| 47 | REED2_DATA | Data input – REED2-Board (IC3+IC4) | LILA (Purple) | INPUT |
 | 43 | REED_CLOCK | Clock line (shared) | GELB (Yellow) | OUTPUT |
 | 45 | REED_LATCH | Latch line (shared) | ORANGE | OUTPUT |
 
@@ -144,10 +144,10 @@ This file documents the complete pin assignment of the Arduino Mega for the mode
 | 27 | LCD_RST | LCD Display | INPUT (Reset) |
 | 28 | ENC_ZONE_A_DT | Encoder Zone A | INPUT_PULLUP |
 | 29 | ENC_ZONE_B_DT | Encoder Zone B | INPUT_PULLUP |
-| 30 | DIGIPOT2_CS | Motor Control | OUTPUT (SPI CS2) |
-| 31 | DIGIPOT1_CS | Motor Control | OUTPUT (SPI CS1) |
-| 32 | - | - | Not used |
-| 33 | - | - | Not used |
+| 30 | - | - | Not used |
+| 31 | - | - | Not used |
+| 32 | DIGIPOT2_CS | Motor Control | OUTPUT (SPI CS2) |
+| 33 | DIGIPOT1_CS | Motor Control | OUTPUT (SPI CS1) |
 | 34 | LCD_RS | LCD Display | Register Select |
 | 35 | RELAY_CLOCK | Relay Control | OUTPUT |
 | 36 | LCD_EN | LCD Display | Enable |
@@ -160,8 +160,8 @@ This file documents the complete pin assignment of the Arduino Mega for the mode
 | 43 | REED_CLOCK | Reed Control | OUTPUT |
 | 44 | LCD1_D7 | LCD Display | Data line 7 |
 | 45 | REED_LATCH | Reed Control | OUTPUT |
-| 46 | REED2_DATA | Reed Control | INPUT |
-| 47 | - | - | Not used (PWM) |
+| 46 | - | - | Not used (PWM) |
+| 47 | REED2_DATA | Reed Control | INPUT |
 | 48 | - | - | Not used (PWM) |
 | 49 | - | - | Not used (PWM) |
 | 50 | MISO | - | Not used (Hardware SPI) |
@@ -207,8 +207,8 @@ This file documents the complete pin assignment of the Arduino Mega for the mode
 ## Communication Protocols Used
 
 ### SPI (Serial Peripheral Interface)
-- **Motor Control (MCP4261XX):** Pins 30, 31, 51, 52
-  - Hardware SPI (MOSI=51, SCK=52, CS1=31, CS2=30)
+- **Motor Control (MCP4261XX):** Pins 32, 33, 51, 52
+  - Hardware SPI (MOSI=51, SCK=52, CS1=33, CS2=32)
 
 ### I²C (Inter-Integrated Circuit)
 - **Servo Control (PCA9685):** Pins 20, 21
@@ -216,7 +216,7 @@ This file documents the complete pin assignment of the Arduino Mega for the mode
 
 ### Shift Register (74HC165 / 74HC595)
 - **Button Input (74HC165):** Pins 22, 23, 24
-- **Reed Input (74HC165):** Pins 41, 43, 45
+- **Reed Input (74HC165):** Pins 41, 47, 43, 45
 - **Relay Output (74HC595):** Pins 35, 37, 39
 
 ---

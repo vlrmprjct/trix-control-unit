@@ -9,8 +9,13 @@
 #include "../controls/servoControl.h"
 #include "../utils/eeprom.h"
 
-// 0=NONE, 1=HBF1, 2=HBF2 => SET WHILE TRAIN IS ON W2
-static int departingSlot = 0;
+// HBF DEPARTURE OWNER OF W2 / ZONE A (0=NONE, 1=HBF1, 2=HBF2)
+static int departingHBF = 0;
+
+// A BBF IS AVAILABLE AS A TARGET WHEN NO TRAIN OCCUPIES IT
+static bool isBBFFree(const Tracks& track) {
+    return !track.occupied;
+}
 
 // STATE TRANSITIONS
 static void setRunning(Tracks& track, int relay) {
@@ -56,17 +61,7 @@ namespace TrackControl {
     const int BBF_COUNT = sizeof(bbf) / sizeof(bbf[0]);
     const int HBF_COUNT = sizeof(hbf) / sizeof(hbf[0]);
 
-    void setDepartingSlot(int n) {
-        departingSlot = n;
-    }
-
-    int  getDepartingSlot() {
-        return departingSlot;
-    }
-
-    bool isDeparting() {
-        return departingSlot != 0;
-    }
+    // BBF OPERATIONS ############################################################################
 
     // BBF _L REED
     void stopBBF(Tracks& track, int relay, bool canDepart) {
@@ -111,44 +106,137 @@ namespace TrackControl {
         Eeprom::save();
     }
 
-    // CANCEL PENDING WHEN TURNOUT IS SWITCHED AWAY FROM THIS TRACK
-    void cancelPending(Tracks& track, int relay) {
-        if (!track.pending) return;
-        if (track.powered) {
-            // WAS WAITING TO DEPART: ABORT
-            setStopped(track, relay);
-        } else {
-            // WAS STOP-REQUESTED: CANCEL, TRAIN KEEPS RUNNING
-            track.pending = false;
-            track.powered = true;
-        }
-        Eeprom::save();
-    }
-
-    // AUTO-RELEASE WAITING HBF TRAIN WHEN ZONE A CLEARS
-    // RETURNS TRUE IF A PENDING HBF WAS RELEASED
-    bool releasePendingHBF(Adafruit_PWMServoDriver& driver) {
-        for (int idx = 0; idx < HBF_COUNT; idx++) {
-            Tracks& track = *hbf[idx].track;
-            if (track.powered && track.pending) {
-                departingSlot = idx + 1; // 1=HBF1, 2=HBF2
-                ServoControl::switchTurnout(driver, W2, hbf[idx].w2Diverging);
-                toggleHBF(track, hbf[idx].trackRelay);
-                return true;
-            }
-        }
-        return false;
-    }
-
     // AUTO-RELEASE FIRST WAITING BBF WHEN ZONE C CLEARS
     void releasePendingBBF() {
         for (int idx = 0; idx < BBF_COUNT; idx++) {
             Tracks& track = *bbf[idx].track;
-            if (track.selected && track.powered && track.pending) {
+            if (track.powered && track.pending) {
                 setRunning(track, bbf[idx].relay);
                 return;
             }
         }
+    }
+
+    // BBF ROUTING (RD_05 ENTRY / RD_BBFx_L EXIT) ################################################
+
+    // FIND A FREE BBF: PRIORITY BBF1-3, FALLBACK BBF4-5
+    // RETURNS 1-5, OR 0 IF ALL BBF ARE OCCUPIED
+    int findFreeBBF() {
+        int candidates[3];
+        int count = 0;
+
+        if (isBBFFree(BBF1)) candidates[count++] = 1;
+        if (isBBFFree(BBF2)) candidates[count++] = 2;
+        if (isBBFFree(BBF3)) candidates[count++] = 3;
+
+        if (count == 0) {
+            if (isBBFFree(BBF4)) candidates[count++] = 4;
+            if (isBBFFree(BBF5)) candidates[count++] = 5;
+        }
+
+        if (count == 0) return 0;
+        return candidates[random(0, count)];
+    }
+
+    // RD_05 ENTRY ROUTING: ONLY ENTRY TURNOUTS (W3, W4, W9, W10, W11)
+    void setBBFEntryRoute(Adafruit_PWMServoDriver& driver, int slot) {
+        if (slot == 1) {
+            ServoControl::switchTurnout(driver, W3, true);
+            ServoControl::switchTurnout(driver, W4, false);
+        } else if (slot == 2) {
+            ServoControl::switchTurnout(driver, W3, true);
+            ServoControl::switchTurnout(driver, W4, true);
+        } else if (slot == 3) {
+            ServoControl::switchTurnout(driver, W3, false);
+            ServoControl::switchTurnout(driver, W9, true);
+        } else if (slot == 4) {
+            ServoControl::switchTurnout(driver, W3, false);
+            ServoControl::switchTurnout(driver, W9, false);
+            ServoControl::switchTurnout(driver, W10, false);
+        } else if (slot == 5) {
+            ServoControl::switchTurnout(driver, W3, false);
+            ServoControl::switchTurnout(driver, W9, false);
+            ServoControl::switchTurnout(driver, W10, true);
+            ServoControl::switchTurnout(driver, W11, false);
+        }
+
+        BBF1.selected = (slot == 1);
+        BBF2.selected = (slot == 2);
+        BBF3.selected = (slot == 3);
+        BBF4.selected = (slot == 4);
+        BBF5.selected = (slot == 5);
+
+        // FREE THROUGH-BBF IS DRIVABLE: SYNC THE powered FLAG TO REALITY (SECTION IS LIVE,
+        // OR THE TRAIN COULDN'T ROLL IN). FLAG ONLY — NO RELAY, NO ZONE SWITCH (BBF HAS NONE).
+        // → onBBFReedL SETS THE EXIT TURNOUTS (if wasPowered), AND THE STOP BUTTON REGISTERS.
+        bbf[slot - 1].track->powered = true;
+
+        // PERSIST SELECTED + powered FLAGS
+        Eeprom::save();
+    }
+
+    // RD_BBFx_L EXIT ROUTING: ONLY EXIT TURNOUTS (W5, W6, W7, W8)
+    // NO EEPROM SAVE: TURNOUT POSITIONS ARE NOT PERSISTED, NO ROUTE STATE CHANGES
+    void setBBFExitRoute(Adafruit_PWMServoDriver& driver, int slot) {
+        if (slot == 1) {
+            ServoControl::switchTurnout(driver, W5, false);
+            ServoControl::switchTurnout(driver, W7, true);
+        } else if (slot == 2) {
+            ServoControl::switchTurnout(driver, W5, true);
+            ServoControl::switchTurnout(driver, W7, true);
+        } else if (slot == 3) {
+            ServoControl::switchTurnout(driver, W6, true);
+            ServoControl::switchTurnout(driver, W7, false);
+        } else if (slot == 4) {
+            ServoControl::switchTurnout(driver, W6, false);
+            ServoControl::switchTurnout(driver, W7, false);
+            ServoControl::switchTurnout(driver, W8, true);
+        } else if (slot == 5) {
+            ServoControl::switchTurnout(driver, W6, false);
+            ServoControl::switchTurnout(driver, W7, false);
+            ServoControl::switchTurnout(driver, W8, false);
+        }
+    }
+
+    // RD_BBFx_L REED (SLOT 1-5): TRAIN REACHES THE BBF EXIT END
+    // - IF RUNNING AND ZONE C FREE: PASS THROUGH, SET EXIT TURNOUTS.
+    // - ELSE STOP/HOLD: RELEASE ZONE A AND PREPARE THE NEXT FREE BBF ENTRY.
+    void onBBFReedL(Adafruit_PWMServoDriver& driver, int slot) {
+        if (slot < 1 || slot > BBF_COUNT) return;
+        Tracks& track = *bbf[slot - 1].track;
+        int relay = bbf[slot - 1].relay;
+
+        bool wasPowered = track.powered;
+        bool stopped = !(track.powered && !BLOCKC.occupied);
+
+        stopBBF(track, relay, !BLOCKC.occupied);
+
+        if (wasPowered) {
+            setBBFExitRoute(driver, slot);
+        }
+
+        if (stopped) {
+            releaseZoneA(driver, BLOCKA);
+            int freeBBF = findFreeBBF();
+            if (freeBBF != 0) {
+                setBBFEntryRoute(driver, freeBBF);
+            }
+        }
+    }
+
+    // HBF OPERATIONS ############################################################################
+
+    // HBF DEPARTURE OWNER OF W2 / ZONE A (0=NONE, 1=HBF1, 2=HBF2)
+    void setDepartingHBF(int n) {
+        departingHBF = n;
+    }
+
+    int  getDepartingHBF() {
+        return departingHBF;
+    }
+
+    bool isHBFDeparting() {
+        return departingHBF != 0;
     }
 
     // HBF _R REED: PARK IF NOT POWERED, FREE TRACK IF DEPARTING
@@ -192,18 +280,51 @@ namespace TrackControl {
         Eeprom::save();
     }
 
+    // AUTO-RELEASE WAITING HBF TRAIN WHEN ZONE A CLEARS
+    // RETURNS TRUE IF A PENDING HBF WAS RELEASED
+    bool releasePendingHBF(Adafruit_PWMServoDriver& driver) {
+        for (int idx = 0; idx < HBF_COUNT; idx++) {
+            Tracks& track = *hbf[idx].track;
+            if (track.powered && track.pending) {
+                departingHBF = idx + 1; // 1=HBF1, 2=HBF2
+                ServoControl::switchTurnout(driver, W2, hbf[idx].w2Diverging);
+                toggleHBF(track, hbf[idx].trackRelay);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // ZONE A RELEASE ###########################################################################
+
     // ZONE A RELEASE: CALLED FROM RD_10 OR RD_BBFx_L WHEN HBF DEPARTURE CLEARED ZONE A
     // GUARD: ONLY FIRES WHEN BLOCKA IS OCCUPIED AND A DEPARTURE IS ACTIVE
     void releaseZoneA(Adafruit_PWMServoDriver& driver, Tracks& blockA) {
-        if (!blockA.occupied || !isDeparting()) return;
+        if (!blockA.occupied || !isHBFDeparting()) return;
         blockA.occupied = false;
         MotorControl::stopRamp();
         // W2 IS NOW FREE
-        setDepartingSlot(0);
+        setDepartingHBF(0);
         if (releasePendingHBF(driver)) {
-            // DEPARTINGSLOT SET INSIDE releasePendingHBF
+            // DEPARTINGHBF SET INSIDE releasePendingHBF
             MotorControl::startRamp();
             blockA.occupied = true;
+        }
+        Eeprom::save();
+    }
+
+    // SHARED (BBF + HBF) #######################################################################
+
+    // CANCEL PENDING WHEN TURNOUT IS SWITCHED AWAY FROM THIS TRACK
+    void cancelPending(Tracks& track, int relay) {
+        if (!track.pending) return;
+        if (track.powered) {
+            // WAS WAITING TO DEPART: ABORT
+            setStopped(track, relay);
+        } else {
+            // WAS STOP-REQUESTED: CANCEL, TRAIN KEEPS RUNNING
+            track.pending = false;
+            track.powered = true;
         }
         Eeprom::save();
     }

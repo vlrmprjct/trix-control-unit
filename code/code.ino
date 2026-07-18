@@ -78,7 +78,7 @@ void loop()
     ReedControl::push(RD_HBF1_R, []() {
         // ALWAYS STOP BRAKE RAMP ON _R (CLEANUP FOR ALL CASES)
         MotorControl::stopRampDown();
-        if (BLOCKA.occupied && TrackControl::getDepartingSlot() != 1) {
+        if (BLOCKA.occupied && TrackControl::getDepartingHBF() != 1) {
             // ZONE A BLOCKED BY ANOTHER TRAIN: HOLD ARRIVING TRAIN AT STATION
             RelayControl::setRelay(RELAY_HBF1_ZONE, true);
             RelayControl::setRelay(RELAY_HBF1_TRACK, false);
@@ -126,7 +126,7 @@ void loop()
     ReedControl::push(RD_HBF2_R, []() {
         // ALWAYS STOP BRAKE RAMP ON _R (CLEANUP FOR ALL CASES)
         MotorControl::stopRampDown();
-        if (BLOCKA.occupied && TrackControl::getDepartingSlot() != 2) {
+        if (BLOCKA.occupied && TrackControl::getDepartingHBF() != 2) {
             // ZONE A BLOCKED BY ANOTHER TRAIN: HOLD ARRIVING TRAIN AT STATION
             RelayControl::setRelay(RELAY_HBF2_ZONE, true);
             RelayControl::setRelay(RELAY_HBF2_TRACK, false);
@@ -167,10 +167,7 @@ void loop()
     });
 
     ReedControl::push(RD_BBF1_L, []() {
-        bool stopped = !(BBF1.powered && !BLOCKC.occupied);
-        TrackControl::stopBBF(BBF1, RELAY_BBF1, !BLOCKC.occupied);
-        // HBF TRAIN PARKED IN BBF: RELEASE ZONE A
-        if (stopped) TrackControl::releaseZoneA(servo, BLOCKA);
+        TrackControl::onBBFReedL(servo, 1);
     });
 
     ReedControl::push(RD_BBF2_R, []() {
@@ -179,10 +176,7 @@ void loop()
     });
 
     ReedControl::push(RD_BBF2_L, []() {
-        bool stopped = !(BBF2.powered && !BLOCKC.occupied);
-        TrackControl::stopBBF(BBF2, RELAY_BBF2, !BLOCKC.occupied);
-        // HBF TRAIN PARKED IN BBF: RELEASE ZONE A
-        if (stopped) TrackControl::releaseZoneA(servo, BLOCKA);
+        TrackControl::onBBFReedL(servo, 2);
     });
 
     ReedControl::push(RD_BBF3_R, []() {
@@ -191,10 +185,7 @@ void loop()
     });
 
     ReedControl::push(RD_BBF3_L, []() {
-        bool stopped = !(BBF3.powered && !BLOCKC.occupied);
-        TrackControl::stopBBF(BBF3, RELAY_BBF3, !BLOCKC.occupied);
-        // HBF TRAIN PARKED IN BBF: RELEASE ZONE A
-        if (stopped) TrackControl::releaseZoneA(servo, BLOCKA);
+        TrackControl::onBBFReedL(servo, 3);
     });
 
     ReedControl::push(RD_BBF4_R, []() {
@@ -203,10 +194,7 @@ void loop()
     });
 
     ReedControl::push(RD_BBF4_L, []() {
-        bool stopped = !(BBF4.powered && !BLOCKC.occupied);
-        TrackControl::stopBBF(BBF4, RELAY_BBF4, !BLOCKC.occupied);
-        // HBF TRAIN PARKED IN BBF: RELEASE ZONE A
-        if (stopped) TrackControl::releaseZoneA(servo, BLOCKA);
+        TrackControl::onBBFReedL(servo, 4);
     });
 
     ReedControl::push(RD_BBF5_R, []() {
@@ -215,10 +203,14 @@ void loop()
     });
 
     ReedControl::push(RD_BBF5_L, []() {
-        bool stopped = !(BBF5.powered && !BLOCKC.occupied);
-        TrackControl::stopBBF(BBF5, RELAY_BBF5, !BLOCKC.occupied);
-        // HBF TRAIN PARKED IN BBF: RELEASE ZONE A
-        if (stopped) TrackControl::releaseZoneA(servo, BLOCKA);
+        TrackControl::onBBFReedL(servo, 5);
+    });
+
+    ReedControl::push(RD_05, []() {
+        // PICK A FREE BBF: PRIORITY BBF1-3, FALLBACK BBF4-5
+        int freeBBF = TrackControl::findFreeBBF();
+        if (freeBBF == 0) return;
+        TrackControl::setBBFEntryRoute(servo, freeBBF);
     });
 
     ReedControl::push(RD_10, []() {
@@ -243,7 +235,7 @@ void loop()
         BLOCKB.occupied = true;
         BLOCKC.occupied = false;
         RelayControl::setRelay(RELAY_BLOCKB, false);
-        // RELEASE WAITING BBF (selected + powered + pending)
+        // RELEASE WAITING BBF (powered + pending)
         TrackControl::releasePendingBBF();
         Eeprom::save();
     });
@@ -306,8 +298,8 @@ void loop()
         TrackControl::toggleHBF(HBF1, RELAY_HBF1_TRACK);
         if (HBF1.powered) {
             BLOCKA.occupied = true;
-            if (!TrackControl::isDeparting()) ServoControl::switchTurnout(servo, W2, true);
-            TrackControl::setDepartingSlot(1);
+            if (!TrackControl::isHBFDeparting()) ServoControl::switchTurnout(servo, W2, true);
+            TrackControl::setDepartingHBF(1);
             MotorControl::startRamp();
         }
         // BLOCK B: RELEASE IF TRAIN JUST POWERED ON AND AT LEAST ONE HBF IS FREE
@@ -335,8 +327,8 @@ void loop()
         TrackControl::toggleHBF(HBF2, RELAY_HBF2_TRACK);
         if (HBF2.powered) {
             BLOCKA.occupied = true;
-            if (!TrackControl::isDeparting()) ServoControl::switchTurnout(servo, W2, false);
-            TrackControl::setDepartingSlot(2);
+            if (!TrackControl::isHBFDeparting()) ServoControl::switchTurnout(servo, W2, false);
+            TrackControl::setDepartingHBF(2);
             MotorControl::startRamp();
         }
         // BLOCK B: RELEASE IF TRAIN JUST POWERED ON AND AT LEAST ONE HBF IS FREE
@@ -348,22 +340,38 @@ void loop()
 
     ButtonControl::pushButton(BTN_BBF1, []() {
         TrackControl::toggleBBF(BBF1, RELAY_BBF1, !BLOCKC.occupied);
+        // SAME PATTERN AS HBF/W2: ON ACTUAL DEPARTURE START, SET ROUTE IMMEDIATELY.
+        if (BBF1.powered && !BBF1.pending) {
+            TrackControl::setBBFExitRoute(servo, 1);
+        }
     });
 
     ButtonControl::pushButton(BTN_BBF2, []() {
         TrackControl::toggleBBF(BBF2, RELAY_BBF2, !BLOCKC.occupied);
+        if (BBF2.powered && !BBF2.pending) {
+            TrackControl::setBBFExitRoute(servo, 2);
+        }
     });
 
     ButtonControl::pushButton(BTN_BBF3, []() {
         TrackControl::toggleBBF(BBF3, RELAY_BBF3, !BLOCKC.occupied);
+        if (BBF3.powered && !BBF3.pending) {
+            TrackControl::setBBFExitRoute(servo, 3);
+        }
     });
 
     ButtonControl::pushButton(BTN_BBF4, []() {
         TrackControl::toggleBBF(BBF4, RELAY_BBF4, !BLOCKC.occupied);
+        if (BBF4.powered && !BBF4.pending) {
+            TrackControl::setBBFExitRoute(servo, 4);
+        }
     });
 
     ButtonControl::pushButton(BTN_BBF5, []() {
         TrackControl::toggleBBF(BBF5, RELAY_BBF5, !BLOCKC.occupied);
+        if (BBF5.powered && !BBF5.pending) {
+            TrackControl::setBBFExitRoute(servo, 5);
+        }
     });
 
     ButtonControl::pushButton(BTN_BLOCKA_OVERRIDE, []() {
